@@ -19,7 +19,8 @@ TEMPLATES_DIR = BASE_DIR / "templates"
 def publish_results(
     results: list[dict],
     stocks_scanned: int,
-    push_to_github: bool = False
+    push_to_github: bool = False,
+    dashboard_stats: dict | None = None,
 ) -> bool:
     """
     Generate HTML dashboard and data.json, optionally push to GitHub.
@@ -37,7 +38,8 @@ def publish_results(
     data = {
         "run_date": run_date,
         "stocks_scanned": stocks_scanned,
-        "top_picks": results
+        "top_picks": results,
+        "dashboard_stats": dashboard_stats,
     }
 
     # Write data.json
@@ -83,11 +85,15 @@ def render_dashboard(data: dict) -> str:
     if picks:
         avg_score = sum(p.get("alpha_score", 0) for p in picks) / len(picks)
 
+    stats = data.get("dashboard_stats") or {}
+
     return template.render(
         run_date=data["run_date"],
         stocks_scanned=data["stocks_scanned"],
         picks=picks,
         avg_score=round(avg_score),
+        has_history=stats.get("has_history", False),
+        model_stats=stats,
     )
 
 

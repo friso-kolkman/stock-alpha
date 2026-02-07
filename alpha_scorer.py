@@ -5,16 +5,24 @@ from statistics import median
 
 from rich.console import Console
 
-from config import PRIORITY_SECTORS
+from config import PRIORITY_SECTORS, SCORING_WEIGHTS
 
 console = Console()
 
 
-def rank_stocks(stocks: list[dict]) -> list[dict]:
-    """Score all stocks and return sorted by alpha score descending."""
+def rank_stocks(stocks: list[dict], weight_overrides: dict | None = None) -> list[dict]:
+    """Score all stocks and return sorted by alpha score descending.
+
+    Args:
+        stocks: List of stock dicts with fundamental/technical data.
+        weight_overrides: Optional dict of adjusted max scores per factor
+                          (e.g. {"value": 27, "momentum": 23}). If None,
+                          uses SCORING_WEIGHTS defaults.
+    """
     if not stocks:
         return []
 
+    weights = weight_overrides or SCORING_WEIGHTS
     sector_medians = calculate_sector_medians(stocks)
 
     for stock in stocks:
@@ -22,28 +30,33 @@ def rank_stocks(stocks: list[dict]) -> list[dict]:
         breakdown = {}
         sector = stock.get("sector") or "Unknown"
 
-        # Value (0-25)
-        value = calculate_value_score(stock, sector_medians.get(sector, {}))
+        # Value
+        value = calculate_value_score(stock, sector_medians.get(sector, {}),
+                                      max_score=weights.get("value", 25))
         breakdown["value"] = value
         score += value
 
-        # Quality (0-25)
-        quality = calculate_quality_score(stock)
+        # Quality
+        quality = calculate_quality_score(stock,
+                                          max_score=weights.get("quality", 25))
         breakdown["quality"] = quality
         score += quality
 
-        # Momentum (0-25)
-        momentum = calculate_momentum_score(stock)
+        # Momentum
+        momentum = calculate_momentum_score(stock,
+                                            max_score=weights.get("momentum", 25))
         breakdown["momentum"] = momentum
         score += momentum
 
-        # Catalyst (0-15)
-        catalyst = calculate_catalyst_score(stock)
+        # Catalyst
+        catalyst = calculate_catalyst_score(stock,
+                                            max_score=weights.get("catalyst", 15))
         breakdown["catalyst"] = catalyst
         score += catalyst
 
-        # Liquidity (0-10)
-        liquidity = calculate_liquidity_score(stock)
+        # Liquidity
+        liquidity = calculate_liquidity_score(stock,
+                                              max_score=weights.get("liquidity", 10))
         breakdown["liquidity"] = liquidity
         score += liquidity
 
@@ -80,8 +93,8 @@ def calculate_sector_medians(stocks: list[dict]) -> dict:
     return result
 
 
-def calculate_value_score(stock: dict, sector_med: dict) -> int:
-    """Value score (0-25): P/E vs sector, P/B vs sector, dividend yield."""
+def calculate_value_score(stock: dict, sector_med: dict, max_score: int = 25) -> int:
+    """Value score: P/E vs sector, P/B vs sector, dividend yield."""
     score = 0
     pe = stock.get("pe_ratio")
     pb = stock.get("pb_ratio")
@@ -118,11 +131,11 @@ def calculate_value_score(stock: dict, sector_med: dict) -> int:
         elif div_yield > 1:
             score += 1
 
-    return min(score, 25)
+    return min(score, max_score)
 
 
-def calculate_quality_score(stock: dict) -> int:
-    """Quality score (0-25): ROE, D/E, dividend, earnings growth."""
+def calculate_quality_score(stock: dict, max_score: int = 25) -> int:
+    """Quality score: ROE, D/E, dividend, earnings growth."""
     score = 0
     roe = stock.get("roe")
     de = stock.get("debt_to_equity")
@@ -159,11 +172,11 @@ def calculate_quality_score(stock: dict) -> int:
         if forward_pe < pe:
             score += 3
 
-    return min(score, 25)
+    return min(score, max_score)
 
 
-def calculate_momentum_score(stock: dict) -> int:
-    """Momentum score (0-25): returns, trend, RSI."""
+def calculate_momentum_score(stock: dict, max_score: int = 25) -> int:
+    """Momentum score: returns, trend, RSI."""
     score = 0
     mom_12m = stock.get("momentum_12m")
     mom_6m = stock.get("momentum_6m")
@@ -201,11 +214,11 @@ def calculate_momentum_score(stock: dict) -> int:
     if rsi is not None and 40 <= rsi <= 70:
         score += 2
 
-    return min(score, 25)
+    return min(score, max_score)
 
 
-def calculate_catalyst_score(stock: dict) -> int:
-    """Catalyst score (0-15): upcoming earnings, sector, recovery potential."""
+def calculate_catalyst_score(stock: dict, max_score: int = 15) -> int:
+    """Catalyst score: upcoming earnings, sector, recovery potential."""
     score = 0
     earnings_date = stock.get("earnings_date")
     sector = stock.get("sector") or ""
@@ -231,11 +244,11 @@ def calculate_catalyst_score(stock: dict) -> int:
     if pct_from_high is not None and pct_from_high < -20:
         score += 2
 
-    return min(score, 15)
+    return min(score, max_score)
 
 
-def calculate_liquidity_score(stock: dict) -> int:
-    """Liquidity score (0-10): market cap, volume, index membership."""
+def calculate_liquidity_score(stock: dict, max_score: int = 10) -> int:
+    """Liquidity score: market cap, volume, index membership."""
     score = 0
     market_cap = stock.get("market_cap")
     volume_ratio = stock.get("volume_ratio")
@@ -256,4 +269,4 @@ def calculate_liquidity_score(stock: dict) -> int:
     # Major index member (0-2) -- all stocks in our universe are index members
     score += 2
 
-    return min(score, 10)
+    return min(score, max_score)

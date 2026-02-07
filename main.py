@@ -11,6 +11,7 @@ Signal generation only -- no automated trading.
 
 import asyncio
 import sys
+from datetime import datetime, timezone
 
 import httpx
 from rich.console import Console
@@ -24,6 +25,13 @@ from perplexity import research_stock
 from evaluator import evaluate_research, ThesisResult
 from publisher import publish_results
 from usage_tracker import print_budget_status, get_remaining_budget
+from history import (
+    evaluate_past_predictions,
+    update_adaptive_weights,
+    get_adaptive_weights,
+    record_predictions,
+    get_dashboard_stats,
+)
 
 console = Console()
 
@@ -62,9 +70,15 @@ async def main():
             console.print("[red]No stocks fetched. Exiting.[/red]")
             return
 
-        # Step 2: Score and rank stocks
+        # Step 1.5: Evaluate past predictions & update adaptive weights
+        console.print("\n[bold]Step 1.5: Evaluating past predictions[/bold]")
+        history = evaluate_past_predictions()
+        history = update_adaptive_weights(history)
+        weight_overrides = get_adaptive_weights(history)
+
+        # Step 2: Score and rank stocks (with adaptive weights)
         console.print("\n[bold]Step 2: Scoring stocks[/bold]")
-        ranked_stocks = rank_stocks(stocks)
+        ranked_stocks = rank_stocks(stocks, weight_overrides=weight_overrides)
 
         # Get top N above threshold
         top_stocks = [
@@ -139,7 +153,14 @@ async def main():
 
         # Step 5: Publish
         console.print("\n[bold]Step 5: Publishing[/bold]")
-        publish_results(results, len(stocks), push_to_github=False)
+        scan_date = datetime.now(timezone.utc).isoformat()
+        dashboard_stats = get_dashboard_stats(history)
+        publish_results(results, len(stocks), push_to_github=False,
+                        dashboard_stats=dashboard_stats)
+
+        # Step 5.5: Record predictions
+        console.print("\n[bold]Step 5.5: Recording predictions[/bold]")
+        record_predictions(results, scan_date)
 
         console.print("\n[bold green]Scan complete![/bold green]")
         console.print(f"  Results saved to docs/index.html and docs/data.json")

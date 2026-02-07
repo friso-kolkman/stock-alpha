@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Alpha Scanner</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
     <style>
         :root {
             --bg-primary: #0d1117;
@@ -339,6 +340,154 @@
             color: var(--text-secondary);
         }
 
+        /* Model Performance */
+        .model-performance {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .model-performance h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .perf-stats {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .perf-stat {
+            text-align: center;
+        }
+
+        .perf-stat-value {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .perf-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .signal-accuracy {
+            margin-bottom: 1rem;
+        }
+
+        .signal-accuracy-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .signal-accuracy-label {
+            width: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .accuracy-bar-bg {
+            flex: 1;
+            height: 10px;
+            background: var(--bg-tertiary);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .accuracy-bar-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.3s;
+        }
+
+        .accuracy-bar-fill.buy { background: var(--buy); }
+        .accuracy-bar-fill.hold { background: var(--hold); }
+        .accuracy-bar-fill.avoid { background: var(--avoid); }
+
+        .accuracy-detail {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            width: 140px;
+            text-align: right;
+        }
+
+        .eval-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .eval-table th {
+            text-align: left;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+        .eval-table td {
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+
+        .outcome-correct { color: var(--buy-text); }
+        .outcome-incorrect { color: var(--avoid-text); }
+        .outcome-inconclusive { color: var(--text-secondary); }
+
+        .weight-adj {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .weight-adj.positive {
+            background: rgba(35, 134, 54, 0.2);
+            color: var(--buy-text);
+        }
+
+        .weight-adj.negative {
+            background: rgba(218, 54, 51, 0.2);
+            color: var(--avoid-text);
+        }
+
+        .weight-adj.zero {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        /* Performance chart */
+        .perf-chart-container {
+            position: relative;
+            height: 220px;
+            margin-bottom: 1.25rem;
+            padding: 0.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+        }
+
+        .perf-chart-container canvas {
+            width: 100% !important;
+        }
+
+        .chart-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
         /* Empty state */
         .no-picks {
             text-align: center;
@@ -488,6 +637,201 @@
                 </div>
             </div>
         </header>
+
+        {% if has_history and model_stats %}
+        <section class="model-performance">
+            <h2>Model Performance <span class="info-tip tip-down">i<span class="tip-text">Tracks how well the scanner's past predictions performed. Predictions are evaluated after 90+ days by comparing the price at signal time to the current price.</span></span></h2>
+
+            <div class="perf-stats">
+                <div class="perf-stat">
+                    <div class="perf-stat-value {% if model_stats.win_rate and model_stats.win_rate >= 50 %}positive{% elif model_stats.win_rate %}negative{% else %}neutral{% endif %}">
+                        {{ "%.0f%%"|format(model_stats.win_rate) if model_stats.win_rate is not none else 'N/A' }}
+                    </div>
+                    <div class="perf-stat-label">Win Rate</div>
+                </div>
+                <div class="perf-stat">
+                    <div class="perf-stat-value neutral">{{ model_stats.total_predictions }}</div>
+                    <div class="perf-stat-label">Total Predictions</div>
+                </div>
+                <div class="perf-stat">
+                    <div class="perf-stat-value neutral">{{ model_stats.evaluated }}</div>
+                    <div class="perf-stat-label">Evaluated</div>
+                </div>
+                <div class="perf-stat">
+                    <div class="perf-stat-value neutral">{{ model_stats.pending }}</div>
+                    <div class="perf-stat-label">Pending</div>
+                </div>
+            </div>
+
+            {% if model_stats.per_signal %}
+            <div class="signal-accuracy">
+                {% for signal in ['BUY', 'HOLD', 'AVOID'] %}
+                {% set s = model_stats.per_signal.get(signal, {}) %}
+                {% if s.total is defined and s.total > 0 %}
+                <div class="signal-accuracy-row">
+                    <span class="signal-accuracy-label" style="color: var(--{{ signal|lower }}-text);">{{ signal }}</span>
+                    <div class="accuracy-bar-bg">
+                        <div class="accuracy-bar-fill {{ signal|lower }}" style="width: {{ s.accuracy if s.accuracy else 0 }}%"></div>
+                    </div>
+                    <span class="accuracy-detail">
+                        {{ s.correct }}/{{ s.decisive }} correct
+                        {% if s.avg_return is not none %} | {{ "%+.1f%%"|format(s.avg_return) }} avg{% endif %}
+                    </span>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if model_stats.performance_timeline and model_stats.performance_timeline|length > 1 %}
+            <div class="perf-chart-container">
+                <canvas id="perfChart"></canvas>
+            </div>
+            <script>
+            (function() {
+                const timeline = {{ model_stats.performance_timeline | tojson }};
+                const labels = timeline.map(s => s.date);
+                const winRates = timeline.map(s => s.win_rate);
+                const avgReturns = timeline.map(s => s.avg_return);
+                const evaluated = timeline.map(s => s.evaluated);
+
+                const ctx = document.getElementById('perfChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Win Rate %',
+                                data: winRates,
+                                borderColor: '#3fb950',
+                                backgroundColor: 'rgba(63,185,80,0.1)',
+                                fill: true,
+                                tension: 0.3,
+                                yAxisID: 'y',
+                                pointRadius: 3,
+                                pointHoverRadius: 5,
+                            },
+                            {
+                                label: 'Avg Return %',
+                                data: avgReturns,
+                                borderColor: '#58a6ff',
+                                backgroundColor: 'rgba(88,166,255,0.1)',
+                                fill: false,
+                                tension: 0.3,
+                                yAxisID: 'y',
+                                pointRadius: 3,
+                                pointHoverRadius: 5,
+                                borderDash: [5, 3],
+                            },
+                            {
+                                label: 'Evaluated',
+                                data: evaluated,
+                                borderColor: '#8b949e',
+                                backgroundColor: 'rgba(139,148,158,0.15)',
+                                fill: true,
+                                tension: 0.3,
+                                yAxisID: 'y1',
+                                pointRadius: 2,
+                                pointHoverRadius: 4,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: {
+                                labels: { color: '#8b949e', font: { size: 11 } }
+                            },
+                            tooltip: {
+                                backgroundColor: '#21262d',
+                                titleColor: '#e6edf3',
+                                bodyColor: '#e6edf3',
+                                borderColor: '#30363d',
+                                borderWidth: 1,
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: '#8b949e', font: { size: 10 }, maxRotation: 45 },
+                                grid: { color: 'rgba(48,54,61,0.5)' }
+                            },
+                            y: {
+                                position: 'left',
+                                title: { display: true, text: '%', color: '#8b949e' },
+                                ticks: { color: '#8b949e', font: { size: 10 } },
+                                grid: { color: 'rgba(48,54,61,0.5)' }
+                            },
+                            y1: {
+                                position: 'right',
+                                title: { display: true, text: 'Count', color: '#8b949e' },
+                                ticks: { color: '#8b949e', font: { size: 10 } },
+                                grid: { drawOnChartArea: false }
+                            }
+                        }
+                    }
+                });
+            })();
+            </script>
+            {% elif model_stats.performance_timeline and model_stats.performance_timeline|length == 1 %}
+            <div class="perf-chart-container">
+                <div class="chart-placeholder">Performance chart will appear after the second scan with history.</div>
+            </div>
+            {% endif %}
+
+            {% if model_stats.weight_overrides %}
+            <details>
+                <summary>Adaptive Weight Adjustments</summary>
+                <div class="detail-content">
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                        Weights are automatically adjusted based on which factors best predicted actual returns.
+                    </p>
+                    {% for factor, base in model_stats.base_weights.items() %}
+                    {% set override = model_stats.weight_overrides.get(factor, 0) %}
+                    {% set active = model_stats.active_weights.get(factor, base) %}
+                    <span class="weight-adj {% if override > 0 %}positive{% elif override < 0 %}negative{% else %}zero{% endif %}">
+                        {{ factor|capitalize }}: {{ active }} {% if override != 0 %}({{ "%+d"|format(override) }}){% endif %}
+                    </span>
+                    {% endfor %}
+                </div>
+            </details>
+            {% endif %}
+
+            {% if model_stats.recent_evaluations %}
+            <details>
+                <summary>Recent Evaluations</summary>
+                <div class="detail-content">
+                    <table class="eval-table">
+                        <thead>
+                            <tr>
+                                <th>Ticker</th>
+                                <th>Signal</th>
+                                <th>Outcome</th>
+                                <th>Return</th>
+                                <th>Scan Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for e in model_stats.recent_evaluations %}
+                            <tr>
+                                <td>{{ e.ticker }}</td>
+                                <td><span class="signal-badge {{ e.signal|lower }}">{{ e.signal }}</span></td>
+                                <td class="outcome-{{ e.outcome|lower }}">{{ e.outcome }}</td>
+                                <td class="{% if e.return_pct and e.return_pct > 0 %}positive{% elif e.return_pct and e.return_pct < 0 %}negative{% else %}neutral{% endif %}">
+                                    {{ "%+.1f%%"|format(e.return_pct) if e.return_pct is not none else 'N/A' }}
+                                </td>
+                                <td style="color: var(--text-secondary);">{{ e.scan_date }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+            {% endif %}
+        </section>
+        {% endif %}
 
         <main>
             {% if picks %}
