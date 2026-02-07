@@ -366,6 +366,83 @@
             font-style: italic;
         }
 
+        /* Info tooltips */
+        .info-tip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.55rem;
+            font-weight: 700;
+            font-style: normal;
+            cursor: help;
+            vertical-align: middle;
+            margin-left: 4px;
+            flex-shrink: 0;
+        }
+
+        .info-tip:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .info-tip .tip-text {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            font-weight: 400;
+            line-height: 1.4;
+            padding: 0.6rem 0.75rem;
+            border-radius: 6px;
+            width: 240px;
+            z-index: 100;
+            transition: opacity 0.15s, visibility 0.15s;
+            pointer-events: none;
+            text-align: left;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .info-tip .tip-text::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--border-color);
+        }
+
+        .info-tip:hover .tip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Flip tooltip down when near top */
+        .info-tip.tip-down .tip-text {
+            bottom: auto;
+            top: calc(100% + 8px);
+        }
+
+        .info-tip.tip-down .tip-text::after {
+            top: auto;
+            bottom: 100%;
+            border-top-color: transparent;
+            border-bottom-color: var(--border-color);
+        }
+
         @media (max-width: 600px) {
             body {
                 padding: 1rem;
@@ -420,12 +497,13 @@
                     <div class="pick-header">
                         <div class="header-left">
                             <span class="signal-badge {{ signal_class }}">{{ pick.signal }}</span>
-                            <span class="alpha-score">Score: {{ pick.alpha_score }}</span>
+                            <span class="info-tip tip-down">i<span class="tip-text">{% if pick.signal == 'BUY' %}BUY: AI research is bullish with high confidence and the stock scores well on fundamentals, momentum, and quality.{% elif pick.signal == 'HOLD' %}HOLD: The stock shows some potential but evidence is mixed or confidence is moderate. Worth monitoring.{% else %}AVOID: AI research is bearish with medium-high confidence. Significant risks or negative outlook detected.{% endif %}</span></span>
+                            <span class="alpha-score">Score: {{ pick.alpha_score }}<span class="info-tip tip-down">i<span class="tip-text">Alpha Score (0-100): Composite score based on 5 factors -- Value (25pts), Quality (25pts), Momentum (25pts), Catalyst (15pts), and Liquidity (10pts). Higher = stronger opportunity.</span></span></span>
                             {% if pick.sector %}
                             <span class="sector-tag">{{ pick.sector }}</span>
                             {% endif %}
                         </div>
-                        <span class="alpha-score">{{ pick.confidence }} confidence</span>
+                        <span class="alpha-score">{{ pick.confidence }} confidence<span class="info-tip tip-down">i<span class="tip-text">{% if pick.confidence == 'HIGH' %}HIGH: AI research found strong, consistent evidence supporting the thesis with multiple reliable sources.{% elif pick.confidence == 'MEDIUM' %}MEDIUM: AI research found supporting evidence but with some uncertainty or conflicting signals.{% else %}LOW: Limited evidence available or significant uncertainty in the outlook.{% endif %}</span></span></span>
                     </div>
 
                     <h3 class="stock-title">
@@ -437,37 +515,37 @@
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">{{ "%.1f"|format(pick.pe_ratio) if pick.pe_ratio else 'N/A' }}</div>
-                            <div class="metric-label">P/E</div>
+                            <div class="metric-label">P/E <span class="info-tip">i<span class="tip-text">Price-to-Earnings ratio. Compares stock price to earnings per share. Lower = cheaper relative to profits. Compare within the same sector.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value {% if pick.roe and pick.roe > 15 %}positive{% elif pick.roe and pick.roe < 5 %}negative{% else %}neutral{% endif %}">
                                 {{ "%.1f%%"|format(pick.roe) if pick.roe else 'N/A' }}
                             </div>
-                            <div class="metric-label">ROE</div>
+                            <div class="metric-label">ROE <span class="info-tip">i<span class="tip-text">Return on Equity. How efficiently the company generates profit from shareholder money. Above 15% is strong, above 20% is excellent.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value {% if pick.dividend_yield and pick.dividend_yield > 2 %}positive{% else %}neutral{% endif %}">
                                 {{ "%.1f%%"|format(pick.dividend_yield) if pick.dividend_yield else 'N/A' }}
                             </div>
-                            <div class="metric-label">Div Yield</div>
+                            <div class="metric-label">Div Yield <span class="info-tip">i<span class="tip-text">Annual dividend as % of stock price. Above 2% is solid, above 3% is high yield. 0% means the company doesn't pay dividends.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value {% if pick.momentum_6m and pick.momentum_6m > 0 %}positive{% elif pick.momentum_6m and pick.momentum_6m < 0 %}negative{% else %}neutral{% endif %}">
                                 {{ "%+.1f%%"|format(pick.momentum_6m) if pick.momentum_6m else 'N/A' }}
                             </div>
-                            <div class="metric-label">6m</div>
+                            <div class="metric-label">6m <span class="info-tip">i<span class="tip-text">Price return over the last 6 months. Green = stock has been rising, red = declining. Shows medium-term trend.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value {% if pick.momentum_12m and pick.momentum_12m > 0 %}positive{% elif pick.momentum_12m and pick.momentum_12m < 0 %}negative{% else %}neutral{% endif %}">
                                 {{ "%+.1f%%"|format(pick.momentum_12m) if pick.momentum_12m else 'N/A' }}
                             </div>
-                            <div class="metric-label">12m</div>
+                            <div class="metric-label">12m <span class="info-tip">i<span class="tip-text">Price return over the last 12 months. Shows the longer-term trend. Stocks with positive 12m momentum tend to continue performing.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value {% if pick.rsi_14 and pick.rsi_14 > 70 %}negative{% elif pick.rsi_14 and pick.rsi_14 < 30 %}positive{% else %}neutral{% endif %}">
                                 {{ "%.0f"|format(pick.rsi_14) if pick.rsi_14 else 'N/A' }}
                             </div>
-                            <div class="metric-label">RSI</div>
+                            <div class="metric-label">RSI <span class="info-tip">i<span class="tip-text">Relative Strength Index (0-100). Below 30 = oversold (potential bounce), above 70 = overbought (potential pullback), 40-70 = healthy range.</span></span></div>
                         </div>
                     </div>
 
@@ -483,11 +561,11 @@
                         <div class="score-segment liquidity" style="width: {{ (bd.get('liquidity', 0) / total * 100)|round }}%"></div>
                     </div>
                     <div class="score-legend">
-                        <span class="l-value">Value {{ bd.get('value', 0) }}/25</span>
-                        <span class="l-quality">Quality {{ bd.get('quality', 0) }}/25</span>
-                        <span class="l-momentum">Momentum {{ bd.get('momentum', 0) }}/25</span>
-                        <span class="l-catalyst">Catalyst {{ bd.get('catalyst', 0) }}/15</span>
-                        <span class="l-liquidity">Liquidity {{ bd.get('liquidity', 0) }}/10</span>
+                        <span class="l-value">Value {{ bd.get('value', 0) }}/25 <span class="info-tip">i<span class="tip-text">Value: Is the stock cheap? Based on P/E and P/B vs sector median, plus dividend yield.</span></span></span>
+                        <span class="l-quality">Quality {{ bd.get('quality', 0) }}/25 <span class="info-tip">i<span class="tip-text">Quality: Is it a good business? Based on ROE, low debt, dividend track record, and earnings growth.</span></span></span>
+                        <span class="l-momentum">Momentum {{ bd.get('momentum', 0) }}/25 <span class="info-tip">i<span class="tip-text">Momentum: Is it trending up? Based on 6m/12m returns, price vs moving averages, and RSI health.</span></span></span>
+                        <span class="l-catalyst">Catalyst {{ bd.get('catalyst', 0) }}/15 <span class="info-tip">i<span class="tip-text">Catalyst: Are there upcoming events? Scores for earnings dates, priority sectors, and recovery potential from 52-week highs.</span></span></span>
+                        <span class="l-liquidity">Liquidity {{ bd.get('liquidity', 0) }}/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     {% endif %}
 
@@ -553,7 +631,7 @@
                         <a href="https://finance.yahoo.com/quote/{{ yf_symbol }}" class="yahoo-link" target="_blank" rel="noopener">
                             View on Yahoo Finance &rarr;
                         </a>
-                        <span class="timeframe-badge">{{ pick.target_timeframe if pick.target_timeframe else '3-6 months' }}</span>
+                        <span class="timeframe-badge">{{ pick.target_timeframe if pick.target_timeframe else '3-6 months' }} <span class="info-tip">i<span class="tip-text">Suggested investment horizon. This signal is based on medium-term analysis -- not a day-trading recommendation.</span></span></span>
                     </div>
                 </div>
                 {% endfor %}

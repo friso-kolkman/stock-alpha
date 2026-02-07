@@ -366,6 +366,83 @@
             font-style: italic;
         }
 
+        /* Info tooltips */
+        .info-tip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.55rem;
+            font-weight: 700;
+            font-style: normal;
+            cursor: help;
+            vertical-align: middle;
+            margin-left: 4px;
+            flex-shrink: 0;
+        }
+
+        .info-tip:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .info-tip .tip-text {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            font-weight: 400;
+            line-height: 1.4;
+            padding: 0.6rem 0.75rem;
+            border-radius: 6px;
+            width: 240px;
+            z-index: 100;
+            transition: opacity 0.15s, visibility 0.15s;
+            pointer-events: none;
+            text-align: left;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .info-tip .tip-text::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--border-color);
+        }
+
+        .info-tip:hover .tip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Flip tooltip down when near top */
+        .info-tip.tip-down .tip-text {
+            bottom: auto;
+            top: calc(100% + 8px);
+        }
+
+        .info-tip.tip-down .tip-text::after {
+            top: auto;
+            bottom: 100%;
+            border-top-color: transparent;
+            border-bottom-color: var(--border-color);
+        }
+
         @media (max-width: 600px) {
             body {
                 padding: 1rem;
@@ -420,12 +497,13 @@
                     <div class="pick-header">
                         <div class="header-left">
                             <span class="signal-badge hold">HOLD</span>
-                            <span class="alpha-score">Score: 82</span>
+                            <span class="info-tip tip-down">i<span class="tip-text">HOLD: The stock shows some potential but evidence is mixed or confidence is moderate. Worth monitoring.</span></span>
+                            <span class="alpha-score">Score: 82<span class="info-tip tip-down">i<span class="tip-text">Alpha Score (0-100): Composite score based on 5 factors -- Value (25pts), Quality (25pts), Momentum (25pts), Catalyst (15pts), and Liquidity (10pts). Higher = stronger opportunity.</span></span></span>
                             
                             <span class="sector-tag">Industrials</span>
                             
                         </div>
-                        <span class="alpha-score">HIGH confidence</span>
+                        <span class="alpha-score">HIGH confidence<span class="info-tip tip-down">i<span class="tip-text">HIGH: AI research found strong, consistent evidence supporting the thesis with multiple reliable sources.</span></span></span>
                     </div>
 
                     <h3 class="stock-title">
@@ -437,37 +515,37 @@
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">15.5</div>
-                            <div class="metric-label">P/E</div>
+                            <div class="metric-label">P/E <span class="info-tip">i<span class="tip-text">Price-to-Earnings ratio. Compares stock price to earnings per share. Lower = cheaper relative to profits. Compare within the same sector.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value neutral">
                                 5.1%
                             </div>
-                            <div class="metric-label">ROE</div>
+                            <div class="metric-label">ROE <span class="info-tip">i<span class="tip-text">Return on Equity. How efficiently the company generates profit from shareholder money. Above 15% is strong, above 20% is excellent.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 129.0%
                             </div>
-                            <div class="metric-label">Div Yield</div>
+                            <div class="metric-label">Div Yield <span class="info-tip">i<span class="tip-text">Annual dividend as % of stock price. Above 2% is solid, above 3% is high yield. 0% means the company doesn't pay dividends.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +19.6%
                             </div>
-                            <div class="metric-label">6m</div>
+                            <div class="metric-label">6m <span class="info-tip">i<span class="tip-text">Price return over the last 6 months. Green = stock has been rising, red = declining. Shows medium-term trend.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +157.5%
                             </div>
-                            <div class="metric-label">12m</div>
+                            <div class="metric-label">12m <span class="info-tip">i<span class="tip-text">Price return over the last 12 months. Shows the longer-term trend. Stocks with positive 12m momentum tend to continue performing.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value neutral">
                                 66
                             </div>
-                            <div class="metric-label">RSI</div>
+                            <div class="metric-label">RSI <span class="info-tip">i<span class="tip-text">Relative Strength Index (0-100). Below 30 = oversold (potential bounce), above 70 = overbought (potential pullback), 40-70 = healthy range.</span></span></div>
                         </div>
                     </div>
 
@@ -483,11 +561,11 @@
                         <div class="score-segment liquidity" style="width: 10.0%"></div>
                     </div>
                     <div class="score-legend">
-                        <span class="l-value">Value 21/25</span>
-                        <span class="l-quality">Quality 15/25</span>
-                        <span class="l-momentum">Momentum 25/25</span>
-                        <span class="l-catalyst">Catalyst 13/15</span>
-                        <span class="l-liquidity">Liquidity 8/10</span>
+                        <span class="l-value">Value 21/25 <span class="info-tip">i<span class="tip-text">Value: Is the stock cheap? Based on P/E and P/B vs sector median, plus dividend yield.</span></span></span>
+                        <span class="l-quality">Quality 15/25 <span class="info-tip">i<span class="tip-text">Quality: Is it a good business? Based on ROE, low debt, dividend track record, and earnings growth.</span></span></span>
+                        <span class="l-momentum">Momentum 25/25 <span class="info-tip">i<span class="tip-text">Momentum: Is it trending up? Based on 6m/12m returns, price vs moving averages, and RSI health.</span></span></span>
+                        <span class="l-catalyst">Catalyst 13/15 <span class="info-tip">i<span class="tip-text">Catalyst: Are there upcoming events? Scores for earnings dates, priority sectors, and recovery potential from 52-week highs.</span></span></span>
+                        <span class="l-liquidity">Liquidity 8/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
 
@@ -566,7 +644,7 @@
                         <a href="https://finance.yahoo.com/quote/TKA.DE" class="yahoo-link" target="_blank" rel="noopener">
                             View on Yahoo Finance &rarr;
                         </a>
-                        <span class="timeframe-badge">3-6 months</span>
+                        <span class="timeframe-badge">3-6 months <span class="info-tip">i<span class="tip-text">Suggested investment horizon. This signal is based on medium-term analysis -- not a day-trading recommendation.</span></span></span>
                     </div>
                 </div>
                 
@@ -575,12 +653,13 @@
                     <div class="pick-header">
                         <div class="header-left">
                             <span class="signal-badge hold">HOLD</span>
-                            <span class="alpha-score">Score: 78</span>
+                            <span class="info-tip tip-down">i<span class="tip-text">HOLD: The stock shows some potential but evidence is mixed or confidence is moderate. Worth monitoring.</span></span>
+                            <span class="alpha-score">Score: 78<span class="info-tip tip-down">i<span class="tip-text">Alpha Score (0-100): Composite score based on 5 factors -- Value (25pts), Quality (25pts), Momentum (25pts), Catalyst (15pts), and Liquidity (10pts). Higher = stronger opportunity.</span></span></span>
                             
                             <span class="sector-tag">Industrials</span>
                             
                         </div>
-                        <span class="alpha-score">LOW confidence</span>
+                        <span class="alpha-score">LOW confidence<span class="info-tip tip-down">i<span class="tip-text">LOW: Limited evidence available or significant uncertainty in the outlook.</span></span></span>
                     </div>
 
                     <h3 class="stock-title">
@@ -592,37 +671,37 @@
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">17.5</div>
-                            <div class="metric-label">P/E</div>
+                            <div class="metric-label">P/E <span class="info-tip">i<span class="tip-text">Price-to-Earnings ratio. Compares stock price to earnings per share. Lower = cheaper relative to profits. Compare within the same sector.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value neutral">
                                 8.4%
                             </div>
-                            <div class="metric-label">ROE</div>
+                            <div class="metric-label">ROE <span class="info-tip">i<span class="tip-text">Return on Equity. How efficiently the company generates profit from shareholder money. Above 15% is strong, above 20% is excellent.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 415.0%
                             </div>
-                            <div class="metric-label">Div Yield</div>
+                            <div class="metric-label">Div Yield <span class="info-tip">i<span class="tip-text">Annual dividend as % of stock price. Above 2% is solid, above 3% is high yield. 0% means the company doesn't pay dividends.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +25.8%
                             </div>
-                            <div class="metric-label">6m</div>
+                            <div class="metric-label">6m <span class="info-tip">i<span class="tip-text">Price return over the last 6 months. Green = stock has been rising, red = declining. Shows medium-term trend.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +60.7%
                             </div>
-                            <div class="metric-label">12m</div>
+                            <div class="metric-label">12m <span class="info-tip">i<span class="tip-text">Price return over the last 12 months. Shows the longer-term trend. Stocks with positive 12m momentum tend to continue performing.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value neutral">
                                 69
                             </div>
-                            <div class="metric-label">RSI</div>
+                            <div class="metric-label">RSI <span class="info-tip">i<span class="tip-text">Relative Strength Index (0-100). Below 30 = oversold (potential bounce), above 70 = overbought (potential pullback), 40-70 = healthy range.</span></span></div>
                         </div>
                     </div>
 
@@ -638,11 +717,11 @@
                         <div class="score-segment liquidity" style="width: 13.0%"></div>
                     </div>
                     <div class="score-legend">
-                        <span class="l-value">Value 21/25</span>
-                        <span class="l-quality">Quality 9/25</span>
-                        <span class="l-momentum">Momentum 25/25</span>
-                        <span class="l-catalyst">Catalyst 13/15</span>
-                        <span class="l-liquidity">Liquidity 10/10</span>
+                        <span class="l-value">Value 21/25 <span class="info-tip">i<span class="tip-text">Value: Is the stock cheap? Based on P/E and P/B vs sector median, plus dividend yield.</span></span></span>
+                        <span class="l-quality">Quality 9/25 <span class="info-tip">i<span class="tip-text">Quality: Is it a good business? Based on ROE, low debt, dividend track record, and earnings growth.</span></span></span>
+                        <span class="l-momentum">Momentum 25/25 <span class="info-tip">i<span class="tip-text">Momentum: Is it trending up? Based on 6m/12m returns, price vs moving averages, and RSI health.</span></span></span>
+                        <span class="l-catalyst">Catalyst 13/15 <span class="info-tip">i<span class="tip-text">Catalyst: Are there upcoming events? Scores for earnings dates, priority sectors, and recovery potential from 52-week highs.</span></span></span>
+                        <span class="l-liquidity">Liquidity 10/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
 
@@ -719,7 +798,7 @@
                         <a href="https://finance.yahoo.com/quote/EN.PA" class="yahoo-link" target="_blank" rel="noopener">
                             View on Yahoo Finance &rarr;
                         </a>
-                        <span class="timeframe-badge">3-6 months</span>
+                        <span class="timeframe-badge">3-6 months <span class="info-tip">i<span class="tip-text">Suggested investment horizon. This signal is based on medium-term analysis -- not a day-trading recommendation.</span></span></span>
                     </div>
                 </div>
                 
@@ -728,12 +807,13 @@
                     <div class="pick-header">
                         <div class="header-left">
                             <span class="signal-badge buy">BUY</span>
-                            <span class="alpha-score">Score: 75</span>
+                            <span class="info-tip tip-down">i<span class="tip-text">BUY: AI research is bullish with high confidence and the stock scores well on fundamentals, momentum, and quality.</span></span>
+                            <span class="alpha-score">Score: 75<span class="info-tip tip-down">i<span class="tip-text">Alpha Score (0-100): Composite score based on 5 factors -- Value (25pts), Quality (25pts), Momentum (25pts), Catalyst (15pts), and Liquidity (10pts). Higher = stronger opportunity.</span></span></span>
                             
                             <span class="sector-tag">Healthcare</span>
                             
                         </div>
-                        <span class="alpha-score">MEDIUM confidence</span>
+                        <span class="alpha-score">MEDIUM confidence<span class="info-tip tip-down">i<span class="tip-text">MEDIUM: AI research found supporting evidence but with some uncertainty or conflicting signals.</span></span></span>
                     </div>
 
                     <h3 class="stock-title">
@@ -745,37 +825,37 @@
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">31.6</div>
-                            <div class="metric-label">P/E</div>
+                            <div class="metric-label">P/E <span class="info-tip">i<span class="tip-text">Price-to-Earnings ratio. Compares stock price to earnings per share. Lower = cheaper relative to profits. Compare within the same sector.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 21.7%
                             </div>
-                            <div class="metric-label">ROE</div>
+                            <div class="metric-label">ROE <span class="info-tip">i<span class="tip-text">Return on Equity. How efficiently the company generates profit from shareholder money. Above 15% is strong, above 20% is excellent.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 173.0%
                             </div>
-                            <div class="metric-label">Div Yield</div>
+                            <div class="metric-label">Div Yield <span class="info-tip">i<span class="tip-text">Annual dividend as % of stock price. Above 2% is solid, above 3% is high yield. 0% means the company doesn't pay dividends.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +27.8%
                             </div>
-                            <div class="metric-label">6m</div>
+                            <div class="metric-label">6m <span class="info-tip">i<span class="tip-text">Price return over the last 6 months. Green = stock has been rising, red = declining. Shows medium-term trend.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +20.4%
                             </div>
-                            <div class="metric-label">12m</div>
+                            <div class="metric-label">12m <span class="info-tip">i<span class="tip-text">Price return over the last 12 months. Shows the longer-term trend. Stocks with positive 12m momentum tend to continue performing.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value neutral">
                                 54
                             </div>
-                            <div class="metric-label">RSI</div>
+                            <div class="metric-label">RSI <span class="info-tip">i<span class="tip-text">Relative Strength Index (0-100). Below 30 = oversold (potential bounce), above 70 = overbought (potential pullback), 40-70 = healthy range.</span></span></div>
                         </div>
                     </div>
 
@@ -791,11 +871,11 @@
                         <div class="score-segment liquidity" style="width: 13.0%"></div>
                     </div>
                     <div class="score-legend">
-                        <span class="l-value">Value 5/25</span>
-                        <span class="l-quality">Quality 22/25</span>
-                        <span class="l-momentum">Momentum 25/25</span>
-                        <span class="l-catalyst">Catalyst 13/15</span>
-                        <span class="l-liquidity">Liquidity 10/10</span>
+                        <span class="l-value">Value 5/25 <span class="info-tip">i<span class="tip-text">Value: Is the stock cheap? Based on P/E and P/B vs sector median, plus dividend yield.</span></span></span>
+                        <span class="l-quality">Quality 22/25 <span class="info-tip">i<span class="tip-text">Quality: Is it a good business? Based on ROE, low debt, dividend track record, and earnings growth.</span></span></span>
+                        <span class="l-momentum">Momentum 25/25 <span class="info-tip">i<span class="tip-text">Momentum: Is it trending up? Based on 6m/12m returns, price vs moving averages, and RSI health.</span></span></span>
+                        <span class="l-catalyst">Catalyst 13/15 <span class="info-tip">i<span class="tip-text">Catalyst: Are there upcoming events? Scores for earnings dates, priority sectors, and recovery potential from 52-week highs.</span></span></span>
+                        <span class="l-liquidity">Liquidity 10/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
 
@@ -866,7 +946,7 @@
                         <a href="https://finance.yahoo.com/quote/AZN.L" class="yahoo-link" target="_blank" rel="noopener">
                             View on Yahoo Finance &rarr;
                         </a>
-                        <span class="timeframe-badge">3-6 months</span>
+                        <span class="timeframe-badge">3-6 months <span class="info-tip">i<span class="tip-text">Suggested investment horizon. This signal is based on medium-term analysis -- not a day-trading recommendation.</span></span></span>
                     </div>
                 </div>
                 
@@ -875,12 +955,13 @@
                     <div class="pick-header">
                         <div class="header-left">
                             <span class="signal-badge buy">BUY</span>
-                            <span class="alpha-score">Score: 71</span>
+                            <span class="info-tip tip-down">i<span class="tip-text">BUY: AI research is bullish with high confidence and the stock scores well on fundamentals, momentum, and quality.</span></span>
+                            <span class="alpha-score">Score: 71<span class="info-tip tip-down">i<span class="tip-text">Alpha Score (0-100): Composite score based on 5 factors -- Value (25pts), Quality (25pts), Momentum (25pts), Catalyst (15pts), and Liquidity (10pts). Higher = stronger opportunity.</span></span></span>
                             
                             <span class="sector-tag">Industrials</span>
                             
                         </div>
-                        <span class="alpha-score">HIGH confidence</span>
+                        <span class="alpha-score">HIGH confidence<span class="info-tip tip-down">i<span class="tip-text">HIGH: AI research found strong, consistent evidence supporting the thesis with multiple reliable sources.</span></span></span>
                     </div>
 
                     <h3 class="stock-title">
@@ -892,37 +973,37 @@
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">26.3</div>
-                            <div class="metric-label">P/E</div>
+                            <div class="metric-label">P/E <span class="info-tip">i<span class="tip-text">Price-to-Earnings ratio. Compares stock price to earnings per share. Lower = cheaper relative to profits. Compare within the same sector.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 33.4%
                             </div>
-                            <div class="metric-label">ROE</div>
+                            <div class="metric-label">ROE <span class="info-tip">i<span class="tip-text">Return on Equity. How efficiently the company generates profit from shareholder money. Above 15% is strong, above 20% is excellent.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 138.0%
                             </div>
-                            <div class="metric-label">Div Yield</div>
+                            <div class="metric-label">Div Yield <span class="info-tip">i<span class="tip-text">Annual dividend as % of stock price. Above 2% is solid, above 3% is high yield. 0% means the company doesn't pay dividends.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +16.6%
                             </div>
-                            <div class="metric-label">6m</div>
+                            <div class="metric-label">6m <span class="info-tip">i<span class="tip-text">Price return over the last 6 months. Green = stock has been rising, red = declining. Shows medium-term trend.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +31.7%
                             </div>
-                            <div class="metric-label">12m</div>
+                            <div class="metric-label">12m <span class="info-tip">i<span class="tip-text">Price return over the last 12 months. Shows the longer-term trend. Stocks with positive 12m momentum tend to continue performing.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value neutral">
                                 64
                             </div>
-                            <div class="metric-label">RSI</div>
+                            <div class="metric-label">RSI <span class="info-tip">i<span class="tip-text">Relative Strength Index (0-100). Below 30 = oversold (potential bounce), above 70 = overbought (potential pullback), 40-70 = healthy range.</span></span></div>
                         </div>
                     </div>
 
@@ -938,11 +1019,11 @@
                         <div class="score-segment liquidity" style="width: 14.0%"></div>
                     </div>
                     <div class="score-legend">
-                        <span class="l-value">Value 9/25</span>
-                        <span class="l-quality">Quality 22/25</span>
-                        <span class="l-momentum">Momentum 25/25</span>
-                        <span class="l-catalyst">Catalyst 5/15</span>
-                        <span class="l-liquidity">Liquidity 10/10</span>
+                        <span class="l-value">Value 9/25 <span class="info-tip">i<span class="tip-text">Value: Is the stock cheap? Based on P/E and P/B vs sector median, plus dividend yield.</span></span></span>
+                        <span class="l-quality">Quality 22/25 <span class="info-tip">i<span class="tip-text">Quality: Is it a good business? Based on ROE, low debt, dividend track record, and earnings growth.</span></span></span>
+                        <span class="l-momentum">Momentum 25/25 <span class="info-tip">i<span class="tip-text">Momentum: Is it trending up? Based on 6m/12m returns, price vs moving averages, and RSI health.</span></span></span>
+                        <span class="l-catalyst">Catalyst 5/15 <span class="info-tip">i<span class="tip-text">Catalyst: Are there upcoming events? Scores for earnings dates, priority sectors, and recovery potential from 52-week highs.</span></span></span>
+                        <span class="l-liquidity">Liquidity 10/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
 
@@ -1021,7 +1102,7 @@
                         <a href="https://finance.yahoo.com/quote/FERG.L" class="yahoo-link" target="_blank" rel="noopener">
                             View on Yahoo Finance &rarr;
                         </a>
-                        <span class="timeframe-badge">3-6 months</span>
+                        <span class="timeframe-badge">3-6 months <span class="info-tip">i<span class="tip-text">Suggested investment horizon. This signal is based on medium-term analysis -- not a day-trading recommendation.</span></span></span>
                     </div>
                 </div>
                 
@@ -1030,12 +1111,13 @@
                     <div class="pick-header">
                         <div class="header-left">
                             <span class="signal-badge buy">BUY</span>
-                            <span class="alpha-score">Score: 70</span>
+                            <span class="info-tip tip-down">i<span class="tip-text">BUY: AI research is bullish with high confidence and the stock scores well on fundamentals, momentum, and quality.</span></span>
+                            <span class="alpha-score">Score: 70<span class="info-tip tip-down">i<span class="tip-text">Alpha Score (0-100): Composite score based on 5 factors -- Value (25pts), Quality (25pts), Momentum (25pts), Catalyst (15pts), and Liquidity (10pts). Higher = stronger opportunity.</span></span></span>
                             
                             <span class="sector-tag">Industrials</span>
                             
                         </div>
-                        <span class="alpha-score">HIGH confidence</span>
+                        <span class="alpha-score">HIGH confidence<span class="info-tip tip-down">i<span class="tip-text">HIGH: AI research found strong, consistent evidence supporting the thesis with multiple reliable sources.</span></span></span>
                     </div>
 
                     <h3 class="stock-title">
@@ -1047,37 +1129,37 @@
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">95.0</div>
-                            <div class="metric-label">P/E</div>
+                            <div class="metric-label">P/E <span class="info-tip">i<span class="tip-text">Price-to-Earnings ratio. Compares stock price to earnings per share. Lower = cheaper relative to profits. Compare within the same sector.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 16.8%
                             </div>
-                            <div class="metric-label">ROE</div>
+                            <div class="metric-label">ROE <span class="info-tip">i<span class="tip-text">Return on Equity. How efficiently the company generates profit from shareholder money. Above 15% is strong, above 20% is excellent.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 46.0%
                             </div>
-                            <div class="metric-label">Div Yield</div>
+                            <div class="metric-label">Div Yield <span class="info-tip">i<span class="tip-text">Annual dividend as % of stock price. Above 2% is solid, above 3% is high yield. 0% means the company doesn't pay dividends.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +58.3%
                             </div>
-                            <div class="metric-label">6m</div>
+                            <div class="metric-label">6m <span class="info-tip">i<span class="tip-text">Price return over the last 6 months. Green = stock has been rising, red = declining. Shows medium-term trend.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +166.2%
                             </div>
-                            <div class="metric-label">12m</div>
+                            <div class="metric-label">12m <span class="info-tip">i<span class="tip-text">Price return over the last 12 months. Shows the longer-term trend. Stocks with positive 12m momentum tend to continue performing.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value negative">
                                 72
                             </div>
-                            <div class="metric-label">RSI</div>
+                            <div class="metric-label">RSI <span class="info-tip">i<span class="tip-text">Relative Strength Index (0-100). Below 30 = oversold (potential bounce), above 70 = overbought (potential pullback), 40-70 = healthy range.</span></span></div>
                         </div>
                     </div>
 
@@ -1093,11 +1175,11 @@
                         <div class="score-segment liquidity" style="width: 10.0%"></div>
                     </div>
                     <div class="score-legend">
-                        <span class="l-value">Value 5/25</span>
-                        <span class="l-quality">Quality 22/25</span>
-                        <span class="l-momentum">Momentum 23/25</span>
-                        <span class="l-catalyst">Catalyst 13/15</span>
-                        <span class="l-liquidity">Liquidity 7/10</span>
+                        <span class="l-value">Value 5/25 <span class="info-tip">i<span class="tip-text">Value: Is the stock cheap? Based on P/E and P/B vs sector median, plus dividend yield.</span></span></span>
+                        <span class="l-quality">Quality 22/25 <span class="info-tip">i<span class="tip-text">Quality: Is it a good business? Based on ROE, low debt, dividend track record, and earnings growth.</span></span></span>
+                        <span class="l-momentum">Momentum 23/25 <span class="info-tip">i<span class="tip-text">Momentum: Is it trending up? Based on 6m/12m returns, price vs moving averages, and RSI health.</span></span></span>
+                        <span class="l-catalyst">Catalyst 13/15 <span class="info-tip">i<span class="tip-text">Catalyst: Are there upcoming events? Scores for earnings dates, priority sectors, and recovery potential from 52-week highs.</span></span></span>
+                        <span class="l-liquidity">Liquidity 7/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
 
@@ -1177,7 +1259,7 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                         <a href="https://finance.yahoo.com/quote/ENR.DE" class="yahoo-link" target="_blank" rel="noopener">
                             View on Yahoo Finance &rarr;
                         </a>
-                        <span class="timeframe-badge">3-6 months</span>
+                        <span class="timeframe-badge">3-6 months <span class="info-tip">i<span class="tip-text">Suggested investment horizon. This signal is based on medium-term analysis -- not a day-trading recommendation.</span></span></span>
                     </div>
                 </div>
                 
@@ -1186,12 +1268,13 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                     <div class="pick-header">
                         <div class="header-left">
                             <span class="signal-badge buy">BUY</span>
-                            <span class="alpha-score">Score: 70</span>
+                            <span class="info-tip tip-down">i<span class="tip-text">BUY: AI research is bullish with high confidence and the stock scores well on fundamentals, momentum, and quality.</span></span>
+                            <span class="alpha-score">Score: 70<span class="info-tip tip-down">i<span class="tip-text">Alpha Score (0-100): Composite score based on 5 factors -- Value (25pts), Quality (25pts), Momentum (25pts), Catalyst (15pts), and Liquidity (10pts). Higher = stronger opportunity.</span></span></span>
                             
                             <span class="sector-tag">Industrials</span>
                             
                         </div>
-                        <span class="alpha-score">MEDIUM confidence</span>
+                        <span class="alpha-score">MEDIUM confidence<span class="info-tip tip-down">i<span class="tip-text">MEDIUM: AI research found supporting evidence but with some uncertainty or conflicting signals.</span></span></span>
                     </div>
 
                     <h3 class="stock-title">
@@ -1203,37 +1286,37 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">29.8</div>
-                            <div class="metric-label">P/E</div>
+                            <div class="metric-label">P/E <span class="info-tip">i<span class="tip-text">Price-to-Earnings ratio. Compares stock price to earnings per share. Lower = cheaper relative to profits. Compare within the same sector.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 34.7%
                             </div>
-                            <div class="metric-label">ROE</div>
+                            <div class="metric-label">ROE <span class="info-tip">i<span class="tip-text">Return on Equity. How efficiently the company generates profit from shareholder money. Above 15% is strong, above 20% is excellent.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 94.0%
                             </div>
-                            <div class="metric-label">Div Yield</div>
+                            <div class="metric-label">Div Yield <span class="info-tip">i<span class="tip-text">Annual dividend as % of stock price. Above 2% is solid, above 3% is high yield. 0% means the company doesn't pay dividends.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +6.0%
                             </div>
-                            <div class="metric-label">6m</div>
+                            <div class="metric-label">6m <span class="info-tip">i<span class="tip-text">Price return over the last 6 months. Green = stock has been rising, red = declining. Shows medium-term trend.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +26.4%
                             </div>
-                            <div class="metric-label">12m</div>
+                            <div class="metric-label">12m <span class="info-tip">i<span class="tip-text">Price return over the last 12 months. Shows the longer-term trend. Stocks with positive 12m momentum tend to continue performing.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value neutral">
                                 40
                             </div>
-                            <div class="metric-label">RSI</div>
+                            <div class="metric-label">RSI <span class="info-tip">i<span class="tip-text">Relative Strength Index (0-100). Below 30 = oversold (potential bounce), above 70 = overbought (potential pullback), 40-70 = healthy range.</span></span></div>
                         </div>
                     </div>
 
@@ -1249,11 +1332,11 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                         <div class="score-segment liquidity" style="width: 10.0%"></div>
                     </div>
                     <div class="score-legend">
-                        <span class="l-value">Value 5/25</span>
-                        <span class="l-quality">Quality 25/25</span>
-                        <span class="l-momentum">Momentum 20/25</span>
-                        <span class="l-catalyst">Catalyst 13/15</span>
-                        <span class="l-liquidity">Liquidity 7/10</span>
+                        <span class="l-value">Value 5/25 <span class="info-tip">i<span class="tip-text">Value: Is the stock cheap? Based on P/E and P/B vs sector median, plus dividend yield.</span></span></span>
+                        <span class="l-quality">Quality 25/25 <span class="info-tip">i<span class="tip-text">Quality: Is it a good business? Based on ROE, low debt, dividend track record, and earnings growth.</span></span></span>
+                        <span class="l-momentum">Momentum 20/25 <span class="info-tip">i<span class="tip-text">Momentum: Is it trending up? Based on 6m/12m returns, price vs moving averages, and RSI health.</span></span></span>
+                        <span class="l-catalyst">Catalyst 13/15 <span class="info-tip">i<span class="tip-text">Catalyst: Are there upcoming events? Scores for earnings dates, priority sectors, and recovery potential from 52-week highs.</span></span></span>
+                        <span class="l-liquidity">Liquidity 7/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
 
@@ -1332,7 +1415,7 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                         <a href="https://finance.yahoo.com/quote/SAF.PA" class="yahoo-link" target="_blank" rel="noopener">
                             View on Yahoo Finance &rarr;
                         </a>
-                        <span class="timeframe-badge">3-6 months</span>
+                        <span class="timeframe-badge">3-6 months <span class="info-tip">i<span class="tip-text">Suggested investment horizon. This signal is based on medium-term analysis -- not a day-trading recommendation.</span></span></span>
                     </div>
                 </div>
                 
@@ -1341,12 +1424,13 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                     <div class="pick-header">
                         <div class="header-left">
                             <span class="signal-badge buy">BUY</span>
-                            <span class="alpha-score">Score: 70</span>
+                            <span class="info-tip tip-down">i<span class="tip-text">BUY: AI research is bullish with high confidence and the stock scores well on fundamentals, momentum, and quality.</span></span>
+                            <span class="alpha-score">Score: 70<span class="info-tip tip-down">i<span class="tip-text">Alpha Score (0-100): Composite score based on 5 factors -- Value (25pts), Quality (25pts), Momentum (25pts), Catalyst (15pts), and Liquidity (10pts). Higher = stronger opportunity.</span></span></span>
                             
                             <span class="sector-tag">Healthcare</span>
                             
                         </div>
-                        <span class="alpha-score">HIGH confidence</span>
+                        <span class="alpha-score">HIGH confidence<span class="info-tip tip-down">i<span class="tip-text">HIGH: AI research found strong, consistent evidence supporting the thesis with multiple reliable sources.</span></span></span>
                     </div>
 
                     <h3 class="stock-title">
@@ -1358,37 +1442,37 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">15.8</div>
-                            <div class="metric-label">P/E</div>
+                            <div class="metric-label">P/E <span class="info-tip">i<span class="tip-text">Price-to-Earnings ratio. Compares stock price to earnings per share. Lower = cheaper relative to profits. Compare within the same sector.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 43.3%
                             </div>
-                            <div class="metric-label">ROE</div>
+                            <div class="metric-label">ROE <span class="info-tip">i<span class="tip-text">Return on Equity. How efficiently the company generates profit from shareholder money. Above 15% is strong, above 20% is excellent.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 328.0%
                             </div>
-                            <div class="metric-label">Div Yield</div>
+                            <div class="metric-label">Div Yield <span class="info-tip">i<span class="tip-text">Annual dividend as % of stock price. Above 2% is solid, above 3% is high yield. 0% means the company doesn't pay dividends.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +56.6%
                             </div>
-                            <div class="metric-label">6m</div>
+                            <div class="metric-label">6m <span class="info-tip">i<span class="tip-text">Price return over the last 6 months. Green = stock has been rising, red = declining. Shows medium-term trend.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +50.0%
                             </div>
-                            <div class="metric-label">12m</div>
+                            <div class="metric-label">12m <span class="info-tip">i<span class="tip-text">Price return over the last 12 months. Shows the longer-term trend. Stocks with positive 12m momentum tend to continue performing.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value negative">
                                 86
                             </div>
-                            <div class="metric-label">RSI</div>
+                            <div class="metric-label">RSI <span class="info-tip">i<span class="tip-text">Relative Strength Index (0-100). Below 30 = oversold (potential bounce), above 70 = overbought (potential pullback), 40-70 = healthy range.</span></span></div>
                         </div>
                     </div>
 
@@ -1404,11 +1488,11 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                         <div class="score-segment liquidity" style="width: 14.0%"></div>
                     </div>
                     <div class="score-legend">
-                        <span class="l-value">Value 13/25</span>
-                        <span class="l-quality">Quality 19/25</span>
-                        <span class="l-momentum">Momentum 23/25</span>
-                        <span class="l-catalyst">Catalyst 5/15</span>
-                        <span class="l-liquidity">Liquidity 10/10</span>
+                        <span class="l-value">Value 13/25 <span class="info-tip">i<span class="tip-text">Value: Is the stock cheap? Based on P/E and P/B vs sector median, plus dividend yield.</span></span></span>
+                        <span class="l-quality">Quality 19/25 <span class="info-tip">i<span class="tip-text">Quality: Is it a good business? Based on ROE, low debt, dividend track record, and earnings growth.</span></span></span>
+                        <span class="l-momentum">Momentum 23/25 <span class="info-tip">i<span class="tip-text">Momentum: Is it trending up? Based on 6m/12m returns, price vs moving averages, and RSI health.</span></span></span>
+                        <span class="l-catalyst">Catalyst 5/15 <span class="info-tip">i<span class="tip-text">Catalyst: Are there upcoming events? Scores for earnings dates, priority sectors, and recovery potential from 52-week highs.</span></span></span>
+                        <span class="l-liquidity">Liquidity 10/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
 
@@ -1487,7 +1571,7 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                         <a href="https://finance.yahoo.com/quote/GSK.L" class="yahoo-link" target="_blank" rel="noopener">
                             View on Yahoo Finance &rarr;
                         </a>
-                        <span class="timeframe-badge">3-6 months</span>
+                        <span class="timeframe-badge">3-6 months <span class="info-tip">i<span class="tip-text">Suggested investment horizon. This signal is based on medium-term analysis -- not a day-trading recommendation.</span></span></span>
                     </div>
                 </div>
                 
@@ -1496,12 +1580,13 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                     <div class="pick-header">
                         <div class="header-left">
                             <span class="signal-badge buy">BUY</span>
-                            <span class="alpha-score">Score: 70</span>
+                            <span class="info-tip tip-down">i<span class="tip-text">BUY: AI research is bullish with high confidence and the stock scores well on fundamentals, momentum, and quality.</span></span>
+                            <span class="alpha-score">Score: 70<span class="info-tip tip-down">i<span class="tip-text">Alpha Score (0-100): Composite score based on 5 factors -- Value (25pts), Quality (25pts), Momentum (25pts), Catalyst (15pts), and Liquidity (10pts). Higher = stronger opportunity.</span></span></span>
                             
                             <span class="sector-tag">Basic Materials</span>
                             
                         </div>
-                        <span class="alpha-score">HIGH confidence</span>
+                        <span class="alpha-score">HIGH confidence<span class="info-tip tip-down">i<span class="tip-text">HIGH: AI research found strong, consistent evidence supporting the thesis with multiple reliable sources.</span></span></span>
                     </div>
 
                     <h3 class="stock-title">
@@ -1513,37 +1598,37 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">14.7</div>
-                            <div class="metric-label">P/E</div>
+                            <div class="metric-label">P/E <span class="info-tip">i<span class="tip-text">Price-to-Earnings ratio. Compares stock price to earnings per share. Lower = cheaper relative to profits. Compare within the same sector.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 17.2%
                             </div>
-                            <div class="metric-label">ROE</div>
+                            <div class="metric-label">ROE <span class="info-tip">i<span class="tip-text">Return on Equity. How efficiently the company generates profit from shareholder money. Above 15% is strong, above 20% is excellent.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 416.0%
                             </div>
-                            <div class="metric-label">Div Yield</div>
+                            <div class="metric-label">Div Yield <span class="info-tip">i<span class="tip-text">Annual dividend as % of stock price. Above 2% is solid, above 3% is high yield. 0% means the company doesn't pay dividends.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +49.7%
                             </div>
-                            <div class="metric-label">6m</div>
+                            <div class="metric-label">6m <span class="info-tip">i<span class="tip-text">Price return over the last 6 months. Green = stock has been rising, red = declining. Shows medium-term trend.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +36.5%
                             </div>
-                            <div class="metric-label">12m</div>
+                            <div class="metric-label">12m <span class="info-tip">i<span class="tip-text">Price return over the last 12 months. Shows the longer-term trend. Stocks with positive 12m momentum tend to continue performing.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value neutral">
                                 67
                             </div>
-                            <div class="metric-label">RSI</div>
+                            <div class="metric-label">RSI <span class="info-tip">i<span class="tip-text">Relative Strength Index (0-100). Below 30 = oversold (potential bounce), above 70 = overbought (potential pullback), 40-70 = healthy range.</span></span></div>
                         </div>
                     </div>
 
@@ -1559,11 +1644,11 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                         <div class="score-segment liquidity" style="width: 14.0%"></div>
                     </div>
                     <div class="score-legend">
-                        <span class="l-value">Value 13/25</span>
-                        <span class="l-quality">Quality 22/25</span>
-                        <span class="l-momentum">Momentum 25/25</span>
-                        <span class="l-catalyst">Catalyst 0/15</span>
-                        <span class="l-liquidity">Liquidity 10/10</span>
+                        <span class="l-value">Value 13/25 <span class="info-tip">i<span class="tip-text">Value: Is the stock cheap? Based on P/E and P/B vs sector median, plus dividend yield.</span></span></span>
+                        <span class="l-quality">Quality 22/25 <span class="info-tip">i<span class="tip-text">Quality: Is it a good business? Based on ROE, low debt, dividend track record, and earnings growth.</span></span></span>
+                        <span class="l-momentum">Momentum 25/25 <span class="info-tip">i<span class="tip-text">Momentum: Is it trending up? Based on 6m/12m returns, price vs moving averages, and RSI health.</span></span></span>
+                        <span class="l-catalyst">Catalyst 0/15 <span class="info-tip">i<span class="tip-text">Catalyst: Are there upcoming events? Scores for earnings dates, priority sectors, and recovery potential from 52-week highs.</span></span></span>
+                        <span class="l-liquidity">Liquidity 10/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
 
@@ -1646,7 +1731,7 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                         <a href="https://finance.yahoo.com/quote/RIO.L" class="yahoo-link" target="_blank" rel="noopener">
                             View on Yahoo Finance &rarr;
                         </a>
-                        <span class="timeframe-badge">3-6 months</span>
+                        <span class="timeframe-badge">3-6 months <span class="info-tip">i<span class="tip-text">Suggested investment horizon. This signal is based on medium-term analysis -- not a day-trading recommendation.</span></span></span>
                     </div>
                 </div>
                 
@@ -1655,12 +1740,13 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                     <div class="pick-header">
                         <div class="header-left">
                             <span class="signal-badge buy">BUY</span>
-                            <span class="alpha-score">Score: 70</span>
+                            <span class="info-tip tip-down">i<span class="tip-text">BUY: AI research is bullish with high confidence and the stock scores well on fundamentals, momentum, and quality.</span></span>
+                            <span class="alpha-score">Score: 70<span class="info-tip tip-down">i<span class="tip-text">Alpha Score (0-100): Composite score based on 5 factors -- Value (25pts), Quality (25pts), Momentum (25pts), Catalyst (15pts), and Liquidity (10pts). Higher = stronger opportunity.</span></span></span>
                             
                             <span class="sector-tag">Technology</span>
                             
                         </div>
-                        <span class="alpha-score">HIGH confidence</span>
+                        <span class="alpha-score">HIGH confidence<span class="info-tip tip-down">i<span class="tip-text">HIGH: AI research found strong, consistent evidence supporting the thesis with multiple reliable sources.</span></span></span>
                     </div>
 
                     <h3 class="stock-title">
@@ -1672,37 +1758,37 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">37.2</div>
-                            <div class="metric-label">P/E</div>
+                            <div class="metric-label">P/E <span class="info-tip">i<span class="tip-text">Price-to-Earnings ratio. Compares stock price to earnings per share. Lower = cheaper relative to profits. Compare within the same sector.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 35.5%
                             </div>
-                            <div class="metric-label">ROE</div>
+                            <div class="metric-label">ROE <span class="info-tip">i<span class="tip-text">Return on Equity. How efficiently the company generates profit from shareholder money. Above 15% is strong, above 20% is excellent.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 57.0%
                             </div>
-                            <div class="metric-label">Div Yield</div>
+                            <div class="metric-label">Div Yield <span class="info-tip">i<span class="tip-text">Annual dividend as % of stock price. Above 2% is solid, above 3% is high yield. 0% means the company doesn't pay dividends.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +75.3%
                             </div>
-                            <div class="metric-label">6m</div>
+                            <div class="metric-label">6m <span class="info-tip">i<span class="tip-text">Price return over the last 6 months. Green = stock has been rising, red = declining. Shows medium-term trend.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value neutral">
                                 N/A
                             </div>
-                            <div class="metric-label">12m</div>
+                            <div class="metric-label">12m <span class="info-tip">i<span class="tip-text">Price return over the last 12 months. Shows the longer-term trend. Stocks with positive 12m momentum tend to continue performing.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value neutral">
                                 48
                             </div>
-                            <div class="metric-label">RSI</div>
+                            <div class="metric-label">RSI <span class="info-tip">i<span class="tip-text">Relative Strength Index (0-100). Below 30 = oversold (potential bounce), above 70 = overbought (potential pullback), 40-70 = healthy range.</span></span></div>
                         </div>
                     </div>
 
@@ -1718,11 +1804,11 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                         <div class="score-segment liquidity" style="width: 14.0%"></div>
                     </div>
                     <div class="score-legend">
-                        <span class="l-value">Value 5/25</span>
-                        <span class="l-quality">Quality 25/25</span>
-                        <span class="l-momentum">Momentum 17/25</span>
-                        <span class="l-catalyst">Catalyst 13/15</span>
-                        <span class="l-liquidity">Liquidity 10/10</span>
+                        <span class="l-value">Value 5/25 <span class="info-tip">i<span class="tip-text">Value: Is the stock cheap? Based on P/E and P/B vs sector median, plus dividend yield.</span></span></span>
+                        <span class="l-quality">Quality 25/25 <span class="info-tip">i<span class="tip-text">Quality: Is it a good business? Based on ROE, low debt, dividend track record, and earnings growth.</span></span></span>
+                        <span class="l-momentum">Momentum 17/25 <span class="info-tip">i<span class="tip-text">Momentum: Is it trending up? Based on 6m/12m returns, price vs moving averages, and RSI health.</span></span></span>
+                        <span class="l-catalyst">Catalyst 13/15 <span class="info-tip">i<span class="tip-text">Catalyst: Are there upcoming events? Scores for earnings dates, priority sectors, and recovery potential from 52-week highs.</span></span></span>
+                        <span class="l-liquidity">Liquidity 10/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
 
@@ -1800,7 +1886,7 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                         <a href="https://finance.yahoo.com/quote/AMAT" class="yahoo-link" target="_blank" rel="noopener">
                             View on Yahoo Finance &rarr;
                         </a>
-                        <span class="timeframe-badge">3-6 months</span>
+                        <span class="timeframe-badge">3-6 months <span class="info-tip">i<span class="tip-text">Suggested investment horizon. This signal is based on medium-term analysis -- not a day-trading recommendation.</span></span></span>
                     </div>
                 </div>
                 
@@ -1809,12 +1895,13 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                     <div class="pick-header">
                         <div class="header-left">
                             <span class="signal-badge buy">BUY</span>
-                            <span class="alpha-score">Score: 69</span>
+                            <span class="info-tip tip-down">i<span class="tip-text">BUY: AI research is bullish with high confidence and the stock scores well on fundamentals, momentum, and quality.</span></span>
+                            <span class="alpha-score">Score: 69<span class="info-tip tip-down">i<span class="tip-text">Alpha Score (0-100): Composite score based on 5 factors -- Value (25pts), Quality (25pts), Momentum (25pts), Catalyst (15pts), and Liquidity (10pts). Higher = stronger opportunity.</span></span></span>
                             
                             <span class="sector-tag">Industrials</span>
                             
                         </div>
-                        <span class="alpha-score">HIGH confidence</span>
+                        <span class="alpha-score">HIGH confidence<span class="info-tip tip-down">i<span class="tip-text">HIGH: AI research found strong, consistent evidence supporting the thesis with multiple reliable sources.</span></span></span>
                     </div>
 
                     <h3 class="stock-title">
@@ -1826,37 +1913,37 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">16.2</div>
-                            <div class="metric-label">P/E</div>
+                            <div class="metric-label">P/E <span class="info-tip">i<span class="tip-text">Price-to-Earnings ratio. Compares stock price to earnings per share. Lower = cheaper relative to profits. Compare within the same sector.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 16.8%
                             </div>
-                            <div class="metric-label">ROE</div>
+                            <div class="metric-label">ROE <span class="info-tip">i<span class="tip-text">Return on Equity. How efficiently the company generates profit from shareholder money. Above 15% is strong, above 20% is excellent.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 372.0%
                             </div>
-                            <div class="metric-label">Div Yield</div>
+                            <div class="metric-label">Div Yield <span class="info-tip">i<span class="tip-text">Annual dividend as % of stock price. Above 2% is solid, above 3% is high yield. 0% means the company doesn't pay dividends.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +21.7%
                             </div>
-                            <div class="metric-label">6m</div>
+                            <div class="metric-label">6m <span class="info-tip">i<span class="tip-text">Price return over the last 6 months. Green = stock has been rising, red = declining. Shows medium-term trend.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value positive">
                                 +48.1%
                             </div>
-                            <div class="metric-label">12m</div>
+                            <div class="metric-label">12m <span class="info-tip">i<span class="tip-text">Price return over the last 12 months. Shows the longer-term trend. Stocks with positive 12m momentum tend to continue performing.</span></span></div>
                         </div>
                         <div class="metric">
                             <div class="metric-value negative">
                                 73
                             </div>
-                            <div class="metric-label">RSI</div>
+                            <div class="metric-label">RSI <span class="info-tip">i<span class="tip-text">Relative Strength Index (0-100). Below 30 = oversold (potential bounce), above 70 = overbought (potential pullback), 40-70 = healthy range.</span></span></div>
                         </div>
                     </div>
 
@@ -1872,11 +1959,11 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                         <div class="score-segment liquidity" style="width: 10.0%"></div>
                     </div>
                     <div class="score-legend">
-                        <span class="l-value">Value 18/25</span>
-                        <span class="l-quality">Quality 16/25</span>
-                        <span class="l-momentum">Momentum 23/25</span>
-                        <span class="l-catalyst">Catalyst 5/15</span>
-                        <span class="l-liquidity">Liquidity 7/10</span>
+                        <span class="l-value">Value 18/25 <span class="info-tip">i<span class="tip-text">Value: Is the stock cheap? Based on P/E and P/B vs sector median, plus dividend yield.</span></span></span>
+                        <span class="l-quality">Quality 16/25 <span class="info-tip">i<span class="tip-text">Quality: Is it a good business? Based on ROE, low debt, dividend track record, and earnings growth.</span></span></span>
+                        <span class="l-momentum">Momentum 23/25 <span class="info-tip">i<span class="tip-text">Momentum: Is it trending up? Based on 6m/12m returns, price vs moving averages, and RSI health.</span></span></span>
+                        <span class="l-catalyst">Catalyst 5/15 <span class="info-tip">i<span class="tip-text">Catalyst: Are there upcoming events? Scores for earnings dates, priority sectors, and recovery potential from 52-week highs.</span></span></span>
+                        <span class="l-liquidity">Liquidity 7/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
 
@@ -1947,7 +2034,7 @@ Siemens Energy AG is a Germany-based energy technology company supplying equipme
                         <a href="https://finance.yahoo.com/quote/DHL.DE" class="yahoo-link" target="_blank" rel="noopener">
                             View on Yahoo Finance &rarr;
                         </a>
-                        <span class="timeframe-badge">3-6 months</span>
+                        <span class="timeframe-badge">3-6 months <span class="info-tip">i<span class="tip-text">Suggested investment horizon. This signal is based on medium-term analysis -- not a day-trading recommendation.</span></span></span>
                     </div>
                 </div>
                 
