@@ -574,10 +574,15 @@
             border-top-color: var(--border-color);
         }
 
-        .info-tip:hover .tip-text,
+        .info-tip:hover .tip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
         .info-tip.active .tip-text {
             visibility: visible;
             opacity: 1;
+            transition: none;
         }
 
         /* Flip tooltip down when near top */
@@ -675,6 +680,20 @@
             .weight-adj {
                 font-size: 0.7rem;
                 padding: 0.1rem 0.4rem;
+            }
+
+            /* Tooltips: always flip down on mobile, shrink width */
+            .info-tip .tip-text {
+                bottom: auto;
+                top: calc(100% + 8px);
+                width: 200px;
+            }
+
+            .info-tip .tip-text::after {
+                top: auto;
+                bottom: 100%;
+                border-top-color: transparent;
+                border-bottom-color: var(--border-color);
             }
         }
     </style>
