@@ -497,13 +497,13 @@
                     <div class="pick-header">
                         <div class="header-left">
                             <span class="signal-badge {{ signal_class }}">{{ pick.signal }}</span>
-                            <span class="info-tip tip-down">i<span class="tip-text">{% if pick.signal == 'BUY' %}BUY: AI research is bullish with high confidence and the stock scores well on fundamentals, momentum, and quality.{% elif pick.signal == 'HOLD' %}HOLD: The stock shows some potential but evidence is mixed or confidence is moderate. Worth monitoring.{% else %}AVOID: AI research is bearish with medium-high confidence. Significant risks or negative outlook detected.{% endif %}</span></span>
+                            <span class="info-tip tip-down">i<span class="tip-text">{% if pick.signal == 'BUY' %}BUY: AI research is bullish with high confidence and the stock scores well on fundamentals, momentum, and quality.{% elif pick.signal == 'HOLD' %}HOLD: AI research found a neutral outlook, or the bullish case wasn't strong enough to warrant a BUY. The stock may still score well on fundamentals -- worth monitoring.{% else %}AVOID: AI research is bearish with medium-high confidence. Significant risks or negative outlook detected.{% endif %}</span></span>
                             <span class="alpha-score">Score: {{ pick.alpha_score }}<span class="info-tip tip-down">i<span class="tip-text">Alpha Score (0-100): Composite score based on 5 factors -- Value (25pts), Quality (25pts), Momentum (25pts), Catalyst (15pts), and Liquidity (10pts). Higher = stronger opportunity.</span></span></span>
                             {% if pick.sector %}
                             <span class="sector-tag">{{ pick.sector }}</span>
                             {% endif %}
                         </div>
-                        <span class="alpha-score">{{ pick.confidence }} confidence<span class="info-tip tip-down">i<span class="tip-text">{% if pick.confidence == 'HIGH' %}HIGH: AI research found strong, consistent evidence supporting the thesis with multiple reliable sources.{% elif pick.confidence == 'MEDIUM' %}MEDIUM: AI research found supporting evidence but with some uncertainty or conflicting signals.{% else %}LOW: Limited evidence available or significant uncertainty in the outlook.{% endif %}</span></span></span>
+                        <span class="alpha-score">{{ pick.confidence }} confidence<span class="info-tip tip-down">i<span class="tip-text">{% if pick.confidence == 'HIGH' %}HIGH: AI research is very certain about its assessment. Note: high confidence in a NEUTRAL outlook still results in HOLD.{% elif pick.confidence == 'MEDIUM' %}MEDIUM: AI research found supporting evidence but with some uncertainty or conflicting signals.{% else %}LOW: Limited evidence available or significant uncertainty in the outlook.{% endif %}</span></span></span>
                     </div>
 
                     <h3 class="stock-title">
