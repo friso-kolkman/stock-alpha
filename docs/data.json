@@ -1,5 +1,5 @@
 {
-  "run_date": "2026-02-07T20:02:07.020964+00:00",
+  "run_date": "2026-02-07T22:52:53.293156+00:00",
   "stocks_scanned": 235,
   "top_picks": [
     {
@@ -519,5 +519,66 @@
       "target_timeframe": "3-6 months"
     }
   ],
-  "dashboard_stats": null
+  "dashboard_stats": {
+    "has_history": true,
+    "total_predictions": 10,
+    "evaluated": 0,
+    "pending": 10,
+    "correct": 0,
+    "incorrect": 0,
+    "inconclusive": 0,
+    "win_rate": null,
+    "per_signal": {
+      "BUY": {
+        "total": 0,
+        "correct": 0,
+        "decisive": 0,
+        "accuracy": null,
+        "avg_return": null
+      },
+      "HOLD": {
+        "total": 0,
+        "correct": 0,
+        "decisive": 0,
+        "accuracy": null,
+        "avg_return": null
+      },
+      "AVOID": {
+        "total": 0,
+        "correct": 0,
+        "decisive": 0,
+        "accuracy": null,
+        "avg_return": null
+      }
+    },
+    "weight_overrides": {},
+    "active_weights": {
+      "value": 25,
+      "quality": 25,
+      "momentum": 25,
+      "catalyst": 15,
+      "liquidity": 10
+    },
+    "base_weights": {
+      "value": 25,
+      "quality": 25,
+      "momentum": 25,
+      "catalyst": 15,
+      "liquidity": 10
+    },
+    "recent_evaluations": [],
+    "performance_timeline": [
+      {
+        "date": "2026-02-07",
+        "win_rate": null,
+        "total_predictions": 10,
+        "evaluated": 0,
+        "correct": 0,
+        "avg_return": null,
+        "buy_accuracy": null,
+        "hold_accuracy": null,
+        "avoid_accuracy": null
+      }
+    ]
+  }
 }

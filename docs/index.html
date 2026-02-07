@@ -574,7 +574,8 @@
             border-top-color: var(--border-color);
         }
 
-        .info-tip:hover .tip-text {
+        .info-tip:hover .tip-text,
+        .info-tip.active .tip-text {
             visibility: visible;
             opacity: 1;
         }
@@ -612,6 +613,69 @@
             .metrics-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
+
+            /* Model Performance mobile */
+            .model-performance {
+                padding: 1rem;
+            }
+
+            .model-performance h2 {
+                font-size: 1.05rem;
+            }
+
+            .perf-stats {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+
+            .perf-stat-value {
+                font-size: 1.15rem;
+            }
+
+            .signal-accuracy-row {
+                flex-wrap: wrap;
+                gap: 0.25rem;
+            }
+
+            .signal-accuracy-label {
+                width: 45px;
+                font-size: 0.8rem;
+            }
+
+            .accuracy-bar-bg {
+                min-width: 0;
+            }
+
+            .accuracy-detail {
+                width: 100%;
+                text-align: left;
+                padding-left: 45px;
+                font-size: 0.7rem;
+            }
+
+            .perf-chart-container {
+                height: 180px;
+            }
+
+            .eval-table {
+                font-size: 0.75rem;
+            }
+
+            .eval-table th,
+            .eval-table td {
+                padding: 0.35rem 0.25rem;
+            }
+
+            .eval-table .signal-badge {
+                font-size: 0.65rem;
+                padding: 0.15rem 0.4rem;
+            }
+
+            .weight-adj {
+                font-size: 0.7rem;
+                padding: 0.1rem 0.4rem;
+            }
         }
     </style>
 </head>
@@ -620,7 +684,7 @@
         <header>
             <h1>Stock Alpha Scanner</h1>
             <p class="meta">
-                Last updated: 2026-02-07 20:02:07 UTC
+                Last updated: 2026-02-07 22:52:53 UTC
             </p>
             <div class="stats">
                 <div class="stat">
@@ -638,6 +702,56 @@
             </div>
         </header>
 
+        
+        <section class="model-performance">
+            <h2>Model Performance <span class="info-tip tip-down">i<span class="tip-text">Tracks how well the scanner's past predictions performed. Predictions are evaluated after 90+ days by comparing the price at signal time to the current price.</span></span></h2>
+
+            <div class="perf-stats">
+                <div class="perf-stat">
+                    <div class="perf-stat-value neutral">
+                        N/A
+                    </div>
+                    <div class="perf-stat-label">Win Rate</div>
+                </div>
+                <div class="perf-stat">
+                    <div class="perf-stat-value neutral">10</div>
+                    <div class="perf-stat-label">Total Predictions</div>
+                </div>
+                <div class="perf-stat">
+                    <div class="perf-stat-value neutral">0</div>
+                    <div class="perf-stat-label">Evaluated</div>
+                </div>
+                <div class="perf-stat">
+                    <div class="perf-stat-value neutral">10</div>
+                    <div class="perf-stat-label">Pending</div>
+                </div>
+            </div>
+
+            
+            <div class="signal-accuracy">
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </div>
+            
+
+            
+            <div class="perf-chart-container">
+                <div class="chart-placeholder">Performance chart will appear after the second scan with history.</div>
+            </div>
+            
+
+            
+
+            
+        </section>
         
 
         <main>
@@ -2206,5 +2320,18 @@
             </p>
         </footer>
     </div>
+    <script>
+    /* Toggle tooltips on tap for touch devices */
+    document.addEventListener('click', function(e) {
+        var tip = e.target.closest('.info-tip');
+        document.querySelectorAll('.info-tip.active').forEach(function(el) {
+            if (el !== tip) el.classList.remove('active');
+        });
+        if (tip) {
+            e.preventDefault();
+            tip.classList.toggle('active');
+        }
+    });
+    </script>
 </body>
 </html>
