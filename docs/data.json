@@ -1,5 +1,525 @@
 {
-  "run_date": "2026-02-07T19:07:51.270375+00:00",
-  "stocks_scanned": 0,
-  "top_picks": []
+  "run_date": "2026-02-07T19:16:10.849745+00:00",
+  "stocks_scanned": 235,
+  "top_picks": [
+    {
+      "ticker": "TKA",
+      "name": "thyssenkrupp AG",
+      "exchange": "XETR",
+      "index": "DAX",
+      "sector": "Industrials",
+      "price": 11.655,
+      "currency": "EUR",
+      "market_cap": 9659455488,
+      "pe_ratio": 15.54,
+      "forward_pe": 10.92704,
+      "roe": 5.0869998,
+      "dividend_yield": 129.0,
+      "momentum_6m": 19.602403566203286,
+      "momentum_12m": 157.50894348275168,
+      "rsi_14": 66.40772694967322,
+      "alpha_score": 82,
+      "score_breakdown": {
+        "value": 21,
+        "quality": 15,
+        "momentum": 25,
+        "catalyst": 13,
+        "liquidity": 8
+      },
+      "yahoo_url": "https://finance.yahoo.com/quote/TKA.DE",
+      "signal": "BUY",
+      "confidence": "MEDIUM",
+      "reasoning": "thyssenkrupp's sharply reduced debt, excess cash position, and superior earnings growth trajectory support continued upside, reinforced by a 157.5% 12-month share gain and positive analyst coverage from 24 institutions.[1][6] Transformation progress in decarbonization and marine rebound offsets green steel execution risks, with projected EBITDA rising 72.89% and net income stable near \u20ac464M in 2026.[5][7] At a P/E of 15.5 and Alpha Score of 82/100 driven by momentum, the stock appears undervalued relative to improving fundamentals.[1]",
+      "company_overview": "thyssenkrupp AG is a diversified industrial group operating in materials, steel, automotive, and marine systems, with a strong balance sheet featuring \u20ac10.56B in equity, \u20ac28.89B in total assets, and a low debt-to-equity ratio of 2.4% after significant deleveraging over five years.[1] The company holds \u20ac5.74B in cash exceeding its \u20ac253M debt, with short-term assets of \u20ac19.5B covering both short- and long-term liabilities, and has shown robust earnings growth at 26% annually outpacing the metals and mining industry.[1][6] Shares have delivered a 157.5% 12-month return amid ongoing transformation efforts in a challenging macroeconomic environment.[3]",
+      "key_developments": [
+        "Annual General Meeting held on January 30, 2026, marking key governance milestone post-fiscal year end.[3]",
+        "Closed period for insider trading active from January 13 to February 12, 2026, ahead of Q1 results, with quiet period from January 21 to February 11.[2]",
+        "Strong financial health confirmed as of February 5, 2026, with all 6/6 balance sheet criteria met, EBIT of \u20ac144M, and debt well-covered by operating cash flow.[1]"
+      ],
+      "catalysts": [
+        "Q1 2025/2026 interim report and analyst conference call on February 12, 2026, with CEO and CFO commentary, potentially revealing early fiscal momentum.[2][3][4]",
+        "H1 2025/2026 results on May 12, 2026, offering visibility into transformation execution and segment performance.[2]"
+      ],
+      "risk_factors": [
+        "Negative interest coverage ratio of -1.2x on \u20ac144M EBIT signals potential strain if macroeconomic pressures intensify.[1]",
+        "Overstated market optimism on green decarbonization amid high costs, delays, and execution risks could pressure cash flows and profits.[1]"
+      ],
+      "sources": [
+        "https://simplywall.st/stocks/de/materials/etr-tka/thyssenkrupp-shares/health",
+        "https://www.thyssenkrupp.com/en/investors/calendar",
+        "https://www.thyssenkrupp.com/en/investors",
+        "https://www.thyssenkrupp.com/en/investors/reporting-and-publications",
+        "https://www.marketscreener.com/quote/stock/THYSSENKRUPP-AG-436698/finances/",
+        "https://simplywall.st/stocks/de/materials/etr-tka/thyssenkrupp-shares/past",
+        "https://eulerpool.com/en/stock/thyssenkrupp-Stock-DE0007500001/NetIncome"
+      ],
+      "target_timeframe": "3-6 months"
+    },
+    {
+      "ticker": "EN",
+      "name": "Bouygues SA",
+      "exchange": "EPA",
+      "index": "CAC40",
+      "sector": "Industrials",
+      "price": 48.25,
+      "currency": "EUR",
+      "market_cap": 18544437248,
+      "pe_ratio": 17.545454,
+      "forward_pe": 13.719469,
+      "roe": 8.397,
+      "dividend_yield": 415.00000000000006,
+      "momentum_6m": 25.84767816372373,
+      "momentum_12m": 60.73101046194995,
+      "rsi_14": 69.28839450740628,
+      "alpha_score": 78,
+      "score_breakdown": {
+        "value": 21,
+        "quality": 9,
+        "momentum": 25,
+        "catalyst": 13,
+        "liquidity": 10
+      },
+      "yahoo_url": "https://finance.yahoo.com/quote/EN.PA",
+      "signal": "BUY",
+      "confidence": "HIGH",
+      "reasoning": "Bouygues demonstrates resilient performance with confirmed FY2025 guidance for sales and COPA growth despite macroeconomic uncertainty, bolstered by strong construction momentum and attractive valuation (P/E 14.49, 5% dividend yield).[2] Recent stock gains and technical buy signals from moving averages support continued upside, though low volume divergence warrants caution.[1][2] High momentum (6m +25.8%, 12m +60.7%) and analyst upside potential of up to 15.1% reinforce a positive trajectory in a stable European industrials context.[3]",
+      "company_overview": "Bouygues SA is a diversified French conglomerate operating in construction, telecommunications (Bouygues Telecom), and media, with a market cap of \u20ac15.19B and trailing twelve-month revenue of \u20ac57.16B.[2] The company reported robust nine-month 2025 results, including sales up 0.9% year-on-year despite a profit decline, while maintaining its full-year 2025 outlook for a slight increase in current operating profit (COPA) and sales at constant exchange rates.[2] Its stock (EPA:EN) has shown strong momentum, trading at 48.25 with a 52-week high, P/E of 14.49, ROE of 8.4%, and 12-month return of +60.7%, supported by a high Alpha Score of 78/100 driven by momentum and value factors.[2]",
+      "key_developments": [
+        "Released nine-month 2025 results on November 5, 2025, showing strong construction sales growth and financial resilience amid challenges, with group sales up 0.9% but profit down; full-year outlook confirmed.[2]",
+        "Issued monthly share disclosure on February 2, 2026, reporting 385.4M shares outstanding and 496.6M exercisable voting rights as of January 31, 2026.[4]",
+        "Stock gained 0.364% on February 3, 2026 (last trading day), closing at $11.02 (OTC equivalent), within a weak short-term rising trend signaling potential 5.92% upside over next 3 months.[1]"
+      ],
+      "catalysts": [
+        "Q4/full-year 2025 earnings release and call, expected around late February 2026 (aligned with prior patterns like Feb 26 earnings date).[2]",
+        "Potential dividend payment following May 5, 2025 ex-date, with 5.02% yield providing income support.[2]"
+      ],
+      "risk_factors": [
+        "Declining nine-month 2025 profit and uncertain macroeconomic/geopolitical environment impacting construction and telecom segments.[2]",
+        "Technical divergences like falling volume on price rises and MACD sell signals, increasing short-term volatility risk.[1]"
+      ],
+      "sources": [
+        "https://stockinvest.us/stock/BOUYY",
+        "https://stockanalysis.com/quote/epa/EN/",
+        "https://www.investing.com/equities/bouygues",
+        "https://www.globenewswire.com/news-release/2026/02/02/3230458/0/en/bouygues-monthly-disclosure-of-the-total-number-of-shares-and-voting-rights.html"
+      ],
+      "target_timeframe": "3-6 months"
+    },
+    {
+      "ticker": "AZN",
+      "name": "AstraZeneca PLC",
+      "exchange": "LSE",
+      "index": "FTSE100",
+      "sector": "Healthcare",
+      "price": 14104.0,
+      "currency": "GBP",
+      "market_cap": 218651983872,
+      "pe_ratio": 31.623316,
+      "forward_pe": 18.560966,
+      "roe": 21.674,
+      "dividend_yield": 173.0,
+      "momentum_6m": 27.799927509967382,
+      "momentum_12m": 20.387460595341466,
+      "rsi_14": 54.043839758125465,
+      "alpha_score": 75,
+      "score_breakdown": {
+        "value": 5,
+        "quality": 22,
+        "momentum": 25,
+        "catalyst": 13,
+        "liquidity": 10
+      },
+      "yahoo_url": "https://finance.yahoo.com/quote/AZN.L",
+      "signal": "BUY",
+      "confidence": "HIGH",
+      "reasoning": "AstraZeneca demonstrates sustained franchise growth, pipeline momentum, and strategic moves like NYSE listing to expand investor access, positioning it for resilient performance amid competitive pressures.[1][2] Analyst consensus supports upside with 'strong buy' ratings and targets above current levels, reinforced by strong free cash flow for dividends/buybacks.[1] The 10 February earnings could catalyze further gains if guidance affirms 2026 margin expansion and oncology leadership.[1]",
+      "company_overview": "AstraZeneca PLC is a leading global biopharmaceutical company focused on oncology, cardiovascular, renal & metabolism (CVRM), and respiratory & immunology (R&I) franchises, with strong momentum in products like Tagrisso, Enhertu, and Farxiga driving double-digit growth.[1] The company maintains a robust late-stage pipeline and has recently harmonized its global listings by adding ordinary share trading on the NYSE under the AZN ticker alongside LSE and Nasdaq Stockholm.[2] Shares have risen ~24% over the past year, trading near record highs with a consensus analyst price target of 14,812.75p (~7% above early February 2026 levels) and a 'strong buy' rating.[1]",
+      "key_developments": [
+        "AstraZeneca began trading ordinary shares on the NYSE under AZN, replacing prior American Depositary Shares to broaden access to the world's largest capital market while retaining LSE and Nasdaq Stockholm listings; US dollar bonds also transitioned to NYSE.[2]",
+        "Reaffirmed long-term ambition of $80 billion in annual revenue by 2030 and launching 20 new medicines, supported by recent pipeline readouts with over $10 billion peak revenue potential.[2]",
+        "Upcoming full-year 2025 results on 10 February 2026 expected to show solid revenue/EPS growth (particularly in oncology/CVRM/R&I) but slightly lower pre-tax profit, with focus on margins, cash flow, and 2026 guidance.[1]"
+      ],
+      "catalysts": [
+        "Full-year 2025 earnings release on 10 February 2026, with updates on revenue growth, oncology uptake, pipeline progress (e.g., regulatory submissions/label expansions), and 2026 guidance.[1]",
+        "Pipeline milestones, including late-stage trial outcomes in oncology/cardiovascular/rare diseases and progress toward $80B revenue ambition/20 new launches by 2030.[1][2]"
+      ],
+      "risk_factors": [
+        "Pricing/reimbursement pressures in the US and Europe potentially slowing demand in key products like Farxiga/Tagrisso, alongside margin compression from R&D spend.[1]",
+        "Earnings disappointment on 10 February if oncology growth softens, pre-tax profits miss, or 2026 visibility lacks amid competition.[1]"
+      ],
+      "sources": [
+        "https://www.ig.com/uk/news-and-trade-ideas/_astrazeneca-full-year-earnings--can-the-pharma-giant-maintain-o-260204",
+        "https://www.stocktitan.net/sec-filings/AZN/6-k-astrazeneca-plc-current-report-foreign-issuer-5cf8521c5fa8.html"
+      ],
+      "target_timeframe": "3-6 months"
+    },
+    {
+      "ticker": "FERG",
+      "name": "Ferguson Enterprises Inc.",
+      "exchange": "LSE",
+      "index": "FTSE100",
+      "sector": "Industrials",
+      "price": 19170.0,
+      "currency": "GBP",
+      "market_cap": 38471598080,
+      "pe_ratio": 26.260273,
+      "forward_pe": 23.096275,
+      "roe": 33.404,
+      "dividend_yield": 138.0,
+      "momentum_6m": 16.616244059754326,
+      "momentum_12m": 31.685581996916845,
+      "rsi_14": 64.28571428571428,
+      "alpha_score": 71,
+      "score_breakdown": {
+        "value": 9,
+        "quality": 22,
+        "momentum": 25,
+        "catalyst": 5,
+        "liquidity": 10
+      },
+      "yahoo_url": "https://finance.yahoo.com/quote/FERG.L",
+      "signal": "BUY",
+      "confidence": "HIGH",
+      "reasoning": "**BULLISH** - **Confidence: HIGH**   Ferguson's robust Q1 execution\u2014double-digit non-residential growth, margin expansion, and strong cash flow\u2014demonstrates resilience in a bifurcated market, supported by a pristine balance sheet enabling acquisitions and returns. Non-residential tailwinds from infrastructure/public works outweigh residential headwinds, with reaffirmed guidance signaling outperformance vs. broader industrials amid economic uncertainty. At P/E 26.3 and ROE 33.4%, valuation reflects quality/momentum (Alpha 71/100), positioning for continued upside.[1][2][3][4]",
+      "company_overview": "",
+      "key_developments": [
+        "Reported Q1 2026 results on December 9, 2025: sales up 5.1% to $8.2B, adjusted EPS $2.84 (+15.9% YoY, beating some consensus but missing higher expectations), with non-residential revenue +12% (e.g., Commercial/Mechanical +21%, Waterworks +14%) offsetting residential -1%; stock fell ~4% in premarket.[1][2][3][4][7][8]",
+        "Strategic acquisition of Moore Supply Company to bolster HVAC in Chicago; continued diversification into non-residential and customer base expansion.[1]",
+        "Returned $372M to shareholders ($208M repurchases, reducing shares by ~1M; 7% dividend hike to $0.89/share); strong balance sheet with net debt/EBITDA at 1.1x.[1][2][3][4]",
+        "Updated FY2025 guidance: ~5% revenue growth, operating margins 9.4-9.6% (narrowed from 9.2-9.6%), CapEx ~$350M.[1][2][3]"
+      ],
+      "catalysts": [
+        "Q2 2026 earnings (likely March 2026): Potential beats on non-residential momentum and margin progress could drive re-rating.[3][5]",
+        "Non-residential project acceleration (e.g., municipal/infrastructure spending) and acquisition integration, leveraging multi-year housing/infra tailwinds.[1][3][4]",
+        "Share repurchases ($800M remaining) and dividend growth amid strong FCF.[2][4]"
+      ],
+      "risk_factors": [
+        "Persistent residential weakness (soft housing starts, RMI, HVAC transitions) dragging ~50% of US sales.[3][4]",
+        "EPS volatility/missed expectations triggering selloffs, as seen post-Q1; broader economic slowdown impacting non-res.[3][4][8]"
+      ],
+      "sources": [
+        "https://www.moomoo.com/news/post/62629271/ferguson-enterprises-inc-ferg-q1-2026-earnings-call-transcript-summary",
+        "https://quartr.com/companies/ferguson-enterprises-inc_3672",
+        "https://www.investing.com/news/company-news/ferguson-q1-2026-slides-eps-miss-triggers-stock-decline-despite-revenue-beat-93CH-4398910",
+        "https://www.youtube.com/watch?v=ZKruzocZHyc",
+        "https://www.corporate.ferguson.com/investor/events-results-and-reports/default.aspx",
+        "https://www.corporate.ferguson.com/investor/why-ferguson/default.aspx",
+        "https://www.corporate.ferguson.com/pressroom/news-releases/news-details/2025/Ferguson-Reports-Quarter-Ended-October-31-2025/default.aspx",
+        "https://www.marketbeat.com/stocks/NYSE/FERG/earnings/"
+      ],
+      "target_timeframe": "3-6 months"
+    },
+    {
+      "ticker": "ENR",
+      "name": "Siemens Energy AG",
+      "exchange": "XETR",
+      "index": "DAX",
+      "sector": "Industrials",
+      "price": 152.0,
+      "currency": "EUR",
+      "market_cap": 130012315648,
+      "pe_ratio": 95.0,
+      "forward_pe": 28.98324,
+      "roe": 16.816,
+      "dividend_yield": 46.0,
+      "momentum_6m": 58.33333333333333,
+      "momentum_12m": 166.19965685093595,
+      "rsi_14": 71.95574684426185,
+      "alpha_score": 70,
+      "score_breakdown": {
+        "value": 5,
+        "quality": 22,
+        "momentum": 23,
+        "catalyst": 13,
+        "liquidity": 7
+      },
+      "yahoo_url": "https://finance.yahoo.com/quote/ENR.DE",
+      "signal": "BUY",
+      "confidence": "HIGH",
+      "reasoning": "Analyst upgrades and record orders reflect sustained momentum from energy-transition tailwinds and execution improvements, with the stock trading above key moving averages despite a high P/E of 95.[1][3] Revenue growth of 13% last year and forecasted 12% annually aligns with industry peers, but elevated investor optimism and US expansion plans justify premiums over peers' P/S ratios.[1][2][4] Technicals show an established uptrend (RSI ~72, ADX 33), supporting further gains toward \u20ac155-170 targets in a favorable macro context.[1]",
+      "company_overview": "Siemens Energy AG is a Germany-based energy technology company supplying equipment and services for power generation, grids, and energy-transition projects, with a strong market position driven by structural demand in grid infrastructure and renewables.[1] The company has delivered robust financial performance, including double-digit comparable revenue growth, record order intake, and an upgraded mid-term outlook through 2028, supporting a sharp stock recovery from below \u20ac20 in early 2024 to around \u20ac143-152 recently.[1][3] It forecasts 11-13% comparable revenue growth and 9-11% profit margin before special items for fiscal 2026, positioning it toward the upper end of full-year guidance after strong quarterly results.[3]",
+      "key_developments": [
+        "Deutsche Bank raised its price target to \u20ac170 from \u20ac135 (29 January 2026), citing improved fundamentals, stronger order pipeline, profitability, and demand for grid/energy-transition infrastructure.[1]",
+        "Jefferies lifted its target to \u20ac164 from \u20ac134 (2 February 2026), highlighting better earnings visibility and supportive sector dynamics in grid investments.[1]",
+        "Siemens Energy announced $421M expansion in North Carolina and Alabama production growth as part of $1B investments (early February 2026), alongside lifting the dividend ban after exiting federal guarantees.[3][4]"
+      ],
+      "catalysts": [
+        "Q4/FY2026 earnings release, potentially confirming upper-end guidance and early dividend payout.[3]",
+        "Progress on US expansions ($421M NC, $1B Alabama) boosting capacity for grid/energy projects.[4]",
+        "Further broker upgrades amid grid investment spending cycles.[1]"
+      ],
+      "risk_factors": [
+        "Elevated valuation (P/E 95, P/S 3.4x vs. industry <1.7x) leaves room for pullbacks if revenue growth merely matches peers at 12% without acceleration.[1][2]",
+        "Legacy onshore wind challenges, project execution risks, and macro shifts in energy-transition funding.[1]"
+      ],
+      "sources": [
+        "https://capital.com/en-int/analysis/siemens-energy-stock-forecast",
+        "https://simplywall.st/stocks/de/capital-goods/etr-enr/siemens-energy-shares/news/siemens-energy-ags-etrenr-26-price-boost-is-out-of-tune-with",
+        "https://www.siemens-energy.com/global/en/home/investor-relations.html",
+        "https://www.perplexity.ai/finance/ENR.DE"
+      ],
+      "target_timeframe": "3-6 months"
+    },
+    {
+      "ticker": "SAF",
+      "name": "Safran SA",
+      "exchange": "EPA",
+      "index": "CAC40",
+      "sector": "Industrials",
+      "price": 308.0,
+      "currency": "EUR",
+      "market_cap": 128284680192,
+      "pe_ratio": 29.758453,
+      "forward_pe": 29.628347,
+      "roe": 34.745997,
+      "dividend_yield": 94.0,
+      "momentum_6m": 5.987609611503686,
+      "momentum_12m": 26.409959646058656,
+      "rsi_14": 39.782594994443805,
+      "alpha_score": 70,
+      "score_breakdown": {
+        "value": 5,
+        "quality": 25,
+        "momentum": 20,
+        "catalyst": 13,
+        "liquidity": 7
+      },
+      "yahoo_url": "https://finance.yahoo.com/quote/SAF.PA",
+      "signal": "BUY",
+      "confidence": "HIGH",
+      "reasoning": "Safran is a major European aerospace and defense company with a **market capitalization of \u20ac125-126 billion**[1][2]. The company has demonstrated strong financial performance, with a **12-month return of +45.52% to +46.97%**[1] and solid operational metrics including **net income of \u20ac5.05 billion and EBITDA of \u20ac3.22 billion**[1]. Safran operates with approximately **83,280 employees**[1] and maintains a strong balance sheet with **\u20ac10.73 billion in equity capital**[1].",
+      "company_overview": "Safran is a major European aerospace and defense company with a **market capitalization of \u20ac125-126 billion**[1][2]. The company has demonstrated strong financial performance, with a **12-month return of +45.52% to +46.97%**[1] and solid operational metrics including **net income of \u20ac5.05 billion and EBITDA of \u20ac3.22 billion**[1]. Safran operates with approximately **83,280 employees**[1] and maintains a strong balance sheet with **\u20ac10.73 billion in equity capital**[1].",
+      "key_developments": [
+        "**Stock reached all-time highs in late 2025**: Safran shares hit \u20ac305.80 in early October 2025 and continued climbing through September-October, reflecting sustained investor confidence in the company's trajectory[1]",
+        "**Recent price consolidation**: The stock has traded in a range of \u20ac298-308 in early February 2026, with the lowest point since January 2026 at \u20ac298.25, suggesting some profit-taking after the strong 2025 rally[1][3]",
+        "**Strong momentum continuation**: Despite recent consolidation, the stock gained **3.21% over four weeks** and maintains its significant year-to-date outperformance[1]"
+      ],
+      "catalysts": [
+        "**Aerospace cycle recovery**: Continued commercial aircraft production ramp-up and defense spending in Europe could drive earnings growth",
+        "**Defense spending acceleration**: Increased European defense budgets in response to geopolitical tensions may benefit Safran's defense division",
+        "**Quarterly earnings releases**: Upcoming financial results will validate whether the company can sustain its high profitability metrics"
+      ],
+      "risk_factors": [
+        "**Valuation stretched**: Trading at a **546% premium to fair value of \u20ac391 according to Morningstar**[2], with normalized P/E of 38.74 leaving limited margin of safety",
+        "**Cyclical exposure**: Aerospace and defense sectors are sensitive to economic cycles and geopolitical shifts; any slowdown in commercial aviation or defense spending could pressure earnings",
+        "**Analyst price targets suggest downside**: Trading Economics forecasts the stock at \u20ac273.15 in one year, implying approximately 11% downside from current levels[1]"
+      ],
+      "sources": [
+        "https://tradingeconomics.com/saf:fp",
+        "https://www.morningstar.com/stocks/xpar/saf/quote",
+        "https://www.investing.com/equities/safran-historical-data",
+        "https://www.safran-group.com/finance/safran-share-price",
+        "https://www.safran-group.com/finance/glance",
+        "https://finbox.com/ENXTPA:SAF/"
+      ],
+      "target_timeframe": "3-6 months"
+    },
+    {
+      "ticker": "GSK",
+      "name": "GSK plc",
+      "exchange": "LSE",
+      "index": "FTSE100",
+      "sector": "Healthcare",
+      "price": 2198.0,
+      "currency": "GBP",
+      "market_cap": 88211988480,
+      "pe_ratio": 15.812949,
+      "forward_pe": 11.246936,
+      "roe": 43.310001,
+      "dividend_yield": 328.0,
+      "momentum_6m": 56.58391015225654,
+      "momentum_12m": 50.047182405412705,
+      "rsi_14": 85.63432835820896,
+      "alpha_score": 70,
+      "score_breakdown": {
+        "value": 13,
+        "quality": 19,
+        "momentum": 23,
+        "catalyst": 5,
+        "liquidity": 10
+      },
+      "yahoo_url": "https://finance.yahoo.com/quote/GSK.L",
+      "signal": "BUY",
+      "confidence": "HIGH",
+      "reasoning": "GSK plc is a British pharmaceutical giant with a diversified portfolio spanning specialty medicines, vaccines, and general medicines. The company delivered strong 2025 performance with total sales of \u00a332.7 billion (+7% at constant exchange rates) and has recently appointed new CEO Luke Miels, who took office at the start of 2026.[1][2] GSK's market valuation has surged significantly, with shares climbing 6.91% on February 4, 2026, following better-than-expected results and reaching a 26-year high near 2,080 pence.[7]",
+      "company_overview": "GSK plc is a British pharmaceutical giant with a diversified portfolio spanning specialty medicines, vaccines, and general medicines. The company delivered strong 2025 performance with total sales of \u00a332.7 billion (+7% at constant exchange rates) and has recently appointed new CEO Luke Miels, who took office at the start of 2026.[1][2] GSK's market valuation has surged significantly, with shares climbing 6.91% on February 4, 2026, following better-than-expected results and reaching a 26-year high near 2,080 pence.[7]",
+      "key_developments": [
+        "**Strong Q4 2025 and FY2025 Results (February 4, 2026):** GSK reported Q4 revenue of \u00a38.618 billion (+6% actual exchange rates, +8% constant exchange rates) and full-year sales of \u00a332.7 billion (+4% actual, +7% constant exchange rates). Core operating profit grew 11% and core EPS grew 12% for the full year.[1][2]"
+      ],
+      "catalysts": [
+        "**2026 Commercial Launches and R&D Progression:** CEO Luke Miels emphasized 2026 as \"a key year of execution and operational delivery with strong focus on commercial launches and accelerating R&D,\" particularly in Oncology and Vaccines.[1]"
+      ],
+      "risk_factors": [
+        "**Patent Cliff and HIV Revenue Loss:** GSK faces the loss of lucrative HIV treatment patents from 2028 onwards, which could materially impact revenues and earnings if not offset by new product launches.[5]"
+      ],
+      "sources": [
+        "https://www.nasdaq.com/articles/gsk-q4-results-climb-sees-growth-fy26-backs-2031-sales-view-update",
+        "https://www.gsk.com/en-gb/media/press-releases/gsk-delivers-strong-2025-performance-and-re-affirms-long-term-outlooks/",
+        "https://www.gurufocus.com/news/8580044/gsk-projects-moderate-growth-in-turnover-and-earnings-by-2026?mobile=true",
+        "https://www.ig.com/uk/news-and-trade-ideas/gsk-full-year-earnings--can-the-pharma-giant-deliver-on-post-dem-260203",
+        "https://www.voxmarkets.com/articles/gsk-sees-slower-sales-growth-in-2026-as-patent-loss-looms-7c4f7f2",
+        "https://www.gsk.com/media/g0lnid23/fy-2025-results-announcement.pdf",
+        "https://kalkine.co.uk/news/premium/gsk-plc-at-a-26-year-high-is-the-market-re-rating-the-stock"
+      ],
+      "target_timeframe": "3-6 months"
+    },
+    {
+      "ticker": "RIO",
+      "name": "Rio Tinto Group",
+      "exchange": "LSE",
+      "index": "FTSE100",
+      "sector": "Basic Materials",
+      "price": 6843.0,
+      "currency": "GBP",
+      "market_cap": 111193030656,
+      "pe_ratio": 14.716128,
+      "forward_pe": 12.113603,
+      "roe": 17.158002,
+      "dividend_yield": 416.0,
+      "momentum_6m": 49.673994048695945,
+      "momentum_12m": 36.53139134072427,
+      "rsi_14": 66.68874172185431,
+      "alpha_score": 70,
+      "score_breakdown": {
+        "value": 13,
+        "quality": 22,
+        "momentum": 25,
+        "catalyst": 0,
+        "liquidity": 10
+      },
+      "yahoo_url": "https://finance.yahoo.com/quote/RIO.L",
+      "signal": "BUY",
+      "confidence": "HIGH",
+      "reasoning": "Rio Tinto's robust balance sheet, undervalued shares (19.1% DCF discount, P/E below industry at 14.47x vs. 23.28x), and copper growth position it well in the critical minerals era amid energy transition demands.[1][2][3] Rejection of the Glencore merger preserves management control and avoids dilution risks, reinforcing standalone strength with projected net income growth to $12.66B in 2026 (+16.61%).[1][7] Analyst overweight calls and organic expansion support upside to targets like \u00a375.[3]",
+      "company_overview": "Rio Tinto Group is a leading global mining company with major assets in iron ore (Pilbara operations), copper (30% stake in Escondida and 66% in Oyu Tolgoi), and a market cap of approximately $151 billion, positioning it as a top player in the Metals & Mining sector.[1] The company maintains strong financial health, including a 25.39% operating margin, 19.2% net margin, current ratio of 1.53, debt-to-equity of 0.41, and Altman Z-Score of 3.67, despite trailing 12-month revenue of $53.73 billion and a 3-year growth rate of -3.9%.[1] Shares have delivered strong returns (6m: +49.7%, 12m: +36.5%) at a current price around \u00a366-68, with a P/E of 14.7-14.9 trading below industry averages, and DCF models indicating 19.1% undervaluation.[1][2]",
+      "key_developments": [
+        "Rio Tinto declined a merger offer from Glencore, prioritizing independence due to disagreements on leadership roles (retaining Chair and CEO), valuation, and ownership structure; talks ended by Feb 5, 2026 deadline set by UK regulators.[1][3]",
+        "Post-merger abandonment, Rio shares dipped ~1% to \u00a367.62 on profit-taking, but analysts reinstated overweight ratings citing high organic copper growth and strategic options.[3]",
+        "Strong recent performance with shares up 11.6% over 30 days, 44.7% over 1 year; RSI at 71.35 signals overbought conditions, but valuation metrics (P/E near 3-year high yet below peers) suggest undervaluation.[1][2]"
+      ],
+      "catalysts": [
+        "2025 Annual Results release on February 19, 2026, expected to highlight financial performance and guidance.[5]",
+        "2026 Final dividend ex-dividend date, providing yield amid strong free cash flow projections (e.g., $13.6B by 2030).[2][4]",
+        "Progress on copper assets like Oyu Tolgoi and Escondida, boosting output in high-demand commodities.[1][3]"
+      ],
+      "risk_factors": [
+        "Commodity price volatility and regulatory challenges in mining operations, amplified by resource nationalism.[1][3]",
+        "Overbought technicals (RSI 71.35) and high valuations near 3-year peaks, vulnerable to profit-taking or market corrections.[1]",
+        "Slower revenue growth (-3.9% over 3 years) if iron ore or copper demand weakens.[1]"
+      ],
+      "sources": [
+        "https://www.gurufocus.com/news/8586961/rio-tinto-rio-declines-offer-maintaining-independence",
+        "https://simplywall.st/stocks/gb/materials/lse-rio/rio-tinto-group-shares/news/has-the-market-fully-reflected-rio-tinto-lserios-strong-rece",
+        "https://www.morningstar.com/news/marketwatch/2026020614/whats-next-for-rio-tinto-and-glencore-after-260-billion-megamerger-aborted",
+        "https://www.riotinto.com/en/invest/financial-calendar",
+        "https://www.riotinto.com/en/invest/financial-news-performance",
+        "https://www.riotinto.com/en/invest/reports",
+        "https://eulerpool.com/en/stock/Rio-Tinto-Stock-GB0007188757/NetIncome"
+      ],
+      "target_timeframe": "3-6 months"
+    },
+    {
+      "ticker": "AMAT",
+      "name": "Applied Materials, Inc.",
+      "exchange": "US",
+      "index": "NASDAQ_SELECT",
+      "sector": "Technology",
+      "price": 322.51,
+      "currency": "USD",
+      "market_cap": 255983124480,
+      "pe_ratio": 37.15553,
+      "forward_pe": 26.492924,
+      "roe": 35.508,
+      "dividend_yield": 56.99999999999999,
+      "momentum_6m": 75.29526315003756,
+      "momentum_12m": null,
+      "rsi_14": 48.28819156800613,
+      "alpha_score": 70,
+      "score_breakdown": {
+        "value": 5,
+        "quality": 25,
+        "momentum": 17,
+        "catalyst": 13,
+        "liquidity": 10
+      },
+      "yahoo_url": "https://finance.yahoo.com/quote/AMAT",
+      "signal": "BUY",
+      "confidence": "HIGH",
+      "reasoning": "Applied Materials is well-positioned to capitalize on surging global wafer fabrication equipment (WFE) spending, projected at 13% growth in 2026 driven by AI chip demand from U.S., Taiwan, and Japan investments.[2] Strong analyst momentum, earnings beat history, and recent stock resilience amid market volatility support continued outperformance, with consensus targets implying upside from current levels.[1][2][4] Balancing AI growth opportunities offsets near-term China exposure concerns.[8]",
+      "company_overview": "Applied Materials, Inc. (AMAT) is a leading supplier of equipment, software, and services for semiconductor and advanced display manufacturing, holding a strong position as the world's second-largest wafer fabrication equipment provider with a market cap of approximately $256 billion.[1][2][4] The company has delivered exceptional performance, with shares surging 78.2% over the past year and 24% YTD as of early 2026, outperforming the S&P 500 amid AI-driven demand.[2][4] It maintains robust fundamentals, including a ROE of 39.26%, net margin of 24.67%, and a history of beating earnings estimates in the last four quarters.[1][2]",
+      "key_developments": [
+        "Stock surged 6.1% to $322.51 on February 6, 2026, with high volume of $2.64B, driven by AI demand and analyst upgrades including Citi to $400 PT, Deutsche Bank to $390, and Morgan Stanley to $364.[3][4]",
+        "Multiple analyst upgrades and PT increases in recent weeks, shifting consensus to \"Strong Buy\" from 36 analysts (24 Strong Buy, 3 Moderate Buy, 9 Holds), with average PT around $315.[1][2][4]",
+        "Q1 2026 earnings scheduled for February 12 after close, with consensus EPS $2.21 (guidance $1.98\u2013$2.38) and revenue ~$6.88B expected, despite YoY declines; quarterly dividend of $0.46 declared (ex-date Feb 19).[1][4][5]"
+      ],
+      "catalysts": [
+        "Q1 FY2026 earnings on February 12, with potential for EPS/revenue beat given history and Morgan Stanley's upside expectations.[1][5]",
+        "Rising chipmaker CapEx, including TSMC's $56B draft, and global WFE expansion in AI-related segments.[1][2]"
+      ],
+      "risk_factors": [
+        "Expected YoY earnings decline (~8%) and revenue drop (~3.9%) in Q1, which could pressure shares if guidance disappoints.[5]",
+        "Geopolitical tensions and new China restrictions impacting equipment sales, alongside recent insider selling (~$2M).[1][8]"
+      ],
+      "sources": [
+        "https://www.marketbeat.com/instant-alerts/applied-materials-amat-projected-to-post-earnings-on-thursday-2026-02-05/",
+        "https://markets.financialcontent.com/stocks/article/barchart-2026-2-4-are-wall-street-analysts-bullish-on-applied-materials-stock",
+        "https://www.ainvest.com/news/applied-materials-surges-6-1-ai-driven-demand-ranks-34th-2-64-billion-trading-volume-2602/",
+        "https://www.marketbeat.com/instant-alerts/applied-materials-nasdaqamat-trading-up-61-whats-next-2026-02-06/",
+        "https://www.nasdaq.com/articles/applied-materials-amat-expected-beat-earnings-estimates-can-stock-move-higher",
+        "https://www.zacks.com/stock/news/2828386/heres-why-applied-materials-amat-fell-more-than-broader-market",
+        "https://www.tipranks.com/news/applied-materials-stock-amat-plunges-despite-hopes-for-a-more-constructive-direction",
+        "https://simplywall.st/stocks/us/semiconductors/nasdaq-amat/applied-materials/news/applied-materials-balances-ai-growth-opportunity-with-new-ch"
+      ],
+      "target_timeframe": "3-6 months"
+    },
+    {
+      "ticker": "DHL",
+      "name": "Deutsche Post AG",
+      "exchange": "XETR",
+      "index": "DAX",
+      "sector": "Industrials",
+      "price": 49.7,
+      "currency": "EUR",
+      "market_cap": 57314856960,
+      "pe_ratio": 16.188925,
+      "forward_pe": 15.037458,
+      "roe": 16.792,
+      "dividend_yield": 372.0,
+      "momentum_6m": 21.72421879525457,
+      "momentum_12m": 48.088536973267004,
+      "rsi_14": 73.08786675989094,
+      "alpha_score": 69,
+      "score_breakdown": {
+        "value": 18,
+        "quality": 16,
+        "momentum": 23,
+        "catalyst": 5,
+        "liquidity": 7
+      },
+      "yahoo_url": "https://finance.yahoo.com/quote/DHL.DE",
+      "signal": "HOLD",
+      "confidence": "MEDIUM",
+      "reasoning": "Deutsche Post AG (DHL) is the global market leader in logistics, offering integrated express, freight, supply chain, and eCommerce solutions[4]. The company demonstrated resilience in Q3 2025 despite macroeconomic headwinds, achieving four consecutive quarters of earnings growth with EBIT increasing 7.6% to EUR 1.5 billion, though revenue declined 2.3% to EUR 20.1 billion due to currency effects and lower US-bound volumes[1]. The stock has delivered strong returns (+48.1% over 12 months) and trades at a reasonable valuation with a P/E of 16.2 and ROE of 16.8%.",
+      "company_overview": "Deutsche Post AG (DHL) is the global market leader in logistics, offering integrated express, freight, supply chain, and eCommerce solutions[4]. The company demonstrated resilience in Q3 2025 despite macroeconomic headwinds, achieving four consecutive quarters of earnings growth with EBIT increasing 7.6% to EUR 1.5 billion, though revenue declined 2.3% to EUR 20.1 billion due to currency effects and lower US-bound volumes[1]. The stock has delivered strong returns (+48.1% over 12 months) and trades at a reasonable valuation with a P/E of 16.2 and ROE of 16.8%.",
+      "key_developments": [
+        "**eCommerce division transformation**: EBIT surged from EUR 51 million to EUR 176 million in Q3 2025 (>100% growth), though this includes a EUR 123 million positive non-recurring effect from the Evri merger deconsolidation; underlying EBIT margin remained stable at 3.1%[1][3]"
+      ],
+      "catalysts": [
+        "**Q4 2025 seasonality**: Management highlighted being \"well prepared for the seasonally strong year-end business,\" which typically drives significant volume and margin expansion[1]"
+      ],
+      "risk_factors": [
+        "**Trade conflict exposure**: Ongoing US trade tensions have already reduced volumes on US-bound routes; escalation could further pressure freight and express divisions[1]"
+      ],
+      "sources": [
+        "https://group.dhl.com/en/media-relations/press-releases/2025/dhl-group-financial-figures-q3-2025.html",
+        "https://group.dhl.com/en/investors/shares/consensus.html",
+        "https://reporting-hub.group.dhl.com/2025-q3/en/business-performance/",
+        "https://group.dhl.com/en/investors.html",
+        "https://www.marketscreener.com/news/dhl-consensus-full-year-dhl-consensus-fy-2026-2-2-ce7e5bd2d989fe2c",
+        "https://israelgives.org/celebs-details/282/How-Deutsche-Post-AG-(DHL)-stock-performs-during-market-turbulence",
+        "https://simplywall.st/stocks/bg/transportation/bul-dhl/deutsche-post-shares/past"
+      ],
+      "target_timeframe": "3-6 months"
+    }
+  ]
 }
