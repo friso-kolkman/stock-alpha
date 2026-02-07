@@ -574,7 +574,8 @@
             border-top-color: var(--border-color);
         }
 
-        .info-tip:hover .tip-text {
+        .info-tip:hover .tip-text,
+        .info-tip.active .tip-text {
             visibility: visible;
             opacity: 1;
         }
@@ -1060,5 +1061,18 @@
             </p>
         </footer>
     </div>
+    <script>
+    /* Toggle tooltips on tap for touch devices */
+    document.addEventListener('click', function(e) {
+        var tip = e.target.closest('.info-tip');
+        document.querySelectorAll('.info-tip.active').forEach(function(el) {
+            if (el !== tip) el.classList.remove('active');
+        });
+        if (tip) {
+            e.preventDefault();
+            tip.classList.toggle('active');
+        }
+    });
+    </script>
 </body>
 </html>
