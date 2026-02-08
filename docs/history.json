@@ -629,12 +629,222 @@
       "return_pct": null,
       "eval_date": null,
       "eval_price": null
+    },
+    {
+      "id": "2026-02-08T16:44:29.198446+00:00_TKA",
+      "scan_date": "2026-02-08T16:44:29.198446+00:00",
+      "ticker": "TKA",
+      "exchange": "XETR",
+      "signal": "HOLD",
+      "price_at_signal": 11.655,
+      "alpha_score": 82,
+      "score_breakdown": {
+        "value": 21,
+        "quality": 15,
+        "momentum": 25,
+        "catalyst": 13,
+        "liquidity": 8
+      },
+      "evaluated": false,
+      "outcome": null,
+      "return_pct": null,
+      "eval_date": null,
+      "eval_price": null
+    },
+    {
+      "id": "2026-02-08T16:44:29.198446+00:00_EN",
+      "scan_date": "2026-02-08T16:44:29.198446+00:00",
+      "ticker": "EN",
+      "exchange": "EPA",
+      "signal": "BUY",
+      "price_at_signal": 48.25,
+      "alpha_score": 78,
+      "score_breakdown": {
+        "value": 21,
+        "quality": 9,
+        "momentum": 25,
+        "catalyst": 13,
+        "liquidity": 10
+      },
+      "evaluated": false,
+      "outcome": null,
+      "return_pct": null,
+      "eval_date": null,
+      "eval_price": null
+    },
+    {
+      "id": "2026-02-08T16:44:29.198446+00:00_AZN",
+      "scan_date": "2026-02-08T16:44:29.198446+00:00",
+      "ticker": "AZN",
+      "exchange": "LSE",
+      "signal": "BUY",
+      "price_at_signal": 14104.0,
+      "alpha_score": 75,
+      "score_breakdown": {
+        "value": 5,
+        "quality": 22,
+        "momentum": 25,
+        "catalyst": 13,
+        "liquidity": 10
+      },
+      "evaluated": false,
+      "outcome": null,
+      "return_pct": null,
+      "eval_date": null,
+      "eval_price": null
+    },
+    {
+      "id": "2026-02-08T16:44:29.198446+00:00_DG",
+      "scan_date": "2026-02-08T16:44:29.198446+00:00",
+      "ticker": "DG",
+      "exchange": "EPA",
+      "signal": "HOLD",
+      "price_at_signal": 134.2,
+      "alpha_score": 72,
+      "score_breakdown": {
+        "value": 21,
+        "quality": 16,
+        "momentum": 20,
+        "catalyst": 5,
+        "liquidity": 10
+      },
+      "evaluated": false,
+      "outcome": null,
+      "return_pct": null,
+      "eval_date": null,
+      "eval_price": null
+    },
+    {
+      "id": "2026-02-08T16:44:29.198446+00:00_FERG",
+      "scan_date": "2026-02-08T16:44:29.198446+00:00",
+      "ticker": "FERG",
+      "exchange": "LSE",
+      "signal": "BUY",
+      "price_at_signal": 19170.0,
+      "alpha_score": 71,
+      "score_breakdown": {
+        "value": 9,
+        "quality": 22,
+        "momentum": 25,
+        "catalyst": 5,
+        "liquidity": 10
+      },
+      "evaluated": false,
+      "outcome": null,
+      "return_pct": null,
+      "eval_date": null,
+      "eval_price": null
+    },
+    {
+      "id": "2026-02-08T16:44:29.198446+00:00_ENR",
+      "scan_date": "2026-02-08T16:44:29.198446+00:00",
+      "ticker": "ENR",
+      "exchange": "XETR",
+      "signal": "BUY",
+      "price_at_signal": 152.0,
+      "alpha_score": 70,
+      "score_breakdown": {
+        "value": 5,
+        "quality": 22,
+        "momentum": 23,
+        "catalyst": 13,
+        "liquidity": 7
+      },
+      "evaluated": false,
+      "outcome": null,
+      "return_pct": null,
+      "eval_date": null,
+      "eval_price": null
+    },
+    {
+      "id": "2026-02-08T16:44:29.198446+00:00_SAF",
+      "scan_date": "2026-02-08T16:44:29.198446+00:00",
+      "ticker": "SAF",
+      "exchange": "EPA",
+      "signal": "BUY",
+      "price_at_signal": 308.0,
+      "alpha_score": 70,
+      "score_breakdown": {
+        "value": 5,
+        "quality": 25,
+        "momentum": 20,
+        "catalyst": 13,
+        "liquidity": 7
+      },
+      "evaluated": false,
+      "outcome": null,
+      "return_pct": null,
+      "eval_date": null,
+      "eval_price": null
+    },
+    {
+      "id": "2026-02-08T16:44:29.198446+00:00_GSK",
+      "scan_date": "2026-02-08T16:44:29.198446+00:00",
+      "ticker": "GSK",
+      "exchange": "LSE",
+      "signal": "BUY",
+      "price_at_signal": 2198.0,
+      "alpha_score": 70,
+      "score_breakdown": {
+        "value": 13,
+        "quality": 19,
+        "momentum": 23,
+        "catalyst": 5,
+        "liquidity": 10
+      },
+      "evaluated": false,
+      "outcome": null,
+      "return_pct": null,
+      "eval_date": null,
+      "eval_price": null
+    },
+    {
+      "id": "2026-02-08T16:44:29.198446+00:00_RIO",
+      "scan_date": "2026-02-08T16:44:29.198446+00:00",
+      "ticker": "RIO",
+      "exchange": "LSE",
+      "signal": "BUY",
+      "price_at_signal": 6843.0,
+      "alpha_score": 70,
+      "score_breakdown": {
+        "value": 13,
+        "quality": 22,
+        "momentum": 25,
+        "catalyst": 0,
+        "liquidity": 10
+      },
+      "evaluated": false,
+      "outcome": null,
+      "return_pct": null,
+      "eval_date": null,
+      "eval_price": null
+    },
+    {
+      "id": "2026-02-08T16:44:29.198446+00:00_AMAT",
+      "scan_date": "2026-02-08T16:44:29.198446+00:00",
+      "ticker": "AMAT",
+      "exchange": "US",
+      "signal": "BUY",
+      "price_at_signal": 322.51,
+      "alpha_score": 70,
+      "score_breakdown": {
+        "value": 5,
+        "quality": 25,
+        "momentum": 17,
+        "catalyst": 13,
+        "liquidity": 10
+      },
+      "evaluated": false,
+      "outcome": null,
+      "return_pct": null,
+      "eval_date": null,
+      "eval_price": null
     }
   ],
   "model_stats": {
-    "total_predictions": 30,
+    "total_predictions": 40,
     "evaluated": 0,
-    "pending": 30,
+    "pending": 40,
     "correct": 0,
     "incorrect": 0,
     "inconclusive": 0,
@@ -681,7 +891,7 @@
     {
       "date": "2026-02-08",
       "win_rate": null,
-      "total_predictions": 30,
+      "total_predictions": 40,
       "evaluated": 0,
       "correct": 0,
       "avg_return": null,
