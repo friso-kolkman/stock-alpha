@@ -429,6 +429,47 @@
         }
 
         /* Model Performance */
+        .perf-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .perf-header h2 {
+            margin-bottom: 0;
+        }
+
+        .tf-selector {
+            display: flex;
+            gap: 0.35rem;
+        }
+
+        .tf-btn {
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+
+        .tf-btn:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        .tf-btn.active {
+            background: rgba(88, 166, 255, 0.15);
+            color: var(--link-color);
+            border-color: var(--link-color);
+        }
+
         .model-performance {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
@@ -731,6 +772,22 @@
             }
 
             /* Model Performance mobile */
+            .perf-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .tf-selector {
+                width: 100%;
+            }
+
+            .tf-btn {
+                flex: 1;
+                text-align: center;
+                font-size: 0.7rem;
+                padding: 0.25rem 0.5rem;
+            }
+
             .model-performance {
                 padding: 1rem;
             }
@@ -842,11 +899,20 @@
 
         {% if has_history and model_stats %}
         <section class="model-performance">
-            <h2>Model Performance <span class="info-tip tip-down">i<span class="tip-text">Tracks how well the scanner's past predictions performed. Predictions are evaluated after 90+ days by comparing the price at signal time to the current price.</span></span></h2>
+            <div class="perf-header">
+                <h2>Model Performance <span class="info-tip tip-down">i<span class="tip-text">Tracks how well the scanner's past predictions performed. Predictions are evaluated at 30, 60, and 90 day intervals by comparing price at signal time to the price at evaluation.</span></span></h2>
+                {% if model_stats.timeframes %}
+                <div class="tf-selector">
+                    {% for tf in model_stats.timeframes %}
+                    <button class="tf-btn{% if tf == model_stats.default_timeframe %} active{% endif %}" data-tf="{{ tf }}">{{ tf }}</button>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
 
-            <div class="perf-stats">
+            <div class="perf-stats" id="perf-stats">
                 <div class="perf-stat">
-                    <div class="perf-stat-value {% if model_stats.win_rate and model_stats.win_rate >= 50 %}positive{% elif model_stats.win_rate %}negative{% else %}neutral{% endif %}">
+                    <div class="perf-stat-value" id="ps-winrate">
                         {{ "%.0f%%"|format(model_stats.win_rate) if model_stats.win_rate is not none else 'N/A' }}
                     </div>
                     <div class="perf-stat-label">Win Rate</div>
@@ -856,34 +922,34 @@
                     <div class="perf-stat-label">Total Predictions</div>
                 </div>
                 <div class="perf-stat">
-                    <div class="perf-stat-value neutral">{{ model_stats.evaluated }}</div>
+                    <div class="perf-stat-value neutral" id="ps-evaluated">{{ model_stats.evaluated }}</div>
                     <div class="perf-stat-label">Evaluated</div>
                 </div>
                 <div class="perf-stat">
-                    <div class="perf-stat-value neutral">{{ model_stats.pending }}</div>
+                    <div class="perf-stat-value neutral" id="ps-pending">{{ model_stats.pending }}</div>
                     <div class="perf-stat-label">Pending</div>
                 </div>
             </div>
 
-            {% if model_stats.per_signal %}
-            <div class="signal-accuracy">
+            <div class="signal-accuracy" id="signal-accuracy">
+                {% if model_stats.per_signal %}
                 {% for signal in ['BUY', 'HOLD', 'AVOID'] %}
                 {% set s = model_stats.per_signal.get(signal, {}) %}
                 {% if s.total is defined and s.total > 0 %}
-                <div class="signal-accuracy-row">
+                <div class="signal-accuracy-row" data-signal="{{ signal }}">
                     <span class="signal-accuracy-label" style="color: var(--{{ signal|lower }}-text);">{{ signal }}</span>
                     <div class="accuracy-bar-bg">
-                        <div class="accuracy-bar-fill {{ signal|lower }}" style="width: {{ s.accuracy if s.accuracy else 0 }}%"></div>
+                        <div class="accuracy-bar-fill {{ signal|lower }}" id="bar-{{ signal|lower }}" style="width: {{ s.accuracy if s.accuracy else 0 }}%"></div>
                     </div>
-                    <span class="accuracy-detail">
+                    <span class="accuracy-detail" id="detail-{{ signal|lower }}">
                         {{ s.correct }}/{{ s.decisive }} correct
                         {% if s.avg_return is not none %} | {{ "%+.1f%%"|format(s.avg_return) }} avg{% endif %}
                     </span>
                 </div>
                 {% endif %}
                 {% endfor %}
+                {% endif %}
             </div>
-            {% endif %}
 
             {% if model_stats.performance_timeline and model_stats.performance_timeline|length > 1 %}
             <div class="perf-chart-container">
@@ -893,52 +959,42 @@
             (function() {
                 const timeline = {{ model_stats.performance_timeline | tojson }};
                 const labels = timeline.map(s => s.date);
-                const winRates = timeline.map(s => s.win_rate);
-                const avgReturns = timeline.map(s => s.avg_return);
-                const evaluated = timeline.map(s => s.evaluated);
+
+                /* Build datasets per timeframe */
+                var datasets = [];
+                var tfColors = { '30d': '#f0883e', '60d': '#a371f7', '90d': '#3fb950' };
+                var tfs = {{ model_stats.timeframes | tojson }};
+                tfs.forEach(function(tf) {
+                    datasets.push({
+                        label: tf + ' Win Rate %',
+                        data: timeline.map(s => s[tf + '_win_rate']),
+                        borderColor: tfColors[tf] || '#8b949e',
+                        backgroundColor: 'transparent',
+                        fill: false,
+                        tension: 0.3,
+                        yAxisID: 'y',
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                    });
+                });
+
+                datasets.push({
+                    label: 'Avg Return %',
+                    data: timeline.map(s => s.avg_return),
+                    borderColor: '#58a6ff',
+                    backgroundColor: 'rgba(88,166,255,0.1)',
+                    fill: false,
+                    tension: 0.3,
+                    yAxisID: 'y',
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    borderDash: [5, 3],
+                });
 
                 const ctx = document.getElementById('perfChart').getContext('2d');
                 new Chart(ctx, {
                     type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Win Rate %',
-                                data: winRates,
-                                borderColor: '#3fb950',
-                                backgroundColor: 'rgba(63,185,80,0.1)',
-                                fill: true,
-                                tension: 0.3,
-                                yAxisID: 'y',
-                                pointRadius: 3,
-                                pointHoverRadius: 5,
-                            },
-                            {
-                                label: 'Avg Return %',
-                                data: avgReturns,
-                                borderColor: '#58a6ff',
-                                backgroundColor: 'rgba(88,166,255,0.1)',
-                                fill: false,
-                                tension: 0.3,
-                                yAxisID: 'y',
-                                pointRadius: 3,
-                                pointHoverRadius: 5,
-                                borderDash: [5, 3],
-                            },
-                            {
-                                label: 'Evaluated',
-                                data: evaluated,
-                                borderColor: '#8b949e',
-                                backgroundColor: 'rgba(139,148,158,0.15)',
-                                fill: true,
-                                tension: 0.3,
-                                yAxisID: 'y1',
-                                pointRadius: 2,
-                                pointHoverRadius: 4,
-                            }
-                        ]
-                    },
+                    data: { labels: labels, datasets: datasets },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
@@ -965,12 +1021,6 @@
                                 title: { display: true, text: '%', color: '#8b949e' },
                                 ticks: { color: '#8b949e', font: { size: 10 } },
                                 grid: { color: 'rgba(48,54,61,0.5)' }
-                            },
-                            y1: {
-                                position: 'right',
-                                title: { display: true, text: 'Count', color: '#8b949e' },
-                                ticks: { color: '#8b949e', font: { size: 10 } },
-                                grid: { drawOnChartArea: false }
                             }
                         }
                     }
@@ -1033,6 +1083,59 @@
             </details>
             {% endif %}
         </section>
+
+        <!-- Timeframe switcher data & logic -->
+        {% if model_stats.timeframe_stats %}
+        <script>
+        (function() {
+            var tfData = {{ model_stats.timeframe_stats | tojson }};
+            var btns = document.querySelectorAll('.tf-btn');
+            if (!btns.length) return;
+
+            function switchTimeframe(tf) {
+                var s = tfData[tf];
+                if (!s) return;
+
+                /* Update stats */
+                var wr = document.getElementById('ps-winrate');
+                if (wr) {
+                    wr.textContent = s.win_rate !== null ? Math.round(s.win_rate) + '%' : 'N/A';
+                    wr.className = 'perf-stat-value ' + (s.win_rate !== null ? (s.win_rate >= 50 ? 'positive' : 'negative') : 'neutral');
+                }
+                var ev = document.getElementById('ps-evaluated');
+                if (ev) ev.textContent = s.evaluated;
+                var pe = document.getElementById('ps-pending');
+                if (pe) pe.textContent = s.pending;
+
+                /* Update per-signal bars */
+                ['BUY', 'HOLD', 'AVOID'].forEach(function(sig) {
+                    var ps = (s.per_signal || {})[sig] || {};
+                    var bar = document.getElementById('bar-' + sig.toLowerCase());
+                    var detail = document.getElementById('detail-' + sig.toLowerCase());
+                    if (bar) bar.style.width = (ps.accuracy || 0) + '%';
+                    if (detail) {
+                        var txt = (ps.correct || 0) + '/' + (ps.decisive || 0) + ' correct';
+                        if (ps.avg_return !== null && ps.avg_return !== undefined) {
+                            txt += ' | ' + (ps.avg_return > 0 ? '+' : '') + ps.avg_return.toFixed(1) + '% avg';
+                        }
+                        detail.textContent = txt;
+                    }
+                });
+
+                /* Update active button */
+                btns.forEach(function(b) {
+                    b.classList.toggle('active', b.getAttribute('data-tf') === tf);
+                });
+            }
+
+            btns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    switchTimeframe(btn.getAttribute('data-tf'));
+                });
+            });
+        })();
+        </script>
+        {% endif %}
         {% endif %}
 
         <main>

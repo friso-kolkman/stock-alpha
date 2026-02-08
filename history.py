@@ -10,14 +10,7 @@ import yfinance as yf
 from rich.console import Console
 
 from config import (
-    EVAL_MIN_DAYS,
-    EVAL_MAX_DAYS,
-    BUY_CORRECT_THRESHOLD,
-    BUY_INCORRECT_THRESHOLD,
-    HOLD_UPPER_THRESHOLD,
-    HOLD_LOWER_THRESHOLD,
-    AVOID_CORRECT_THRESHOLD,
-    AVOID_INCORRECT_THRESHOLD,
+    EVAL_TIMEFRAMES,
     MAX_WEIGHT_ADJUSTMENT,
     MIN_EVALUATIONS_FOR_ADAPT,
     SCORING_WEIGHTS,
@@ -30,22 +23,15 @@ HISTORY_PATH = Path(__file__).parent / "docs" / "history.json"
 
 _executor = ThreadPoolExecutor(max_workers=4)
 
+# Ordered timeframe keys (shortest first)
+_TF_KEYS = sorted(EVAL_TIMEFRAMES.keys(), key=lambda k: EVAL_TIMEFRAMES[k]["min_days"])
+
 
 def _empty_history() -> dict:
     """Return an empty history structure."""
     return {
         "predictions": [],
-        "model_stats": {
-            "total_predictions": 0,
-            "evaluated": 0,
-            "pending": 0,
-            "correct": 0,
-            "incorrect": 0,
-            "inconclusive": 0,
-            "win_rate": None,
-            "per_signal": {},
-            "factor_correlations": {},
-        },
+        "model_stats": {},
         "weight_overrides": {},
         "weight_history": [],
         "performance_snapshots": [],
@@ -58,10 +44,32 @@ def load_history() -> dict:
         return _empty_history()
     try:
         with open(HISTORY_PATH) as f:
-            return json.load(f)
+            data = json.load(f)
+        _migrate_predictions(data)
+        return data
     except (json.JSONDecodeError, OSError) as e:
         console.print(f"  [yellow]Warning: Could not load history: {e}[/yellow]")
         return _empty_history()
+
+
+def _migrate_predictions(history: dict) -> None:
+    """Migrate old flat-format predictions to multi-timeframe format."""
+    for pred in history.get("predictions", []):
+        if "evaluations" in pred:
+            continue
+        # Convert old flat fields to new structure
+        evals = {}
+        if pred.get("evaluated") and pred.get("outcome"):
+            evals["90d"] = {
+                "outcome": pred["outcome"],
+                "return_pct": pred.get("return_pct"),
+                "eval_date": pred.get("eval_date"),
+                "eval_price": pred.get("eval_price"),
+            }
+        pred["evaluations"] = evals
+        # Clean up old fields
+        for key in ("evaluated", "outcome", "return_pct", "eval_date", "eval_price"):
+            pred.pop(key, None)
 
 
 def save_history(history: dict) -> None:
@@ -91,11 +99,7 @@ def record_predictions(results: list[dict], scan_date: str) -> None:
             "price_at_signal": r.get("price"),
             "alpha_score": r.get("alpha_score", 0),
             "score_breakdown": r.get("score_breakdown", {}),
-            "evaluated": False,
-            "outcome": None,
-            "return_pct": None,
-            "eval_date": None,
-            "eval_price": None,
+            "evaluations": {},
         })
         added += 1
 
@@ -106,54 +110,67 @@ def record_predictions(results: list[dict], scan_date: str) -> None:
 
 
 def evaluate_past_predictions() -> dict:
-    """Check predictions older than EVAL_MIN_DAYS against current prices."""
+    """Evaluate predictions at all eligible timeframes."""
     history = load_history()
     now = datetime.now(timezone.utc)
-    evaluated_count = 0
+    eval_count = 0
 
     for pred in history["predictions"]:
-        if pred["evaluated"]:
-            continue
-
         scan_dt = datetime.fromisoformat(pred["scan_date"]).replace(tzinfo=timezone.utc)
         days_elapsed = (now - scan_dt).days
 
-        if days_elapsed < EVAL_MIN_DAYS:
-            continue
-
-        if days_elapsed > EVAL_MAX_DAYS:
-            pred["evaluated"] = True
-            pred["outcome"] = "EXPIRED"
-            pred["eval_date"] = now.isoformat()
-            evaluated_count += 1
-            continue
-
         price_at_signal = pred.get("price_at_signal")
-        if price_at_signal is None or price_at_signal <= 0:
-            pred["evaluated"] = True
-            pred["outcome"] = "NO_DATA"
-            pred["eval_date"] = now.isoformat()
-            evaluated_count += 1
-            continue
+        evals = pred.setdefault("evaluations", {})
 
-        current_price = _fetch_current_price(pred["ticker"], pred["exchange"])
-        if current_price is None:
-            continue
+        for tf_key in _TF_KEYS:
+            if tf_key in evals:
+                continue  # already evaluated at this timeframe
 
-        return_pct = ((current_price - price_at_signal) / price_at_signal) * 100
-        outcome = _determine_outcome(pred["signal"], return_pct)
+            tf = EVAL_TIMEFRAMES[tf_key]
 
-        pred["evaluated"] = True
-        pred["outcome"] = outcome
-        pred["return_pct"] = round(return_pct, 2)
-        pred["eval_date"] = now.isoformat()
-        pred["eval_price"] = round(current_price, 4)
-        evaluated_count += 1
+            if days_elapsed < tf["min_days"]:
+                continue
 
-    if evaluated_count > 0:
+            if days_elapsed > tf["max_days"] and tf_key != "90d":
+                # Missed the window for shorter timeframes -- mark expired
+                evals[tf_key] = {
+                    "outcome": "EXPIRED",
+                    "return_pct": None,
+                    "eval_date": now.isoformat(),
+                    "eval_price": None,
+                }
+                eval_count += 1
+                continue
+
+            if price_at_signal is None or price_at_signal <= 0:
+                evals[tf_key] = {
+                    "outcome": "NO_DATA",
+                    "return_pct": None,
+                    "eval_date": now.isoformat(),
+                    "eval_price": None,
+                }
+                eval_count += 1
+                continue
+
+            current_price = _fetch_current_price(pred["ticker"], pred["exchange"])
+            if current_price is None:
+                continue
+
+            return_pct = ((current_price - price_at_signal) / price_at_signal) * 100
+            outcome = _determine_outcome(pred["signal"], return_pct, tf)
+
+            evals[tf_key] = {
+                "outcome": outcome,
+                "return_pct": round(return_pct, 2),
+                "eval_date": now.isoformat(),
+                "eval_price": round(current_price, 4),
+            }
+            eval_count += 1
+
+    if eval_count > 0:
         _recalculate_model_stats(history)
         save_history(history)
-        console.print(f"  Evaluated {evaluated_count} past predictions")
+        console.print(f"  Evaluated {eval_count} timeframe checks")
     else:
         console.print("  No predictions ready for evaluation yet")
 
@@ -173,26 +190,35 @@ def get_adaptive_weights(history: dict | None = None) -> dict:
 
 
 def update_adaptive_weights(history: dict) -> dict:
-    """Recalculate weight overrides based on factor-return correlations."""
-    evaluated = [
-        p for p in history["predictions"]
-        if p["evaluated"] and p.get("return_pct") is not None
-        and p["outcome"] in ("CORRECT", "INCORRECT", "INCONCLUSIVE")
-    ]
+    """Recalculate weight overrides using shortest timeframe with enough data."""
+    # Try timeframes shortest-first
+    best_tf = None
+    best_evaluated = []
 
-    if len(evaluated) < MIN_EVALUATIONS_FOR_ADAPT:
+    for tf_key in _TF_KEYS:
+        evaluated = _get_evaluated_for_tf(history, tf_key)
+        if len(evaluated) >= MIN_EVALUATIONS_FOR_ADAPT:
+            best_tf = tf_key
+            best_evaluated = evaluated
+            break  # use shortest that qualifies
+
+    if not best_tf:
+        total = sum(len(_get_evaluated_for_tf(history, k)) for k in _TF_KEYS)
         console.print(f"  Not enough evaluated predictions for adaptation "
-                      f"({len(evaluated)}/{MIN_EVALUATIONS_FOR_ADAPT})")
+                      f"({total} total across timeframes, need {MIN_EVALUATIONS_FOR_ADAPT} in one)")
         return history
 
-    stats = history.get("model_stats", {})
-    _calculate_factor_correlations(evaluated, stats)
+    console.print(f"  Using {best_tf} timeframe for adaptation ({len(best_evaluated)} predictions)")
 
-    correlations = stats.get("factor_correlations", {})
+    stats = history.get("model_stats", {})
+    tf_stats = stats.get(best_tf, {})
+    _calculate_factor_correlations(best_evaluated, tf_stats, best_tf)
+    stats[best_tf] = tf_stats
+
+    correlations = tf_stats.get("factor_correlations", {})
     if not correlations:
         return history
 
-    # Find best and worst performing factors
     factors_by_spread = sorted(
         correlations.items(),
         key=lambda x: x[1].get("return_spread", 0),
@@ -209,12 +235,10 @@ def update_adaptive_weights(history: dict) -> dict:
         best_spread = best_data.get("return_spread", 0)
         worst_spread = worst_data.get("return_spread", 0)
 
-        # Boost best factor (+1 to +3 based on spread magnitude)
         if best_spread > 0:
             boost = min(MAX_WEIGHT_ADJUSTMENT, max(1, int(best_spread / 3)))
             new_overrides[best_factor] = boost
 
-        # Reduce worst factor (-1 to -3 based on negative spread)
         if worst_spread < 0:
             penalty = max(-MAX_WEIGHT_ADJUSTMENT, min(-1, int(worst_spread / 3)))
             new_overrides[worst_factor] = penalty
@@ -224,7 +248,8 @@ def update_adaptive_weights(history: dict) -> dict:
         history["weight_history"].append({
             "date": datetime.now(timezone.utc).isoformat(),
             "overrides": new_overrides,
-            "evaluated_count": len(evaluated),
+            "timeframe": best_tf,
+            "evaluated_count": len(best_evaluated),
             "reason": f"Best: {factors_by_spread[0][0]} "
                       f"(spread {factors_by_spread[0][1].get('return_spread', 0):+.1f}%), "
                       f"Worst: {factors_by_spread[-1][0]} "
@@ -241,127 +266,176 @@ def update_adaptive_weights(history: dict) -> dict:
 
 
 def get_streaks(results: list[dict], history: dict | None = None) -> dict[str, int]:
-    """Count consecutive weekly scan appearances for each ticker in results.
-
-    Looks at historical predictions grouped by scan_date and counts how many
-    of the most recent consecutive scan dates each ticker appeared in.
-    A stock appearing 3 weeks in a row shows higher conviction than a first-timer.
-
-    The current scan (represented by ``results``) always counts as 1. Previous
-    scan dates found in history extend the streak further.
-
-    Args:
-        results: Current scan results (list of dicts with at least a "ticker" key).
-        history: Pre-loaded history dict, or None to load from disk.
-
-    Returns:
-        Dict mapping ticker -> consecutive scan count (minimum 1 for current scan).
-    """
+    """Count consecutive scan appearances for each ticker."""
     if history is None:
         history = load_history()
 
     predictions = history.get("predictions", [])
-
-    # Group tickers by scan_date
     date_tickers: dict[str, set[str]] = {}
     for p in predictions:
-        sd = p.get("scan_date", "")[:10]  # normalize to YYYY-MM-DD
+        sd = p.get("scan_date", "")[:10]
         if sd:
             date_tickers.setdefault(sd, set()).add(p["ticker"])
 
-    # Sorted unique scan dates (oldest first)
     sorted_dates = sorted(date_tickers.keys())
-
-    # Build streak for each ticker in the current results
     current_tickers = {r["ticker"] for r in results}
     streaks: dict[str, int] = {}
 
     if not sorted_dates:
-        # First scan ever -- every ticker gets streak of 1
         for ticker in current_tickers:
             streaks[ticker] = 1
         return streaks
 
     for ticker in current_tickers:
         streak = 0
-        # Walk backwards through scan dates
         for date in reversed(sorted_dates):
             if ticker in date_tickers[date]:
                 streak += 1
             else:
                 break
-        # streak==0 means ticker never appeared before; current scan counts as 1
         streaks[ticker] = max(streak, 1)
 
     return streaks
 
 
 def get_dashboard_stats(history: dict | None = None) -> dict | None:
-    """Return formatted stats for the dashboard template."""
+    """Return formatted stats for the dashboard template, per timeframe."""
     if history is None:
         history = load_history()
 
-    stats = history.get("model_stats", {})
-    if stats.get("total_predictions", 0) == 0:
+    predictions = history.get("predictions", [])
+    if not predictions:
         return None
 
-    # Recent evaluations (last 10)
-    recent = sorted(
-        [p for p in history["predictions"] if p["evaluated"] and p.get("outcome") in
-         ("CORRECT", "INCORRECT", "INCONCLUSIVE")],
-        key=lambda p: p.get("eval_date", ""),
-        reverse=True,
-    )[:10]
+    # Build stats per timeframe
+    timeframe_stats = {}
+    for tf_key in _TF_KEYS:
+        timeframe_stats[tf_key] = _build_tf_stats(history, tf_key)
+
+    # Use the default timeframe (shortest with any evaluations, else 90d)
+    default_tf = "90d"
+    for tf_key in _TF_KEYS:
+        if timeframe_stats[tf_key]["evaluated"] > 0:
+            default_tf = tf_key
+            break
+
+    # Recent evaluations across all timeframes
+    recent = _get_recent_evaluations(history, default_tf)
 
     weight_overrides = history.get("weight_overrides", {})
     active_weights = get_adaptive_weights(history)
 
-    # Compute streaks for the most recent scan's tickers
-    predictions = history.get("predictions", [])
-    if predictions:
-        latest_date = max(p.get("scan_date", "")[:10] for p in predictions)
-        latest_results = [
-            {"ticker": p["ticker"]}
-            for p in predictions if p.get("scan_date", "")[:10] == latest_date
-        ]
-        streaks = get_streaks(latest_results, history)
-    else:
-        streaks = {}
+    # Streaks
+    latest_date = max(p.get("scan_date", "")[:10] for p in predictions)
+    latest_results = [
+        {"ticker": p["ticker"]}
+        for p in predictions if p.get("scan_date", "")[:10] == latest_date
+    ]
+    streaks = get_streaks(latest_results, history)
 
     return {
         "has_history": True,
-        "total_predictions": stats.get("total_predictions", 0),
-        "evaluated": stats.get("evaluated", 0),
-        "pending": stats.get("pending", 0),
-        "correct": stats.get("correct", 0),
-        "incorrect": stats.get("incorrect", 0),
-        "inconclusive": stats.get("inconclusive", 0),
-        "win_rate": stats.get("win_rate"),
-        "per_signal": stats.get("per_signal", {}),
+        "total_predictions": len(predictions),
+        "timeframes": list(_TF_KEYS),
+        "default_timeframe": default_tf,
+        "timeframe_stats": timeframe_stats,
+        # Flat stats for the default timeframe (backward compat)
+        **timeframe_stats[default_tf],
         "streaks": streaks,
         "weight_overrides": weight_overrides,
         "active_weights": active_weights,
         "base_weights": dict(SCORING_WEIGHTS),
-        "recent_evaluations": [
-            {
-                "ticker": p["ticker"],
-                "signal": p["signal"],
-                "outcome": p["outcome"],
-                "return_pct": p.get("return_pct"),
-                "scan_date": p["scan_date"][:10],
-                "eval_date": (p.get("eval_date") or "")[:10],
-            }
-            for p in recent
-        ],
+        "recent_evaluations": recent,
         "performance_timeline": history.get("performance_snapshots", []),
     }
+
+
+def _build_tf_stats(history: dict, tf_key: str) -> dict:
+    """Build stats for a single timeframe."""
+    predictions = history.get("predictions", [])
+    total = len(predictions)
+
+    evaluated_preds = []
+    for p in predictions:
+        ev = p.get("evaluations", {}).get(tf_key)
+        if ev and ev.get("outcome"):
+            evaluated_preds.append((p, ev))
+
+    pending = total - len(evaluated_preds)
+    decisive = [(p, ev) for p, ev in evaluated_preds
+                if ev["outcome"] in ("CORRECT", "INCORRECT")]
+    correct = [(p, ev) for p, ev in decisive if ev["outcome"] == "CORRECT"]
+    inconclusive = [(p, ev) for p, ev in evaluated_preds
+                    if ev["outcome"] == "INCONCLUSIVE"]
+
+    win_rate = round(len(correct) / len(decisive) * 100, 1) if decisive else None
+
+    # Per-signal
+    per_signal = {}
+    for signal in ("BUY", "HOLD", "AVOID"):
+        sig_evals = [(p, ev) for p, ev in evaluated_preds
+                     if p["signal"] == signal
+                     and ev["outcome"] in ("CORRECT", "INCORRECT", "INCONCLUSIVE")]
+        sig_decisive = [(p, ev) for p, ev in sig_evals
+                        if ev["outcome"] in ("CORRECT", "INCORRECT")]
+        sig_correct = [(p, ev) for p, ev in sig_decisive if ev["outcome"] == "CORRECT"]
+        returns = [ev["return_pct"] for p, ev in sig_evals
+                   if ev.get("return_pct") is not None]
+
+        per_signal[signal] = {
+            "total": len(sig_evals),
+            "correct": len(sig_correct),
+            "decisive": len(sig_decisive),
+            "accuracy": round(len(sig_correct) / len(sig_decisive) * 100, 1) if sig_decisive else None,
+            "avg_return": round(sum(returns) / len(returns), 2) if returns else None,
+        }
+
+    return {
+        "evaluated": len(evaluated_preds),
+        "pending": pending,
+        "correct": len(correct),
+        "incorrect": len(decisive) - len(correct),
+        "inconclusive": len(inconclusive),
+        "win_rate": win_rate,
+        "per_signal": per_signal,
+    }
+
+
+def _get_evaluated_for_tf(history: dict, tf_key: str) -> list[dict]:
+    """Get predictions with usable evaluations for a timeframe."""
+    result = []
+    for p in history.get("predictions", []):
+        ev = p.get("evaluations", {}).get(tf_key)
+        if ev and ev.get("return_pct") is not None and ev["outcome"] in (
+            "CORRECT", "INCORRECT", "INCONCLUSIVE"
+        ):
+            result.append({**p, "_eval": ev})
+    return result
+
+
+def _get_recent_evaluations(history: dict, tf_key: str) -> list[dict]:
+    """Get last 10 evaluations for a timeframe."""
+    items = []
+    for p in history.get("predictions", []):
+        ev = p.get("evaluations", {}).get(tf_key)
+        if ev and ev.get("outcome") in ("CORRECT", "INCORRECT", "INCONCLUSIVE"):
+            items.append({
+                "ticker": p["ticker"],
+                "signal": p["signal"],
+                "outcome": ev["outcome"],
+                "return_pct": ev.get("return_pct"),
+                "scan_date": p["scan_date"][:10],
+                "eval_date": (ev.get("eval_date") or "")[:10],
+                "timeframe": tf_key,
+            })
+    items.sort(key=lambda x: x.get("eval_date", ""), reverse=True)
+    return items[:10]
 
 
 def _record_performance_snapshot(history: dict, date_label: str) -> None:
     """Append a snapshot of current model stats for the timeline chart."""
     snapshots = history.setdefault("performance_snapshots", [])
 
-    # Avoid duplicate snapshots for the same date
     if snapshots and snapshots[-1].get("date") == date_label:
         snapshots[-1] = _build_snapshot(history, date_label)
         return
@@ -370,27 +444,24 @@ def _record_performance_snapshot(history: dict, date_label: str) -> None:
 
 
 def _build_snapshot(history: dict, date_label: str) -> dict:
-    stats = history.get("model_stats", {})
-    per_signal = stats.get("per_signal", {})
+    # Use shortest timeframe with data for the snapshot
+    snapshot = {"date": date_label, "total_predictions": len(history.get("predictions", []))}
 
-    # Average return across all evaluated predictions with returns
-    all_returns = [
-        p["return_pct"] for p in history["predictions"]
-        if p["evaluated"] and p.get("return_pct") is not None
-    ]
-    avg_return = round(sum(all_returns) / len(all_returns), 2) if all_returns else None
+    for tf_key in _TF_KEYS:
+        tf_stats = _build_tf_stats(history, tf_key)
+        snapshot[f"{tf_key}_win_rate"] = tf_stats["win_rate"]
+        snapshot[f"{tf_key}_evaluated"] = tf_stats["evaluated"]
 
-    return {
-        "date": date_label,
-        "win_rate": stats.get("win_rate"),
-        "total_predictions": stats.get("total_predictions", 0),
-        "evaluated": stats.get("evaluated", 0),
-        "correct": stats.get("correct", 0),
-        "avg_return": avg_return,
-        "buy_accuracy": (per_signal.get("BUY") or {}).get("accuracy"),
-        "hold_accuracy": (per_signal.get("HOLD") or {}).get("accuracy"),
-        "avoid_accuracy": (per_signal.get("AVOID") or {}).get("accuracy"),
-    }
+    # Average return across all evaluated predictions (any timeframe)
+    all_returns = []
+    for p in history.get("predictions", []):
+        for ev in p.get("evaluations", {}).values():
+            if ev and ev.get("return_pct") is not None:
+                all_returns.append(ev["return_pct"])
+                break  # one return per prediction for the avg
+    snapshot["avg_return"] = round(sum(all_returns) / len(all_returns), 2) if all_returns else None
+
+    return snapshot
 
 
 def _fetch_current_price(ticker: str, exchange: str) -> float | None:
@@ -405,82 +476,46 @@ def _fetch_current_price(ticker: str, exchange: str) -> float | None:
         return None
 
 
-def _determine_outcome(signal: str, return_pct: float) -> str:
-    """Determine if a prediction was CORRECT, INCORRECT, or INCONCLUSIVE."""
+def _determine_outcome(signal: str, return_pct: float, tf: dict) -> str:
+    """Determine outcome using timeframe-specific thresholds."""
     if signal == "BUY":
-        if return_pct > BUY_CORRECT_THRESHOLD:
+        if return_pct > tf["buy_correct"]:
             return "CORRECT"
-        elif return_pct < BUY_INCORRECT_THRESHOLD:
+        elif return_pct < tf["buy_incorrect"]:
             return "INCORRECT"
     elif signal == "HOLD":
-        if HOLD_LOWER_THRESHOLD <= return_pct <= HOLD_UPPER_THRESHOLD:
+        if tf["hold_lower"] <= return_pct <= tf["hold_upper"]:
             return "CORRECT"
-        elif return_pct < HOLD_LOWER_THRESHOLD or return_pct > HOLD_UPPER_THRESHOLD:
+        elif return_pct < tf["hold_lower"] or return_pct > tf["hold_upper"]:
             return "INCORRECT"
     elif signal == "AVOID":
-        if return_pct < AVOID_CORRECT_THRESHOLD:
+        if return_pct < tf["avoid_correct"]:
             return "CORRECT"
-        elif return_pct > AVOID_INCORRECT_THRESHOLD:
+        elif return_pct > tf["avoid_incorrect"]:
             return "INCORRECT"
 
     return "INCONCLUSIVE"
 
 
 def _recalculate_model_stats(history: dict) -> None:
-    """Recalculate overall accuracy and per-signal stats."""
-    predictions = history["predictions"]
-    stats = history.get("model_stats", {})
-
-    total = len(predictions)
-    evaluated = [p for p in predictions if p["evaluated"]]
-    pending = [p for p in predictions if not p["evaluated"]]
-
-    # Only count decisive outcomes
-    decisive = [p for p in evaluated if p.get("outcome") in ("CORRECT", "INCORRECT")]
-    correct = [p for p in decisive if p["outcome"] == "CORRECT"]
-    incorrect = [p for p in decisive if p["outcome"] == "INCORRECT"]
-    inconclusive = [p for p in evaluated if p.get("outcome") == "INCONCLUSIVE"]
-
-    stats["total_predictions"] = total
-    stats["evaluated"] = len(evaluated)
-    stats["pending"] = len(pending)
-    stats["correct"] = len(correct)
-    stats["incorrect"] = len(incorrect)
-    stats["inconclusive"] = len(inconclusive)
-    stats["win_rate"] = round(len(correct) / len(decisive) * 100, 1) if decisive else None
-
-    # Per-signal breakdown
-    per_signal = {}
-    for signal in ("BUY", "HOLD", "AVOID"):
-        signal_preds = [p for p in evaluated if p["signal"] == signal
-                        and p.get("outcome") in ("CORRECT", "INCORRECT", "INCONCLUSIVE")]
-        signal_decisive = [p for p in signal_preds if p["outcome"] in ("CORRECT", "INCORRECT")]
-        signal_correct = [p for p in signal_decisive if p["outcome"] == "CORRECT"]
-        returns = [p["return_pct"] for p in signal_preds if p.get("return_pct") is not None]
-
-        per_signal[signal] = {
-            "total": len(signal_preds),
-            "correct": len(signal_correct),
-            "decisive": len(signal_decisive),
-            "accuracy": round(len(signal_correct) / len(signal_decisive) * 100, 1) if signal_decisive else None,
-            "avg_return": round(sum(returns) / len(returns), 2) if returns else None,
-        }
-
-    stats["per_signal"] = per_signal
+    """Recalculate stats for all timeframes."""
+    stats = history.setdefault("model_stats", {})
+    for tf_key in _TF_KEYS:
+        stats[tf_key] = _build_tf_stats(history, tf_key)
     history["model_stats"] = stats
 
 
-def _calculate_factor_correlations(evaluated: list[dict], stats: dict) -> None:
+def _calculate_factor_correlations(evaluated: list[dict], stats: dict, tf_key: str) -> None:
     """Above/below median return analysis per factor."""
     correlations = {}
 
     for factor in SCORING_WEIGHTS:
-        # Get factor scores and returns
         pairs = []
         for p in evaluated:
             breakdown = p.get("score_breakdown", {})
             factor_score = breakdown.get(factor)
-            return_pct = p.get("return_pct")
+            ev = p.get("_eval", {})
+            return_pct = ev.get("return_pct") if ev else p.get("evaluations", {}).get(tf_key, {}).get("return_pct")
             if factor_score is not None and return_pct is not None:
                 pairs.append((factor_score, return_pct))
 

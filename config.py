@@ -162,13 +162,37 @@ SECTORS = {
 PRIORITY_SECTORS = ["Technology", "Industrials", "Healthcare", "Consumer Staples"]
 
 # Historical tracking & backtesting
-EVAL_MIN_DAYS = 90          # Minimum days before evaluating a prediction
-EVAL_MAX_DAYS = 180         # Maximum evaluation window
-BUY_CORRECT_THRESHOLD = 5.0     # BUY correct if price rose >5%
-BUY_INCORRECT_THRESHOLD = -5.0  # BUY incorrect if price fell >5%
-HOLD_UPPER_THRESHOLD = 10.0     # HOLD correct if price stayed below +10%
-HOLD_LOWER_THRESHOLD = -5.0     # HOLD correct if price stayed above -5%
-AVOID_CORRECT_THRESHOLD = -5.0  # AVOID correct if price fell >5%
-AVOID_INCORRECT_THRESHOLD = 5.0 # AVOID incorrect if price rose >5%
+EVAL_TIMEFRAMES = {
+    "30d": {
+        "min_days": 30,
+        "max_days": 45,
+        "buy_correct": 2.0,
+        "buy_incorrect": -2.0,
+        "hold_upper": 4.0,
+        "hold_lower": -2.0,
+        "avoid_correct": -2.0,
+        "avoid_incorrect": 2.0,
+    },
+    "60d": {
+        "min_days": 60,
+        "max_days": 75,
+        "buy_correct": 3.5,
+        "buy_incorrect": -3.5,
+        "hold_upper": 7.0,
+        "hold_lower": -3.5,
+        "avoid_correct": -3.5,
+        "avoid_incorrect": 3.5,
+    },
+    "90d": {
+        "min_days": 90,
+        "max_days": 180,
+        "buy_correct": 5.0,
+        "buy_incorrect": -5.0,
+        "hold_upper": 10.0,
+        "hold_lower": -5.0,
+        "avoid_correct": -5.0,
+        "avoid_incorrect": 5.0,
+    },
+}
 MAX_WEIGHT_ADJUSTMENT = 3       # Max +/- offset per factor from base weight
 MIN_EVALUATIONS_FOR_ADAPT = 10  # Minimum evaluated predictions before adapting
