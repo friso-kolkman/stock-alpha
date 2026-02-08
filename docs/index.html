@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Alpha Scanner</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1f4c8;</text></svg>">
+    <meta property="og:title" content="Stock Alpha Scanner">
+    <meta property="og:description" content="10 BUY signals this week from 235 stocks scanned across AEX, DAX, CAC40, FTSE100, DJIA &amp; NASDAQ.">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Weekly AI-powered stock scanner covering 250 European and US stocks. Signals, risk levels, and position sizing for DeGiro traders.">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
     <style>
         :root {
@@ -80,6 +85,59 @@
             color: var(--text-secondary);
         }
 
+        /* Hero card */
+        .hero-card {
+            background: linear-gradient(135deg, rgba(35,134,54,0.12) 0%, var(--bg-secondary) 100%);
+            border: 1px solid var(--buy);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .hero-card .hero-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-card .hero-ticker {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .hero-card .hero-name {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .hero-card .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-card .hero-stat-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .hero-card .hero-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        /* Next scan countdown */
+        .next-scan {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
         /* Controls bar */
         .controls-bar {
             display: flex;
@@ -88,6 +146,43 @@
             gap: 1rem;
             margin-bottom: 1.25rem;
             flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: var(--bg-primary);
+            padding: 0.75rem 0;
+        }
+
+        .search-input {
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            width: 140px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--link-color);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        /* Card grid on desktop */
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .card-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         .filter-buttons {
@@ -835,6 +930,14 @@
                 font-size: 1.5rem;
             }
 
+            .hero-card { padding: 1rem; }
+            .hero-card .hero-ticker { font-size: 1.4rem; }
+            .hero-card .hero-stats { gap: 1rem; }
+
+            .search-input { width: 100%; }
+
+            .card-grid { grid-template-columns: 1fr; }
+
             .stats {
                 gap: 1rem;
             }
@@ -970,7 +1073,7 @@
         <header>
             <h1>Stock Alpha Scanner</h1>
             <p class="meta">
-                Last updated: 2026-02-08 17:32:09 UTC
+                Last updated: 2026-02-08 17:53:09 UTC
             </p>
             <div class="stats">
                 <div class="stat">
@@ -994,7 +1097,32 @@
                     <div class="stat-label">Avg Score</div>
                 </div>
             </div>
+            <div class="next-scan" id="next-scan"></div>
         </header>
+
+        
+        
+        
+        <div class="hero-card">
+            <div class="hero-label">Top pick this week</div>
+            <div class="hero-ticker">TKA</div>
+            <div class="hero-name">thyssenkrupp AG</div>
+            <div class="hero-stats">
+                <div>
+                    <div class="hero-stat-value neutral">11.655 EUR</div>
+                    <div class="hero-stat-label">Price</div>
+                </div>
+                <div>
+                    <div class="hero-stat-value positive">82</div>
+                    <div class="hero-stat-label">Alpha Score</div>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        
 
         <section class="how-it-works">
             <details open>
@@ -1215,6 +1343,7 @@
                         <button class="filter-btn filter-hold active" data-filter="hold">HOLD</button>
                         <button class="filter-btn filter-avoid active" data-filter="avoid">AVOID</button>
                     </div>
+                    <input type="text" id="search-input" class="search-input" placeholder="Search ticker...">
                     <div class="sort-control">
                         <select id="sort-select" class="sort-select">
                             <option value="score-desc">Score (high-low)</option>
@@ -1224,6 +1353,7 @@
                     </div>
                 </div>
 
+                <div class="card-grid">
                 
                 
                 <div class="pick-card buy">
@@ -1247,7 +1377,9 @@
                         
                     </h3>
 
-                    <!-- Metrics grid -->
+                    <!-- Metrics & scoring (collapsed by default) -->
+                    <details>
+                        <summary>Metrics & Score Breakdown</summary>
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">15.5</div>
@@ -1307,6 +1439,7 @@
                         <span class="l-liquidity">Liquidity 8/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
+                    </details>
 
                     <!-- Reasoning -->
                     
@@ -1401,7 +1534,9 @@
                         
                     </h3>
 
-                    <!-- Metrics grid -->
+                    <!-- Metrics & scoring (collapsed by default) -->
+                    <details>
+                        <summary>Metrics & Score Breakdown</summary>
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">17.5</div>
@@ -1461,6 +1596,7 @@
                         <span class="l-liquidity">Liquidity 10/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
+                    </details>
 
                     <!-- Reasoning -->
                     
@@ -1563,7 +1699,9 @@
                         
                     </h3>
 
-                    <!-- Metrics grid -->
+                    <!-- Metrics & scoring (collapsed by default) -->
+                    <details>
+                        <summary>Metrics & Score Breakdown</summary>
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">31.6</div>
@@ -1623,6 +1761,7 @@
                         <span class="l-liquidity">Liquidity 10/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
+                    </details>
 
                     <!-- Reasoning -->
                     
@@ -1713,7 +1852,9 @@
                         
                     </h3>
 
-                    <!-- Metrics grid -->
+                    <!-- Metrics & scoring (collapsed by default) -->
+                    <details>
+                        <summary>Metrics & Score Breakdown</summary>
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">26.3</div>
@@ -1773,6 +1914,7 @@
                         <span class="l-liquidity">Liquidity 10/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
+                    </details>
 
                     <!-- Reasoning -->
                     
@@ -1875,7 +2017,9 @@
                         
                     </h3>
 
-                    <!-- Metrics grid -->
+                    <!-- Metrics & scoring (collapsed by default) -->
+                    <details>
+                        <summary>Metrics & Score Breakdown</summary>
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">95.0</div>
@@ -1935,6 +2079,7 @@
                         <span class="l-liquidity">Liquidity 7/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
+                    </details>
 
                     <!-- Reasoning -->
                     
@@ -2039,7 +2184,9 @@
                         
                     </h3>
 
-                    <!-- Metrics grid -->
+                    <!-- Metrics & scoring (collapsed by default) -->
+                    <details>
+                        <summary>Metrics & Score Breakdown</summary>
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">29.8</div>
@@ -2099,6 +2246,7 @@
                         <span class="l-liquidity">Liquidity 7/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
+                    </details>
 
                     <!-- Reasoning -->
                     
@@ -2201,7 +2349,9 @@
                         
                     </h3>
 
-                    <!-- Metrics grid -->
+                    <!-- Metrics & scoring (collapsed by default) -->
+                    <details>
+                        <summary>Metrics & Score Breakdown</summary>
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">15.8</div>
@@ -2261,6 +2411,7 @@
                         <span class="l-liquidity">Liquidity 10/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
+                    </details>
 
                     <!-- Reasoning -->
                     
@@ -2367,7 +2518,9 @@
                         
                     </h3>
 
-                    <!-- Metrics grid -->
+                    <!-- Metrics & scoring (collapsed by default) -->
+                    <details>
+                        <summary>Metrics & Score Breakdown</summary>
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">14.7</div>
@@ -2427,6 +2580,7 @@
                         <span class="l-liquidity">Liquidity 10/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
+                    </details>
 
                     <!-- Reasoning -->
                     
@@ -2531,7 +2685,9 @@
                         
                     </h3>
 
-                    <!-- Metrics grid -->
+                    <!-- Metrics & scoring (collapsed by default) -->
+                    <details>
+                        <summary>Metrics & Score Breakdown</summary>
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">37.2</div>
@@ -2591,6 +2747,7 @@
                         <span class="l-liquidity">Liquidity 10/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
+                    </details>
 
                     <!-- Reasoning -->
                     
@@ -2690,7 +2847,9 @@
                         
                     </h3>
 
-                    <!-- Metrics grid -->
+                    <!-- Metrics & scoring (collapsed by default) -->
+                    <details>
+                        <summary>Metrics & Score Breakdown</summary>
                     <div class="metrics-grid">
                         <div class="metric">
                             <div class="metric-value neutral">16.2</div>
@@ -2750,6 +2909,7 @@
                         <span class="l-liquidity">Liquidity 7/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
                     </div>
                     
+                    </details>
 
                     <!-- Reasoning -->
                     
@@ -2832,6 +2992,7 @@
                     </div>
                 </div>
                 
+                </div><!-- /card-grid -->
             
         </main>
 
@@ -2859,14 +3020,37 @@
         }
     });
 
-    /* Filter and sort controls */
+    /* Next scan countdown */
+    (function() {
+        var el = document.getElementById('next-scan');
+        if (!el) return;
+        function update() {
+            var now = new Date();
+            var next = new Date(now);
+            next.setUTCHours(8, 0, 0, 0);
+            var day = next.getUTCDay();
+            var daysUntilSunday = (7 - day) % 7;
+            if (daysUntilSunday === 0 && now >= next) daysUntilSunday = 7;
+            next.setUTCDate(next.getUTCDate() + daysUntilSunday);
+            var diff = next - now;
+            var d = Math.floor(diff / 86400000);
+            var h = Math.floor((diff % 86400000) / 3600000);
+            el.textContent = 'Next scan in ' + d + 'd ' + h + 'h';
+        }
+        update();
+        setInterval(update, 60000);
+    })();
+
+    /* Filter, sort, and search controls */
     (function() {
         var filterBtns = document.querySelectorAll('.filter-btn');
         var sortSelect = document.getElementById('sort-select');
-        if (!filterBtns.length || !sortSelect) return;
+        var searchInput = document.getElementById('search-input');
+        var grid = document.querySelector('.card-grid');
+        if (!filterBtns.length || !sortSelect || !grid) return;
 
-        /* Track which signal types are visible */
         var activeFilters = { buy: true, hold: true, avoid: true };
+        var searchTerm = '';
 
         function getCardSignal(card) {
             if (card.classList.contains('buy')) return 'buy';
@@ -2887,69 +3071,63 @@
             return el ? el.textContent.trim() : '';
         }
 
-        function applyFilterAndSort() {
-            var container = document.querySelector('main');
-            if (!container) return;
-            var cards = Array.from(container.querySelectorAll('.pick-card'));
+        function getCardName(card) {
+            var el = card.querySelector('.name');
+            return el ? el.textContent.trim().toLowerCase() : '';
+        }
 
-            /* Apply filters -- show/hide */
+        function applyAll() {
+            var cards = Array.from(grid.querySelectorAll('.pick-card'));
+
             cards.forEach(function(card) {
                 var signal = getCardSignal(card);
-                card.style.display = activeFilters[signal] ? '' : 'none';
+                var ticker = getCardTicker(card).toLowerCase();
+                var name = getCardName(card);
+                var matchFilter = activeFilters[signal];
+                var matchSearch = !searchTerm || ticker.indexOf(searchTerm) !== -1 || name.indexOf(searchTerm) !== -1;
+                card.style.display = (matchFilter && matchSearch) ? '' : 'none';
             });
 
-            /* Sort only visible cards */
             var sortVal = sortSelect.value;
             cards.sort(function(a, b) {
-                if (sortVal === 'score-desc') {
-                    return getCardScore(b) - getCardScore(a);
-                } else if (sortVal === 'score-asc') {
-                    return getCardScore(a) - getCardScore(b);
-                } else {
-                    return getCardTicker(a).localeCompare(getCardTicker(b));
-                }
+                if (sortVal === 'score-desc') return getCardScore(b) - getCardScore(a);
+                if (sortVal === 'score-asc') return getCardScore(a) - getCardScore(b);
+                return getCardTicker(a).localeCompare(getCardTicker(b));
             });
 
-            /* Re-append in sorted order */
-            cards.forEach(function(card) {
-                container.appendChild(card);
-            });
+            cards.forEach(function(card) { grid.appendChild(card); });
         }
 
         function updateAllButton() {
             var allBtn = document.querySelector('.filter-btn[data-filter="all"]');
             if (!allBtn) return;
-            var allActive = activeFilters.buy && activeFilters.hold && activeFilters.avoid;
-            allBtn.classList.toggle('active', allActive);
+            allBtn.classList.toggle('active', activeFilters.buy && activeFilters.hold && activeFilters.avoid);
         }
 
         filterBtns.forEach(function(btn) {
             btn.addEventListener('click', function() {
                 var filter = btn.getAttribute('data-filter');
-
                 if (filter === 'all') {
-                    /* Toggle all on */
-                    activeFilters.buy = true;
-                    activeFilters.hold = true;
-                    activeFilters.avoid = true;
+                    activeFilters.buy = true; activeFilters.hold = true; activeFilters.avoid = true;
                     btn.classList.add('active');
-                    document.querySelectorAll('.filter-btn[data-filter!="all"]').forEach(function(b) {
-                        b.classList.add('active');
-                    });
+                    document.querySelectorAll('.filter-btn[data-filter!="all"]').forEach(function(b) { b.classList.add('active'); });
                 } else {
-                    /* Toggle individual filter */
                     activeFilters[filter] = !activeFilters[filter];
                     btn.classList.toggle('active', activeFilters[filter]);
                     updateAllButton();
                 }
-
-                applyFilterAndSort();
+                applyAll();
             });
         });
 
-        sortSelect.addEventListener('change', function() {
-            applyFilterAndSort();
-        });
+        sortSelect.addEventListener('change', applyAll);
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                searchTerm = searchInput.value.trim().toLowerCase();
+                applyAll();
+            });
+        }
     })();
     </script>
 </body>
