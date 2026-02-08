@@ -131,6 +131,19 @@ def calculate_technicals(history: pd.DataFrame) -> dict:
     volume_avg_30d = volume.tail(30).mean() if len(volume) >= 30 else volume.mean()
     volume_ratio = volume.iloc[-1] / volume_avg_30d if volume_avg_30d > 0 else None
 
+    # ATR-14
+    atr_14 = None
+    if len(history) >= 15:
+        high = history["High"]
+        low = history["Low"]
+        prev_close = close.shift()
+        tr = pd.concat([
+            high - low,
+            (high - prev_close).abs(),
+            (low - prev_close).abs(),
+        ], axis=1).max(axis=1)
+        atr_14 = float(tr.rolling(14).mean().iloc[-1])
+
     # 52-week high
     high_52w = close.max()
     pct_from_52w_high = ((current_price / high_52w) - 1) * 100 if high_52w > 0 else None
@@ -146,6 +159,7 @@ def calculate_technicals(history: pd.DataFrame) -> dict:
         "price_vs_sma200": price_vs_sma200,
         "volume_avg_30d": volume_avg_30d,
         "volume_ratio": volume_ratio,
+        "atr_14": atr_14,
         "fifty_two_week_high": high_52w,
         "pct_from_52w_high": pct_from_52w_high,
     }
@@ -223,6 +237,7 @@ def build_stock_dict(
         "price_vs_sma50": technicals.get("price_vs_sma50"),
         "volume_avg_30d": technicals.get("volume_avg_30d"),
         "volume_ratio": technicals.get("volume_ratio"),
+        "atr_14": technicals.get("atr_14"),
         "fifty_two_week_high": technicals.get("fifty_two_week_high"),
         "pct_from_52w_high": technicals.get("pct_from_52w_high"),
     }

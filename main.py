@@ -32,6 +32,7 @@ from history import (
     record_predictions,
     get_dashboard_stats,
 )
+from alerts import send_telegram_alert
 
 console = Console()
 
@@ -124,6 +125,12 @@ async def main():
                     sources=[],
                 )
 
+            # Calculate risk levels from ATR
+            price = stock.get("price")
+            atr = stock.get("atr_14")
+            stop_loss = round(price - 2 * atr, 2) if price and atr else None
+            take_profit = round(price + 3 * atr, 2) if price and atr else None
+
             # Compile result
             return {
                 "ticker": stock["ticker"],
@@ -131,7 +138,7 @@ async def main():
                 "exchange": stock.get("exchange", ""),
                 "index": stock.get("index", ""),
                 "sector": stock.get("sector", ""),
-                "price": stock.get("price"),
+                "price": price,
                 "currency": stock.get("currency", ""),
                 "market_cap": stock.get("market_cap"),
                 "pe_ratio": stock.get("pe_ratio"),
@@ -144,6 +151,8 @@ async def main():
                 "alpha_score": stock["alpha_score"],
                 "score_breakdown": stock.get("score_breakdown", {}),
                 "yahoo_url": build_yahoo_url(stock["ticker"], stock.get("exchange", "")),
+                "stop_loss": stop_loss,
+                "take_profit": take_profit,
                 **thesis.to_dict()
             }
 
@@ -151,6 +160,9 @@ async def main():
             *[_research_one(i, stock) for i, stock in enumerate(top_stocks, 1)]
         )
         results = list(results)
+
+        # Calculate position sizes
+        _calculate_position_sizes(results)
 
         # Step 4: Display results
         console.print("\n[bold]Step 4: Results Summary[/bold]")
@@ -167,6 +179,10 @@ async def main():
         console.print("\n[bold]Step 5.5: Recording predictions[/bold]")
         record_predictions(results, scan_date)
 
+        # Step 6: Telegram alert
+        console.print("\n[bold]Step 6: Alerts[/bold]")
+        await send_telegram_alert(results, client)
+
         console.print("\n[bold green]Scan complete![/bold green]")
         console.print(f"  Results saved to docs/index.html and docs/data.json")
         console.print(f"  Open docs/index.html in a browser to view the dashboard")
@@ -175,6 +191,23 @@ async def main():
         if PERPLEXITY_API_KEY:
             console.print("")
             print_budget_status()
+
+
+def _calculate_position_sizes(results: list[dict]) -> None:
+    """Assign suggested_pct to each result based on signal, score, and confidence."""
+    conf_mult = {"HIGH": 1.3, "MEDIUM": 1.0, "LOW": 0.7}
+    sig_mult = {"BUY": 1.0, "HOLD": 0.5, "AVOID": 0.0}
+
+    raw = []
+    for r in results:
+        score = r.get("alpha_score", 0) / 100
+        cm = conf_mult.get(r.get("confidence", "LOW"), 0.7)
+        sm = sig_mult.get(r.get("signal", "HOLD"), 0.5)
+        raw.append(score * cm * sm)
+
+    total = sum(raw) or 1
+    for i, r in enumerate(results):
+        r["suggested_pct"] = round(raw[i] / total * 100, 1) if raw[i] > 0 else 0
 
 
 def display_top_stocks(stocks: list[dict]):

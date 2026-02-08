@@ -1,5 +1,5 @@
 {
-  "run_date": "2026-02-08T17:08:00.882608+00:00",
+  "run_date": "2026-02-08T17:14:07.243033+00:00",
   "stocks_scanned": 235,
   "top_picks": [
     {
@@ -653,16 +653,16 @@
       }
     },
     "streaks": {
-      "AMAT": 2,
-      "FERG": 2,
-      "ENR": 2,
-      "AZN": 2,
-      "TKA": 2,
-      "DG": 1,
       "GSK": 2,
-      "RIO": 2,
+      "DG": 1,
+      "ENR": 2,
+      "TKA": 2,
+      "AMAT": 2,
       "SAF": 2,
-      "EN": 2
+      "EN": 2,
+      "RIO": 2,
+      "FERG": 2,
+      "AZN": 2
     },
     "weight_overrides": {},
     "active_weights": {

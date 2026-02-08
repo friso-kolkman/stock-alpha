@@ -428,6 +428,48 @@
             color: var(--text-secondary);
         }
 
+        /* Risk & sizing row */
+        .risk-row {
+            display: flex;
+            gap: 1.5rem;
+            padding: 0.6rem 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+        }
+
+        .risk-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .risk-label {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+        .risk-value {
+            font-weight: 600;
+        }
+
+        .risk-value.stop { color: var(--avoid-text); }
+        .risk-value.target { color: var(--buy-text); }
+
+        .size-badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: rgba(88, 166, 255, 0.15);
+            color: var(--link-color);
+            vertical-align: middle;
+            margin-left: 0.4rem;
+        }
+
         /* Model Performance */
         .perf-header {
             display: flex;
@@ -1216,6 +1258,33 @@
                             <div class="metric-label">RSI <span class="info-tip">i<span class="tip-text">Relative Strength Index (0-100). Below 30 = oversold (potential bounce), above 70 = overbought (potential pullback), 40-70 = healthy range.</span></span></div>
                         </div>
                     </div>
+
+                    <!-- Risk levels & position sizing -->
+                    {% if pick.stop_loss or pick.suggested_pct %}
+                    <div class="risk-row">
+                        {% if pick.stop_loss %}
+                        <div class="risk-item">
+                            <span class="risk-label">Stop Loss</span>
+                            <span class="risk-value stop">{{ "%.2f"|format(pick.stop_loss) }}</span>
+                            <span class="info-tip">i<span class="tip-text">Suggested stop-loss based on 2x ATR (Average True Range). If the price drops to this level, consider exiting to limit losses.</span></span>
+                        </div>
+                        {% endif %}
+                        {% if pick.take_profit %}
+                        <div class="risk-item">
+                            <span class="risk-label">Target</span>
+                            <span class="risk-value target">{{ "%.2f"|format(pick.take_profit) }}</span>
+                            <span class="info-tip">i<span class="tip-text">Suggested take-profit based on 3x ATR. A 1.5:1 reward-to-risk ratio. Consider taking profits near this level.</span></span>
+                        </div>
+                        {% endif %}
+                        {% if pick.suggested_pct and pick.suggested_pct > 0 %}
+                        <div class="risk-item">
+                            <span class="risk-label">Allocation</span>
+                            <span class="risk-value" style="color: var(--link-color);">{{ "%.0f"|format(pick.suggested_pct) }}%</span>
+                            <span class="info-tip">i<span class="tip-text">Suggested portfolio allocation based on signal strength, alpha score, and confidence. Higher score + stronger signal = larger position. AVOID signals get 0%.</span></span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
 
                     <!-- Score breakdown bar -->
                     {% if pick.score_breakdown %}
