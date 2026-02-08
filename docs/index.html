@@ -934,6 +934,11 @@
             .hero-card .hero-ticker { font-size: 1.4rem; }
             .hero-card .hero-stats { gap: 1rem; }
 
+            .controls-bar {
+                position: static;
+                padding: 0 0 0.75rem;
+            }
+
             .search-input { width: 100%; }
 
             .card-grid { grid-template-columns: 1fr; }
@@ -1073,7 +1078,7 @@
         <header>
             <h1>Stock Alpha Scanner</h1>
             <p class="meta">
-                Last updated: 2026-02-08 17:53:09 UTC
+                Last updated: 2026-02-08 17:56:43 UTC
             </p>
             <div class="stats">
                 <div class="stat">
@@ -1125,7 +1130,7 @@
         
 
         <section class="how-it-works">
-            <details open>
+            <details id="how-details" open>
                 <summary>How it works</summary>
                 <div class="how-content">
                     <p>This scanner analyzes <strong>250 stocks</strong> across Europe and the US every week. Each stock is scored on 5 factors (value, quality, momentum, catalysts, liquidity), then researched by AI for recent news and outlook.</p>
@@ -3008,6 +3013,12 @@
         </footer>
     </div>
     <script>
+    /* Collapse "How it works" on mobile */
+    if (window.innerWidth <= 600) {
+        var hd = document.getElementById('how-details');
+        if (hd) hd.removeAttribute('open');
+    }
+
     /* Toggle tooltips on tap for touch devices */
     document.addEventListener('click', function(e) {
         var tip = e.target.closest('.info-tip');
