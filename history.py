@@ -240,6 +240,62 @@ def update_adaptive_weights(history: dict) -> dict:
     return history
 
 
+def get_streaks(results: list[dict], history: dict | None = None) -> dict[str, int]:
+    """Count consecutive weekly scan appearances for each ticker in results.
+
+    Looks at historical predictions grouped by scan_date and counts how many
+    of the most recent consecutive scan dates each ticker appeared in.
+    A stock appearing 3 weeks in a row shows higher conviction than a first-timer.
+
+    The current scan (represented by ``results``) always counts as 1. Previous
+    scan dates found in history extend the streak further.
+
+    Args:
+        results: Current scan results (list of dicts with at least a "ticker" key).
+        history: Pre-loaded history dict, or None to load from disk.
+
+    Returns:
+        Dict mapping ticker -> consecutive scan count (minimum 1 for current scan).
+    """
+    if history is None:
+        history = load_history()
+
+    predictions = history.get("predictions", [])
+
+    # Group tickers by scan_date
+    date_tickers: dict[str, set[str]] = {}
+    for p in predictions:
+        sd = p.get("scan_date", "")[:10]  # normalize to YYYY-MM-DD
+        if sd:
+            date_tickers.setdefault(sd, set()).add(p["ticker"])
+
+    # Sorted unique scan dates (oldest first)
+    sorted_dates = sorted(date_tickers.keys())
+
+    # Build streak for each ticker in the current results
+    current_tickers = {r["ticker"] for r in results}
+    streaks: dict[str, int] = {}
+
+    if not sorted_dates:
+        # First scan ever -- every ticker gets streak of 1
+        for ticker in current_tickers:
+            streaks[ticker] = 1
+        return streaks
+
+    for ticker in current_tickers:
+        streak = 0
+        # Walk backwards through scan dates
+        for date in reversed(sorted_dates):
+            if ticker in date_tickers[date]:
+                streak += 1
+            else:
+                break
+        # streak==0 means ticker never appeared before; current scan counts as 1
+        streaks[ticker] = max(streak, 1)
+
+    return streaks
+
+
 def get_dashboard_stats(history: dict | None = None) -> dict | None:
     """Return formatted stats for the dashboard template."""
     if history is None:
@@ -260,6 +316,18 @@ def get_dashboard_stats(history: dict | None = None) -> dict | None:
     weight_overrides = history.get("weight_overrides", {})
     active_weights = get_adaptive_weights(history)
 
+    # Compute streaks for the most recent scan's tickers
+    predictions = history.get("predictions", [])
+    if predictions:
+        latest_date = max(p.get("scan_date", "")[:10] for p in predictions)
+        latest_results = [
+            {"ticker": p["ticker"]}
+            for p in predictions if p.get("scan_date", "")[:10] == latest_date
+        ]
+        streaks = get_streaks(latest_results, history)
+    else:
+        streaks = {}
+
     return {
         "has_history": True,
         "total_predictions": stats.get("total_predictions", 0),
@@ -270,6 +338,7 @@ def get_dashboard_stats(history: dict | None = None) -> dict | None:
         "inconclusive": stats.get("inconclusive", 0),
         "win_rate": stats.get("win_rate"),
         "per_signal": stats.get("per_signal", {}),
+        "streaks": streaks,
         "weight_overrides": weight_overrides,
         "active_weights": active_weights,
         "base_weights": dict(SCORING_WEIGHTS),

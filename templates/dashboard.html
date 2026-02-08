@@ -80,6 +80,82 @@
             color: var(--text-secondary);
         }
 
+        /* Controls bar */
+        .controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.35rem 0.9rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s, background 0.2s, color 0.2s, border-color 0.2s;
+            opacity: 0.5;
+        }
+
+        .filter-btn.active {
+            opacity: 1;
+        }
+
+        .filter-btn[data-filter="all"].active {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-color: var(--text-secondary);
+        }
+
+        .filter-btn.filter-buy.active {
+            background: rgba(35, 134, 54, 0.2);
+            color: var(--buy-text);
+            border-color: var(--buy);
+        }
+
+        .filter-btn.filter-hold.active {
+            background: rgba(31, 111, 235, 0.2);
+            color: var(--hold-text);
+            border-color: var(--hold);
+        }
+
+        .filter-btn.filter-avoid.active {
+            background: rgba(218, 54, 51, 0.2);
+            color: var(--avoid-text);
+            border-color: var(--avoid);
+        }
+
+        .sort-control {
+            flex-shrink: 0;
+        }
+
+        .sort-select {
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .sort-select:focus {
+            outline: none;
+            border-color: var(--link-color);
+        }
+
         /* Stock cards */
         .pick-card {
             background: var(--bg-secondary);
@@ -170,6 +246,18 @@
         .stock-title .name {
             color: var(--text-secondary);
             font-weight: 400;
+        }
+
+        .streak-badge {
+            display: inline-block;
+            padding: 0.1rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            background: rgba(210, 153, 34, 0.2);
+            color: #d29922;
+            vertical-align: middle;
+            margin-left: 0.4rem;
         }
 
         /* Metrics grid */
@@ -615,6 +703,29 @@
                 font-size: 1.2rem;
             }
 
+            .controls-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .filter-buttons {
+                width: 100%;
+            }
+
+            .filter-btn {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.7rem;
+            }
+
+            .sort-select {
+                width: 100%;
+                font-size: 0.75rem;
+            }
+
+            .sort-control {
+                width: 100%;
+            }
+
             .metrics-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
@@ -711,8 +822,16 @@
                     <div class="stat-label">Stocks Scanned</div>
                 </div>
                 <div class="stat">
-                    <div class="stat-value">{{ picks|length }}</div>
-                    <div class="stat-label">Alpha Picks</div>
+                    <div class="stat-value" style="color: var(--buy-text);">{{ buy_count }}</div>
+                    <div class="stat-label">BUY</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" style="color: var(--hold-text);">{{ hold_count }}</div>
+                    <div class="stat-label">HOLD</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" style="color: var(--avoid-text);">{{ avoid_count }}</div>
+                    <div class="stat-label">AVOID</div>
                 </div>
                 <div class="stat">
                     <div class="stat-value">{{ avg_score }}</div>
@@ -918,6 +1037,22 @@
 
         <main>
             {% if picks %}
+                <div class="controls-bar">
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn filter-buy active" data-filter="buy">BUY</button>
+                        <button class="filter-btn filter-hold active" data-filter="hold">HOLD</button>
+                        <button class="filter-btn filter-avoid active" data-filter="avoid">AVOID</button>
+                    </div>
+                    <div class="sort-control">
+                        <select id="sort-select" class="sort-select">
+                            <option value="score-desc">Score (high-low)</option>
+                            <option value="score-asc">Score (low-high)</option>
+                            <option value="ticker-az">Ticker A-Z</option>
+                        </select>
+                    </div>
+                </div>
+
                 {% for pick in picks %}
                 {% set signal_class = pick.signal|lower %}
                 <div class="pick-card {{ signal_class }}">
@@ -936,6 +1071,9 @@
                     <h3 class="stock-title">
                         <span class="ticker">{{ pick.ticker }}</span>
                         <span class="name"> &mdash; {{ pick.name }}</span>
+                        {% if streaks.get(pick.ticker, 0) > 1 %}
+                        <span class="streak-badge">{{ streaks[pick.ticker] }}x streak</span>
+                        {% endif %}
                     </h3>
 
                     <!-- Metrics grid -->
@@ -1092,6 +1230,99 @@
             tip.classList.toggle('active');
         }
     });
+
+    /* Filter and sort controls */
+    (function() {
+        var filterBtns = document.querySelectorAll('.filter-btn');
+        var sortSelect = document.getElementById('sort-select');
+        if (!filterBtns.length || !sortSelect) return;
+
+        /* Track which signal types are visible */
+        var activeFilters = { buy: true, hold: true, avoid: true };
+
+        function getCardSignal(card) {
+            if (card.classList.contains('buy')) return 'buy';
+            if (card.classList.contains('hold')) return 'hold';
+            if (card.classList.contains('avoid')) return 'avoid';
+            return '';
+        }
+
+        function getCardScore(card) {
+            var el = card.querySelector('.alpha-score');
+            if (!el) return 0;
+            var m = el.textContent.match(/Score:\s*(\d+)/);
+            return m ? parseInt(m[1], 10) : 0;
+        }
+
+        function getCardTicker(card) {
+            var el = card.querySelector('.ticker');
+            return el ? el.textContent.trim() : '';
+        }
+
+        function applyFilterAndSort() {
+            var container = document.querySelector('main');
+            if (!container) return;
+            var cards = Array.from(container.querySelectorAll('.pick-card'));
+
+            /* Apply filters -- show/hide */
+            cards.forEach(function(card) {
+                var signal = getCardSignal(card);
+                card.style.display = activeFilters[signal] ? '' : 'none';
+            });
+
+            /* Sort only visible cards */
+            var sortVal = sortSelect.value;
+            cards.sort(function(a, b) {
+                if (sortVal === 'score-desc') {
+                    return getCardScore(b) - getCardScore(a);
+                } else if (sortVal === 'score-asc') {
+                    return getCardScore(a) - getCardScore(b);
+                } else {
+                    return getCardTicker(a).localeCompare(getCardTicker(b));
+                }
+            });
+
+            /* Re-append in sorted order */
+            cards.forEach(function(card) {
+                container.appendChild(card);
+            });
+        }
+
+        function updateAllButton() {
+            var allBtn = document.querySelector('.filter-btn[data-filter="all"]');
+            if (!allBtn) return;
+            var allActive = activeFilters.buy && activeFilters.hold && activeFilters.avoid;
+            allBtn.classList.toggle('active', allActive);
+        }
+
+        filterBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var filter = btn.getAttribute('data-filter');
+
+                if (filter === 'all') {
+                    /* Toggle all on */
+                    activeFilters.buy = true;
+                    activeFilters.hold = true;
+                    activeFilters.avoid = true;
+                    btn.classList.add('active');
+                    document.querySelectorAll('.filter-btn[data-filter!="all"]').forEach(function(b) {
+                        b.classList.add('active');
+                    });
+                } else {
+                    /* Toggle individual filter */
+                    activeFilters[filter] = !activeFilters[filter];
+                    btn.classList.toggle('active', activeFilters[filter]);
+                    updateAllButton();
+                }
+
+                applyFilterAndSort();
+            });
+        });
+
+        sortSelect.addEventListener('change', function() {
+            applyFilterAndSort();
+        });
+    })();
     </script>
 </body>
 </html>

@@ -94,17 +94,18 @@ async def main():
         # Display top stocks
         display_top_stocks(top_stocks)
 
-        # Step 3: Research top stocks
+        # Step 3: Research top stocks (3 concurrent via semaphore)
         console.print(f"\n[bold]Step 3: Researching top {len(top_stocks)} stocks[/bold]")
-        results = []
+        sem = asyncio.Semaphore(3)
 
-        for i, stock in enumerate(top_stocks, 1):
+        async def _research_one(i: int, stock: dict) -> dict:
             ticker = stock["ticker"]
             name = stock.get("name", "")[:30]
             console.print(f"\n  [{i}/{len(top_stocks)}] {ticker} -- {name}...")
 
             if PERPLEXITY_API_KEY:
-                research = await research_stock(client, stock)
+                async with sem:
+                    research = await research_stock(client, stock)
                 thesis = evaluate_research(stock, research)
 
                 if research.get("success"):
@@ -124,7 +125,7 @@ async def main():
                 )
 
             # Compile result
-            result = {
+            return {
                 "ticker": stock["ticker"],
                 "name": stock.get("name", ""),
                 "exchange": stock.get("exchange", ""),
@@ -145,7 +146,11 @@ async def main():
                 "yahoo_url": build_yahoo_url(stock["ticker"], stock.get("exchange", "")),
                 **thesis.to_dict()
             }
-            results.append(result)
+
+        results = await asyncio.gather(
+            *[_research_one(i, stock) for i, stock in enumerate(top_stocks, 1)]
+        )
+        results = list(results)
 
         # Step 4: Display results
         console.print("\n[bold]Step 4: Results Summary[/bold]")

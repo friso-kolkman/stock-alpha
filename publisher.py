@@ -85,6 +85,11 @@ def render_dashboard(data: dict) -> str:
     if picks:
         avg_score = sum(p.get("alpha_score", 0) for p in picks) / len(picks)
 
+    # Count signals by type
+    buy_count = sum(1 for p in picks if p.get("signal") == "BUY")
+    hold_count = sum(1 for p in picks if p.get("signal") == "HOLD")
+    avoid_count = sum(1 for p in picks if p.get("signal") == "AVOID")
+
     stats = data.get("dashboard_stats") or {}
 
     return template.render(
@@ -92,8 +97,12 @@ def render_dashboard(data: dict) -> str:
         stocks_scanned=data["stocks_scanned"],
         picks=picks,
         avg_score=round(avg_score),
+        buy_count=buy_count,
+        hold_count=hold_count,
+        avoid_count=avoid_count,
         has_history=stats.get("has_history", False),
         model_stats=stats,
+        streaks=stats.get("streaks", {}),
     )
 
 
