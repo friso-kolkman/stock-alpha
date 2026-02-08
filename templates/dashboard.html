@@ -659,6 +659,63 @@
             font-size: 0.9rem;
         }
 
+        /* How it works */
+        .how-it-works {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .how-it-works summary {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .how-content {
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .how-content p {
+            margin-bottom: 0.5rem;
+        }
+
+        .signal-explainer {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin: 0.4rem 0;
+            font-size: 0.85rem;
+        }
+
+        .signal-explainer .signal-badge {
+            flex-shrink: 0;
+            min-width: 52px;
+            text-align: center;
+        }
+
+        .telegram-link {
+            display: inline-block;
+            margin-top: 0.75rem;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            background: rgba(0, 136, 204, 0.15);
+            color: #29b6f6;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+
+        .telegram-link:hover {
+            background: rgba(0, 136, 204, 0.25);
+        }
+
         /* Empty state */
         .no-picks {
             text-align: center;
@@ -938,6 +995,26 @@
                 </div>
             </div>
         </header>
+
+        <section class="how-it-works">
+            <details open>
+                <summary>How it works</summary>
+                <div class="how-content">
+                    <p>This scanner analyzes <strong>250 stocks</strong> across Europe and the US every week. Each stock is scored on 5 factors (value, quality, momentum, catalysts, liquidity), then researched by AI for recent news and outlook.</p>
+                    <div class="signal-explainer">
+                        <span class="signal-badge buy">BUY</span> Strong fundamentals + bullish AI research. Suggested stop-loss and target price included.
+                    </div>
+                    <div class="signal-explainer">
+                        <span class="signal-badge hold">HOLD</span> Decent stock but outlook is neutral or uncertain. Worth watching.
+                    </div>
+                    <div class="signal-explainer">
+                        <span class="signal-badge avoid">AVOID</span> Negative outlook or significant risks detected. Suggested allocation: 0%.
+                    </div>
+                    <p style="margin-top: 0.5rem;"><strong>Stop Loss</strong> = exit price to limit losses. <strong>Target</strong> = take-profit price. <strong>Allocation</strong> = suggested portfolio weight based on signal strength.</p>
+                </div>
+            </details>
+            <a href="https://t.me/StockScanner1234567890bot" class="telegram-link" target="_blank" rel="noopener">Get BUY alerts on Telegram</a>
+        </section>
 
         {% if has_history and model_stats %}
         <section class="model-performance">
