@@ -98,14 +98,17 @@
         .read-more { color: var(--link); font-size: 0.8rem; cursor: pointer; border: none; background: none; padding: 0; }
         .read-more:hover { text-decoration: underline; }
 
-        /* Score bar (no legend) */
-        .score-bar { display: flex; height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 0.5rem; background: var(--card2); }
-        .score-bar > div { height: 100%; }
+        /* Score bar */
+        .score-bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--card2); }
+        .score-bar > div { height: 100%; position: relative; }
         .sb-val { background: #f0883e; }
         .sb-qual { background: #a371f7; }
         .sb-mom { background: #3fb950; }
         .sb-cat { background: #58a6ff; }
         .sb-liq { background: #d29922; }
+        .score-legend { display: flex; justify-content: space-between; margin-top: 0.3rem; font-size: 0.6rem; color: var(--dim); }
+        .score-legend span { display: flex; align-items: center; gap: 0.2rem; }
+        .score-legend i { display: inline-block; width: 6px; height: 6px; border-radius: 2px; }
 
         /* Card details */
         .card details { margin-top: 0.5rem; }
@@ -366,16 +369,25 @@
                 <button class="read-more" onclick="var r=document.getElementById('r{{ loop.index }}');r.classList.toggle('expanded');this.textContent=r.classList.contains('expanded')?'less':'more'">more</button>
                 {% endif %}
 
-                {# Score bar (no labels) #}
+                {# Score bar with legend #}
                 {% if pick.score_breakdown %}
                 {% set bd = pick.score_breakdown %}
                 {% set t = pick.alpha_score if pick.alpha_score > 0 else 1 %}
-                <div class="score-bar" style="margin-top:0.75rem">
-                    <div class="sb-val" style="width:{{ (bd.get('value',0)/t*100)|round }}%"></div>
-                    <div class="sb-qual" style="width:{{ (bd.get('quality',0)/t*100)|round }}%"></div>
-                    <div class="sb-mom" style="width:{{ (bd.get('momentum',0)/t*100)|round }}%"></div>
-                    <div class="sb-cat" style="width:{{ (bd.get('catalyst',0)/t*100)|round }}%"></div>
-                    <div class="sb-liq" style="width:{{ (bd.get('liquidity',0)/t*100)|round }}%"></div>
+                <div style="margin-top:0.75rem">
+                    <div class="score-bar">
+                        <div class="sb-val" style="width:{{ (bd.get('value',0)/t*100)|round }}%"></div>
+                        <div class="sb-qual" style="width:{{ (bd.get('quality',0)/t*100)|round }}%"></div>
+                        <div class="sb-mom" style="width:{{ (bd.get('momentum',0)/t*100)|round }}%"></div>
+                        <div class="sb-cat" style="width:{{ (bd.get('catalyst',0)/t*100)|round }}%"></div>
+                        <div class="sb-liq" style="width:{{ (bd.get('liquidity',0)/t*100)|round }}%"></div>
+                    </div>
+                    <div class="score-legend">
+                        <span><i style="background:#f0883e"></i>Val {{ bd.get('value',0) }}</span>
+                        <span><i style="background:#a371f7"></i>Qual {{ bd.get('quality',0) }}</span>
+                        <span><i style="background:#3fb950"></i>Mom {{ bd.get('momentum',0) }}</span>
+                        <span><i style="background:#58a6ff"></i>Cat {{ bd.get('catalyst',0) }}</span>
+                        <span><i style="background:#d29922"></i>Liq {{ bd.get('liquidity',0) }}</span>
+                    </div>
                 </div>
                 {% endif %}
 

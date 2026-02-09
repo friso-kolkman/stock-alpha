@@ -98,14 +98,17 @@
         .read-more { color: var(--link); font-size: 0.8rem; cursor: pointer; border: none; background: none; padding: 0; }
         .read-more:hover { text-decoration: underline; }
 
-        /* Score bar (no legend) */
-        .score-bar { display: flex; height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 0.5rem; background: var(--card2); }
-        .score-bar > div { height: 100%; }
+        /* Score bar */
+        .score-bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--card2); }
+        .score-bar > div { height: 100%; position: relative; }
         .sb-val { background: #f0883e; }
         .sb-qual { background: #a371f7; }
         .sb-mom { background: #3fb950; }
         .sb-cat { background: #58a6ff; }
         .sb-liq { background: #d29922; }
+        .score-legend { display: flex; justify-content: space-between; margin-top: 0.3rem; font-size: 0.6rem; color: var(--dim); }
+        .score-legend span { display: flex; align-items: center; gap: 0.2rem; }
+        .score-legend i { display: inline-block; width: 6px; height: 6px; border-radius: 2px; }
 
         /* Card details */
         .card details { margin-top: 0.5rem; }
@@ -356,12 +359,21 @@
                 
                 
                 
-                <div class="score-bar" style="margin-top:0.75rem">
-                    <div class="sb-val" style="width:27.0%"></div>
-                    <div class="sb-qual" style="width:19.0%"></div>
-                    <div class="sb-mom" style="width:30.0%"></div>
-                    <div class="sb-cat" style="width:17.0%"></div>
-                    <div class="sb-liq" style="width:6.0%"></div>
+                <div style="margin-top:0.75rem">
+                    <div class="score-bar">
+                        <div class="sb-val" style="width:27.0%"></div>
+                        <div class="sb-qual" style="width:19.0%"></div>
+                        <div class="sb-mom" style="width:30.0%"></div>
+                        <div class="sb-cat" style="width:17.0%"></div>
+                        <div class="sb-liq" style="width:6.0%"></div>
+                    </div>
+                    <div class="score-legend">
+                        <span><i style="background:#f0883e"></i>Val 21</span>
+                        <span><i style="background:#a371f7"></i>Qual 15</span>
+                        <span><i style="background:#3fb950"></i>Mom 23</span>
+                        <span><i style="background:#58a6ff"></i>Cat 13</span>
+                        <span><i style="background:#d29922"></i>Liq 5</span>
+                    </div>
                 </div>
                 
 
@@ -438,12 +450,21 @@
                 
                 
                 
-                <div class="score-bar" style="margin-top:0.75rem">
-                    <div class="sb-val" style="width:29.0%"></div>
-                    <div class="sb-qual" style="width:12.0%"></div>
-                    <div class="sb-mom" style="width:32.0%"></div>
-                    <div class="sb-cat" style="width:18.0%"></div>
-                    <div class="sb-liq" style="width:10.0%"></div>
+                <div style="margin-top:0.75rem">
+                    <div class="score-bar">
+                        <div class="sb-val" style="width:29.0%"></div>
+                        <div class="sb-qual" style="width:12.0%"></div>
+                        <div class="sb-mom" style="width:32.0%"></div>
+                        <div class="sb-cat" style="width:18.0%"></div>
+                        <div class="sb-liq" style="width:10.0%"></div>
+                    </div>
+                    <div class="score-legend">
+                        <span><i style="background:#f0883e"></i>Val 21</span>
+                        <span><i style="background:#a371f7"></i>Qual 9</span>
+                        <span><i style="background:#3fb950"></i>Mom 23</span>
+                        <span><i style="background:#58a6ff"></i>Cat 13</span>
+                        <span><i style="background:#d29922"></i>Liq 7</span>
+                    </div>
                 </div>
                 
 
@@ -520,12 +541,21 @@
                 
                 
                 
-                <div class="score-bar" style="margin-top:0.75rem">
-                    <div class="sb-val" style="width:7.0%"></div>
-                    <div class="sb-qual" style="width:35.0%"></div>
-                    <div class="sb-mom" style="width:31.0%"></div>
-                    <div class="sb-cat" style="width:18.0%"></div>
-                    <div class="sb-liq" style="width:10.0%"></div>
+                <div style="margin-top:0.75rem">
+                    <div class="score-bar">
+                        <div class="sb-val" style="width:7.0%"></div>
+                        <div class="sb-qual" style="width:35.0%"></div>
+                        <div class="sb-mom" style="width:31.0%"></div>
+                        <div class="sb-cat" style="width:18.0%"></div>
+                        <div class="sb-liq" style="width:10.0%"></div>
+                    </div>
+                    <div class="score-legend">
+                        <span><i style="background:#f0883e"></i>Val 5</span>
+                        <span><i style="background:#a371f7"></i>Qual 25</span>
+                        <span><i style="background:#3fb950"></i>Mom 22</span>
+                        <span><i style="background:#58a6ff"></i>Cat 13</span>
+                        <span><i style="background:#d29922"></i>Liq 7</span>
+                    </div>
                 </div>
                 
 
@@ -602,12 +632,21 @@
                 
                 
                 
-                <div class="score-bar" style="margin-top:0.75rem">
-                    <div class="sb-val" style="width:7.0%"></div>
-                    <div class="sb-qual" style="width:31.0%"></div>
-                    <div class="sb-mom" style="width:35.0%"></div>
-                    <div class="sb-cat" style="width:18.0%"></div>
-                    <div class="sb-liq" style="width:10.0%"></div>
+                <div style="margin-top:0.75rem">
+                    <div class="score-bar">
+                        <div class="sb-val" style="width:7.0%"></div>
+                        <div class="sb-qual" style="width:31.0%"></div>
+                        <div class="sb-mom" style="width:35.0%"></div>
+                        <div class="sb-cat" style="width:18.0%"></div>
+                        <div class="sb-liq" style="width:10.0%"></div>
+                    </div>
+                    <div class="score-legend">
+                        <span><i style="background:#f0883e"></i>Val 5</span>
+                        <span><i style="background:#a371f7"></i>Qual 22</span>
+                        <span><i style="background:#3fb950"></i>Mom 25</span>
+                        <span><i style="background:#58a6ff"></i>Cat 13</span>
+                        <span><i style="background:#d29922"></i>Liq 7</span>
+                    </div>
                 </div>
                 
 
@@ -684,12 +723,21 @@
                 
                 
                 
-                <div class="score-bar" style="margin-top:0.75rem">
-                    <div class="sb-val" style="width:14.0%"></div>
-                    <div class="sb-qual" style="width:23.0%"></div>
-                    <div class="sb-mom" style="width:35.0%"></div>
-                    <div class="sb-cat" style="width:18.0%"></div>
-                    <div class="sb-liq" style="width:10.0%"></div>
+                <div style="margin-top:0.75rem">
+                    <div class="score-bar">
+                        <div class="sb-val" style="width:14.0%"></div>
+                        <div class="sb-qual" style="width:23.0%"></div>
+                        <div class="sb-mom" style="width:35.0%"></div>
+                        <div class="sb-cat" style="width:18.0%"></div>
+                        <div class="sb-liq" style="width:10.0%"></div>
+                    </div>
+                    <div class="score-legend">
+                        <span><i style="background:#f0883e"></i>Val 10</span>
+                        <span><i style="background:#a371f7"></i>Qual 16</span>
+                        <span><i style="background:#3fb950"></i>Mom 25</span>
+                        <span><i style="background:#58a6ff"></i>Cat 13</span>
+                        <span><i style="background:#d29922"></i>Liq 7</span>
+                    </div>
                 </div>
                 
 
@@ -766,12 +814,21 @@
                 
                 
                 
-                <div class="score-bar" style="margin-top:0.75rem">
-                    <div class="sb-val" style="width:16.0%"></div>
-                    <div class="sb-qual" style="width:31.0%"></div>
-                    <div class="sb-mom" style="width:24.0%"></div>
-                    <div class="sb-cat" style="width:19.0%"></div>
-                    <div class="sb-liq" style="width:10.0%"></div>
+                <div style="margin-top:0.75rem">
+                    <div class="score-bar">
+                        <div class="sb-val" style="width:16.0%"></div>
+                        <div class="sb-qual" style="width:31.0%"></div>
+                        <div class="sb-mom" style="width:24.0%"></div>
+                        <div class="sb-cat" style="width:19.0%"></div>
+                        <div class="sb-liq" style="width:10.0%"></div>
+                    </div>
+                    <div class="score-legend">
+                        <span><i style="background:#f0883e"></i>Val 11</span>
+                        <span><i style="background:#a371f7"></i>Qual 22</span>
+                        <span><i style="background:#3fb950"></i>Mom 17</span>
+                        <span><i style="background:#58a6ff"></i>Cat 13</span>
+                        <span><i style="background:#d29922"></i>Liq 7</span>
+                    </div>
                 </div>
                 
 
@@ -848,12 +905,21 @@
                 
                 
                 
-                <div class="score-bar" style="margin-top:0.75rem">
-                    <div class="sb-val" style="width:7.0%"></div>
-                    <div class="sb-qual" style="width:31.0%"></div>
-                    <div class="sb-mom" style="width:33.0%"></div>
-                    <div class="sb-cat" style="width:19.0%"></div>
-                    <div class="sb-liq" style="width:10.0%"></div>
+                <div style="margin-top:0.75rem">
+                    <div class="score-bar">
+                        <div class="sb-val" style="width:7.0%"></div>
+                        <div class="sb-qual" style="width:31.0%"></div>
+                        <div class="sb-mom" style="width:33.0%"></div>
+                        <div class="sb-cat" style="width:19.0%"></div>
+                        <div class="sb-liq" style="width:10.0%"></div>
+                    </div>
+                    <div class="score-legend">
+                        <span><i style="background:#f0883e"></i>Val 5</span>
+                        <span><i style="background:#a371f7"></i>Qual 22</span>
+                        <span><i style="background:#3fb950"></i>Mom 23</span>
+                        <span><i style="background:#58a6ff"></i>Cat 13</span>
+                        <span><i style="background:#d29922"></i>Liq 7</span>
+                    </div>
                 </div>
                 
 
@@ -931,12 +997,21 @@ Siemens Energy AG is a Germany-based energy technology company focused on power 
                 
                 
                 
-                <div class="score-bar" style="margin-top:0.75rem">
-                    <div class="sb-val" style="width:7.0%"></div>
-                    <div class="sb-qual" style="width:36.0%"></div>
-                    <div class="sb-mom" style="width:24.0%"></div>
-                    <div class="sb-cat" style="width:19.0%"></div>
-                    <div class="sb-liq" style="width:14.0%"></div>
+                <div style="margin-top:0.75rem">
+                    <div class="score-bar">
+                        <div class="sb-val" style="width:7.0%"></div>
+                        <div class="sb-qual" style="width:36.0%"></div>
+                        <div class="sb-mom" style="width:24.0%"></div>
+                        <div class="sb-cat" style="width:19.0%"></div>
+                        <div class="sb-liq" style="width:14.0%"></div>
+                    </div>
+                    <div class="score-legend">
+                        <span><i style="background:#f0883e"></i>Val 5</span>
+                        <span><i style="background:#a371f7"></i>Qual 25</span>
+                        <span><i style="background:#3fb950"></i>Mom 17</span>
+                        <span><i style="background:#58a6ff"></i>Cat 13</span>
+                        <span><i style="background:#d29922"></i>Liq 10</span>
+                    </div>
                 </div>
                 
 
@@ -1013,12 +1088,21 @@ Siemens Energy AG is a Germany-based energy technology company focused on power 
                 
                 
                 
-                <div class="score-bar" style="margin-top:0.75rem">
-                    <div class="sb-val" style="width:26.0%"></div>
-                    <div class="sb-qual" style="width:23.0%"></div>
-                    <div class="sb-mom" style="width:33.0%"></div>
-                    <div class="sb-cat" style="width:7.0%"></div>
-                    <div class="sb-liq" style="width:10.0%"></div>
+                <div style="margin-top:0.75rem">
+                    <div class="score-bar">
+                        <div class="sb-val" style="width:26.0%"></div>
+                        <div class="sb-qual" style="width:23.0%"></div>
+                        <div class="sb-mom" style="width:33.0%"></div>
+                        <div class="sb-cat" style="width:7.0%"></div>
+                        <div class="sb-liq" style="width:10.0%"></div>
+                    </div>
+                    <div class="score-legend">
+                        <span><i style="background:#f0883e"></i>Val 18</span>
+                        <span><i style="background:#a371f7"></i>Qual 16</span>
+                        <span><i style="background:#3fb950"></i>Mom 23</span>
+                        <span><i style="background:#58a6ff"></i>Cat 5</span>
+                        <span><i style="background:#d29922"></i>Liq 7</span>
+                    </div>
                 </div>
                 
 
@@ -1095,12 +1179,21 @@ Siemens Energy AG is a Germany-based energy technology company focused on power 
                 
                 
                 
-                <div class="score-bar" style="margin-top:0.75rem">
-                    <div class="sb-val" style="width:30.0%"></div>
-                    <div class="sb-qual" style="width:23.0%"></div>
-                    <div class="sb-mom" style="width:29.0%"></div>
-                    <div class="sb-cat" style="width:7.0%"></div>
-                    <div class="sb-liq" style="width:10.0%"></div>
+                <div style="margin-top:0.75rem">
+                    <div class="score-bar">
+                        <div class="sb-val" style="width:30.0%"></div>
+                        <div class="sb-qual" style="width:23.0%"></div>
+                        <div class="sb-mom" style="width:29.0%"></div>
+                        <div class="sb-cat" style="width:7.0%"></div>
+                        <div class="sb-liq" style="width:10.0%"></div>
+                    </div>
+                    <div class="score-legend">
+                        <span><i style="background:#f0883e"></i>Val 21</span>
+                        <span><i style="background:#a371f7"></i>Qual 16</span>
+                        <span><i style="background:#3fb950"></i>Mom 20</span>
+                        <span><i style="background:#58a6ff"></i>Cat 5</span>
+                        <span><i style="background:#d29922"></i>Liq 7</span>
+                    </div>
                 </div>
                 
 
