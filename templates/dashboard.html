@@ -8,1068 +8,185 @@
     <meta property="og:title" content="Stock Alpha Scanner">
     <meta property="og:description" content="{{ buy_count }} BUY signal{{ 's' if buy_count != 1 }} this week from {{ stocks_scanned }} stocks scanned across AEX, DAX, CAC40, FTSE100, DJIA &amp; NASDAQ.">
     <meta property="og:type" content="website">
-    <meta name="description" content="Weekly AI-powered stock scanner covering 250 European and US stocks. Signals, risk levels, and position sizing for DeGiro traders.">
+    <meta name="description" content="Weekly AI-powered stock scanner. {{ buy_count }} BUY signals from {{ stocks_scanned }} stocks.">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
     <style>
         :root {
-            --bg-primary: #0d1117;
-            --bg-secondary: #161b22;
-            --bg-tertiary: #21262d;
-            --text-primary: #e6edf3;
-            --text-secondary: #8b949e;
-            --border-color: #30363d;
-            --buy: #238636;
-            --buy-text: #3fb950;
-            --hold: #1f6feb;
-            --hold-text: #58a6ff;
-            --avoid: #da3633;
-            --avoid-text: #f85149;
-            --link-color: #58a6ff;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            padding: 2rem;
-        }
-
-        .container {
-            max-width: 960px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .meta {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 2.5rem;
-            margin-top: 1rem;
-        }
-
-        .stat {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--link-color);
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        /* Hero card */
-        .hero-card {
-            background: linear-gradient(135deg, rgba(35,134,54,0.12) 0%, var(--bg-secondary) 100%);
-            border: 1px solid var(--buy);
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-
-        .hero-card .hero-label {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-        }
-
-        .hero-card .hero-ticker {
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        .hero-card .hero-name {
-            color: var(--text-secondary);
-            font-size: 1rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .hero-card .hero-stats {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .hero-card .hero-stat-value {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .hero-card .hero-stat-label {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-        }
-
-        /* Next scan countdown */
-        .next-scan {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-top: 0.5rem;
-        }
-
-        /* Controls bar */
-        .controls-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.25rem;
-            flex-wrap: wrap;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background: var(--bg-primary);
-            padding: 0.75rem 0;
-        }
-
-        .search-input {
-            padding: 0.35rem 0.75rem;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            font-size: 0.8rem;
-            width: 140px;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--link-color);
-        }
-
-        .search-input::placeholder {
-            color: var(--text-secondary);
-        }
-
-        /* Card grid on desktop */
-        .card-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-
-        @media (min-width: 768px) {
-            .card-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        .filter-buttons {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 0.35rem 0.9rem;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s, background 0.2s, color 0.2s, border-color 0.2s;
-            opacity: 0.5;
-        }
-
-        .filter-btn.active {
-            opacity: 1;
-        }
-
-        .filter-btn[data-filter="all"].active {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            border-color: var(--text-secondary);
-        }
-
-        .filter-btn.filter-buy.active {
-            background: rgba(35, 134, 54, 0.2);
-            color: var(--buy-text);
-            border-color: var(--buy);
-        }
-
-        .filter-btn.filter-hold.active {
-            background: rgba(31, 111, 235, 0.2);
-            color: var(--hold-text);
-            border-color: var(--hold);
-        }
-
-        .filter-btn.filter-avoid.active {
-            background: rgba(218, 54, 51, 0.2);
-            color: var(--avoid-text);
-            border-color: var(--avoid);
-        }
-
-        .sort-control {
-            flex-shrink: 0;
-        }
-
-        .sort-select {
-            padding: 0.35rem 0.75rem;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-
-        .sort-select:focus {
-            outline: none;
-            border-color: var(--link-color);
-        }
-
-        /* Stock cards */
-        .pick-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            transition: border-color 0.2s;
-        }
-
-        .pick-card:hover {
-            border-color: var(--text-secondary);
-        }
-
-        .pick-card.buy {
-            border-left: 4px solid var(--buy);
-        }
-
-        .pick-card.hold {
-            border-left: 4px solid var(--hold);
-        }
-
-        .pick-card.avoid {
-            border-left: 4px solid var(--avoid);
-        }
-
-        .pick-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .signal-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .signal-badge.buy {
-            background: rgba(35, 134, 54, 0.2);
-            color: var(--buy-text);
-        }
-
-        .signal-badge.hold {
-            background: rgba(31, 111, 235, 0.2);
-            color: var(--hold-text);
-        }
-
-        .signal-badge.avoid {
-            background: rgba(218, 54, 51, 0.2);
-            color: var(--avoid-text);
-        }
-
-        .alpha-score {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-        }
-
-        .sector-tag {
-            padding: 0.15rem 0.5rem;
-            background: var(--bg-tertiary);
-            border-radius: 4px;
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-        }
-
-        .stock-title {
-            font-size: 1.15rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .stock-title .ticker {
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .stock-title .name {
-            color: var(--text-secondary);
-            font-weight: 400;
-        }
-
-        .streak-badge {
-            display: inline-block;
-            padding: 0.1rem 0.5rem;
-            border-radius: 10px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            background: rgba(210, 153, 34, 0.2);
-            color: #d29922;
-            vertical-align: middle;
-            margin-left: 0.4rem;
-        }
-
-        /* Metrics grid */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            padding: 0.75rem;
-            background: var(--bg-tertiary);
-            border-radius: 4px;
-        }
-
-        .metric {
-            text-align: center;
-        }
-
-        .metric-value {
-            font-size: 0.95rem;
-            font-weight: 600;
-        }
-
-        .metric-label {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-        }
-
-        .positive { color: var(--buy-text); }
-        .negative { color: var(--avoid-text); }
-        .neutral { color: var(--text-primary); }
-
-        /* Score breakdown bar */
-        .score-bar {
-            display: flex;
-            height: 6px;
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-            background: var(--bg-tertiary);
-        }
-
-        .score-segment {
-            height: 100%;
-            transition: width 0.3s;
-        }
-
-        .score-segment.value { background: #f0883e; }
-        .score-segment.quality { background: #a371f7; }
-        .score-segment.momentum { background: #3fb950; }
-        .score-segment.catalyst { background: #58a6ff; }
-        .score-segment.liquidity { background: #d29922; }
-
-        .score-legend {
-            display: flex;
-            gap: 1rem;
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .score-legend span::before {
-            content: '';
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 2px;
-            margin-right: 4px;
-            vertical-align: middle;
-        }
-
-        .score-legend .l-value::before { background: #f0883e; }
-        .score-legend .l-quality::before { background: #a371f7; }
-        .score-legend .l-momentum::before { background: #3fb950; }
-        .score-legend .l-catalyst::before { background: #58a6ff; }
-        .score-legend .l-liquidity::before { background: #d29922; }
-
-        /* Reasoning */
-        .reasoning {
-            margin-bottom: 1rem;
-            padding: 0.75rem;
-            background: var(--bg-tertiary);
-            border-radius: 4px;
-            font-size: 0.95rem;
-        }
-
-        /* Expandable details */
-        details {
-            margin-bottom: 0.75rem;
-        }
-
-        summary {
-            cursor: pointer;
-            color: var(--link-color);
-            font-size: 0.9rem;
-        }
-
-        summary:hover {
-            text-decoration: underline;
-        }
-
-        .detail-content {
-            margin-top: 0.75rem;
-            padding: 0.75rem;
-            background: var(--bg-tertiary);
-            border-radius: 4px;
-        }
-
-        .detail-content h4 {
-            font-size: 0.85rem;
-            margin-bottom: 0.5rem;
-            color: var(--text-secondary);
-        }
-
-        .detail-content ul {
-            list-style: none;
-            margin-bottom: 1rem;
-        }
-
-        .detail-content li {
-            padding: 0.25rem 0;
-            font-size: 0.9rem;
-            padding-left: 1rem;
-            position: relative;
-        }
-
-        .detail-content li::before {
-            content: "\2022";
-            position: absolute;
-            left: 0;
-            color: var(--text-secondary);
-        }
-
-        .detail-content a {
-            color: var(--link-color);
-            text-decoration: none;
-            word-break: break-all;
-        }
-
-        .detail-content a:hover {
-            text-decoration: underline;
-        }
-
-        /* Card footer */
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .yahoo-link {
-            color: var(--link-color);
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-
-        .yahoo-link:hover {
-            text-decoration: underline;
-        }
-
-        .timeframe-badge {
-            padding: 0.15rem 0.5rem;
-            background: var(--bg-tertiary);
-            border-radius: 4px;
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-        }
-
-        /* Risk & sizing row */
-        .risk-row {
-            display: flex;
-            gap: 1.5rem;
-            padding: 0.6rem 0.75rem;
-            background: var(--bg-tertiary);
-            border-radius: 4px;
-            margin-bottom: 1rem;
-            font-size: 0.85rem;
-            flex-wrap: wrap;
-        }
-
-        .risk-item {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-        }
-
-        .risk-label {
-            color: var(--text-secondary);
-            font-size: 0.75rem;
-        }
-
-        .risk-value {
-            font-weight: 600;
-        }
-
-        .risk-value.stop { color: var(--avoid-text); }
-        .risk-value.target { color: var(--buy-text); }
-
-        .size-badge {
-            display: inline-block;
-            padding: 0.15rem 0.5rem;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            background: rgba(88, 166, 255, 0.15);
-            color: var(--link-color);
-            vertical-align: middle;
-            margin-left: 0.4rem;
-        }
+            --bg: #0d1117; --card: #161b22; --card2: #21262d;
+            --text: #e6edf3; --dim: #8b949e; --border: #30363d;
+            --buy: #238636; --buyT: #3fb950;
+            --hold: #1f6feb; --holdT: #58a6ff;
+            --avoid: #da3633; --avoidT: #f85149;
+            --link: #58a6ff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+        .container { max-width: 960px; margin: 0 auto; padding: 2rem; }
+
+        /* Header */
+        header { text-align: center; padding-bottom: 2rem; }
+        header h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .meta { color: var(--dim); font-size: 0.8rem; }
+        .header-pills { display: flex; justify-content: center; gap: 1.5rem; margin-top: 1rem; }
+        .pill { text-align: center; }
+        .pill-value { font-size: 1.4rem; font-weight: 700; }
+        .pill-label { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        /* Hero */
+        .hero { background: linear-gradient(135deg, rgba(35,134,54,0.1), var(--card)); border: 1px solid var(--buy); border-radius: 12px; padding: 2rem; text-align: center; margin-bottom: 2rem; }
+        .hero-eyebrow { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--buyT); margin-bottom: 0.5rem; }
+        .hero-ticker { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; }
+        .hero-name { color: var(--dim); font-size: 0.9rem; margin-bottom: 1rem; }
+        .hero-row { display: flex; justify-content: center; gap: 2.5rem; flex-wrap: wrap; }
+        .hero-num { font-size: 1.1rem; font-weight: 600; }
+        .hero-label { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; }
+
+        /* Controls */
+        .controls { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; position: sticky; top: 0; z-index: 50; background: var(--bg); padding: 0.75rem 0; }
+        .fbtn { padding: 0.3rem 0.75rem; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--dim); font-size: 0.75rem; font-weight: 600; cursor: pointer; opacity: 0.5; transition: all 0.15s; }
+        .fbtn.on { opacity: 1; }
+        .fbtn[data-f="all"].on { color: var(--text); border-color: var(--dim); }
+        .fbtn.f-buy.on { color: var(--buyT); border-color: var(--buy); }
+        .fbtn.f-hold.on { color: var(--holdT); border-color: var(--hold); }
+        .fbtn.f-avoid.on { color: var(--avoidT); border-color: var(--avoid); }
+        .search { flex: 1; min-width: 80px; max-width: 160px; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid var(--border); background: var(--card2); color: var(--text); font-size: 0.75rem; }
+        .search:focus { outline: none; border-color: var(--link); }
+        .search::placeholder { color: var(--dim); }
+        .sort { padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid var(--border); background: var(--card2); color: var(--text); font-size: 0.75rem; margin-left: auto; }
+
+        /* Card grid */
+        .grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        @media (min-width: 700px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+
+        /* Cards */
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; transition: border-color 0.15s; }
+        .card:hover { border-color: var(--dim); }
+        .card.buy { border-left: 3px solid var(--buy); }
+        .card.hold { border-left: 3px solid var(--hold); }
+        .card.avoid { border-left: 3px solid var(--avoid); }
+
+        .card-top { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+        .signal { padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .signal.buy { background: rgba(35,134,54,0.2); color: var(--buyT); }
+        .signal.hold { background: rgba(31,111,235,0.2); color: var(--holdT); }
+        .signal.avoid { background: rgba(218,54,51,0.2); color: var(--avoidT); }
+        .card-score { font-size: 0.8rem; color: var(--dim); margin-left: auto; }
+        .card-sector { font-size: 0.7rem; color: var(--dim); background: var(--card2); padding: 0.1rem 0.4rem; border-radius: 3px; }
+
+        .card-ticker { font-size: 1.15rem; font-weight: 700; }
+        .card-name { color: var(--dim); font-weight: 400; font-size: 0.9rem; }
+        .streak { font-size: 0.6rem; font-weight: 600; background: rgba(210,153,34,0.2); color: #d29922; padding: 0.1rem 0.4rem; border-radius: 8px; margin-left: 0.3rem; vertical-align: middle; }
+
+        /* Price range bar */
+        .range-bar { margin: 1rem 0; }
+        .range-track { position: relative; height: 4px; background: var(--card2); border-radius: 2px; margin: 0.25rem 0; }
+        .range-fill { position: absolute; height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--avoidT), var(--buyT)); }
+        .range-dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--text); top: -3px; transform: translateX(-50%); }
+        .range-labels { display: flex; justify-content: space-between; font-size: 0.7rem; }
+        .range-stop { color: var(--avoidT); }
+        .range-price { color: var(--text); font-weight: 600; }
+        .range-target { color: var(--buyT); }
+
+        /* Allocation */
+        .alloc { display: inline-block; font-size: 0.7rem; font-weight: 600; color: var(--link); background: rgba(88,166,255,0.1); padding: 0.15rem 0.5rem; border-radius: 10px; margin-top: 0.25rem; }
+
+        /* Reasoning - truncated */
+        .reasoning { font-size: 0.85rem; color: var(--dim); margin: 0.75rem 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .reasoning.expanded { -webkit-line-clamp: unset; }
+
+        .read-more { color: var(--link); font-size: 0.8rem; cursor: pointer; border: none; background: none; padding: 0; }
+        .read-more:hover { text-decoration: underline; }
+
+        /* Score bar (no legend) */
+        .score-bar { display: flex; height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 0.5rem; background: var(--card2); }
+        .score-bar > div { height: 100%; }
+        .sb-val { background: #f0883e; }
+        .sb-qual { background: #a371f7; }
+        .sb-mom { background: #3fb950; }
+        .sb-cat { background: #58a6ff; }
+        .sb-liq { background: #d29922; }
+
+        /* Card details */
+        .card details { margin-top: 0.5rem; }
+        .card summary { font-size: 0.8rem; color: var(--link); cursor: pointer; }
+        .card summary:hover { text-decoration: underline; }
+        .detail-body { margin-top: 0.5rem; font-size: 0.85rem; color: var(--dim); }
+        .detail-body h4 { font-size: 0.8rem; color: var(--text); margin: 0.75rem 0 0.25rem; }
+        .detail-body ul { list-style: none; }
+        .detail-body li { padding: 0.2rem 0 0.2rem 0.75rem; position: relative; }
+        .detail-body li::before { content: "\2022"; position: absolute; left: 0; color: var(--dim); }
+        .detail-body a { color: var(--link); text-decoration: none; word-break: break-all; }
+
+        .card-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid var(--border); font-size: 0.8rem; }
+        .card-foot a { color: var(--link); text-decoration: none; }
+        .card-foot a:hover { text-decoration: underline; }
+        .tf-badge { color: var(--dim); font-size: 0.7rem; }
 
         /* Model Performance */
-        .perf-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
+        .perf { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem; }
+        .perf-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
+        .perf-head h2 { font-size: 1.1rem; }
+        .tf-pills { display: flex; gap: 0.3rem; }
+        .tf-pill { padding: 0.25rem 0.6rem; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--dim); font-size: 0.7rem; font-weight: 600; cursor: pointer; }
+        .tf-pill.on { background: rgba(88,166,255,0.15); color: var(--link); border-color: var(--link); }
+        .perf-nums { display: flex; gap: 2rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .perf-n { text-align: center; }
+        .perf-nv { font-size: 1.3rem; font-weight: 700; }
+        .perf-nl { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; }
+        .pos { color: var(--buyT); }
+        .neg { color: var(--avoidT); }
 
-        .perf-header h2 {
-            margin-bottom: 0;
-        }
+        .sig-bar-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
+        .sig-bar-label { width: 40px; font-size: 0.8rem; font-weight: 600; }
+        .sig-bar-bg { flex: 1; height: 8px; background: var(--card2); border-radius: 4px; overflow: hidden; }
+        .sig-bar-fill { height: 100%; border-radius: 4px; }
+        .sig-bar-fill.buy { background: var(--buy); }
+        .sig-bar-fill.hold { background: var(--hold); }
+        .sig-bar-fill.avoid { background: var(--avoid); }
+        .sig-bar-pct { font-size: 0.7rem; color: var(--dim); width: 70px; text-align: right; }
 
-        .tf-selector {
-            display: flex;
-            gap: 0.35rem;
-        }
+        .perf-chart { position: relative; height: 200px; margin: 1rem 0; padding: 0.5rem; background: var(--card2); border-radius: 6px; }
+        .chart-empty { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--dim); font-size: 0.85rem; }
 
-        .tf-btn {
-            padding: 0.3rem 0.75rem;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.15s, color 0.15s, border-color 0.15s;
-        }
+        .eval-tbl { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .eval-tbl th { text-align: left; padding: 0.4rem; border-bottom: 1px solid var(--border); color: var(--dim); font-size: 0.7rem; }
+        .eval-tbl td { padding: 0.4rem; border-bottom: 1px solid var(--card2); }
+        .oc { color: var(--buyT); }
+        .oi { color: var(--avoidT); }
+        .ou { color: var(--dim); }
 
-        .tf-btn:hover {
-            border-color: var(--text-secondary);
-            color: var(--text-primary);
-        }
+        .w-adj { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; margin-right: 0.3rem; }
+        .w-adj.pos { background: rgba(35,134,54,0.2); }
+        .w-adj.neg { background: rgba(218,54,51,0.2); }
+        .w-adj.zero { background: var(--card2); color: var(--dim); }
 
-        .tf-btn.active {
-            background: rgba(88, 166, 255, 0.15);
-            color: var(--link-color);
-            border-color: var(--link-color);
-        }
-
-        .model-performance {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .model-performance h2 {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-        }
-
-        .perf-stats {
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 1.25rem;
-            flex-wrap: wrap;
-        }
-
-        .perf-stat {
-            text-align: center;
-        }
-
-        .perf-stat-value {
-            font-size: 1.4rem;
-            font-weight: 600;
-        }
-
-        .perf-stat-label {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-        }
-
-        .signal-accuracy {
-            margin-bottom: 1rem;
-        }
-
-        .signal-accuracy-row {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .signal-accuracy-label {
-            width: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .accuracy-bar-bg {
-            flex: 1;
-            height: 10px;
-            background: var(--bg-tertiary);
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        .accuracy-bar-fill {
-            height: 100%;
-            border-radius: 5px;
-            transition: width 0.3s;
-        }
-
-        .accuracy-bar-fill.buy { background: var(--buy); }
-        .accuracy-bar-fill.hold { background: var(--hold); }
-        .accuracy-bar-fill.avoid { background: var(--avoid); }
-
-        .accuracy-detail {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            width: 140px;
-            text-align: right;
-        }
-
-        .eval-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-        }
-
-        .eval-table th {
-            text-align: left;
-            padding: 0.5rem;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            font-size: 0.75rem;
-        }
-
-        .eval-table td {
-            padding: 0.5rem;
-            border-bottom: 1px solid var(--bg-tertiary);
-        }
-
-        .outcome-correct { color: var(--buy-text); }
-        .outcome-incorrect { color: var(--avoid-text); }
-        .outcome-inconclusive { color: var(--text-secondary); }
-
-        .weight-adj {
-            display: inline-block;
-            padding: 0.15rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-right: 0.5rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .weight-adj.positive {
-            background: rgba(35, 134, 54, 0.2);
-            color: var(--buy-text);
-        }
-
-        .weight-adj.negative {
-            background: rgba(218, 54, 51, 0.2);
-            color: var(--avoid-text);
-        }
-
-        .weight-adj.zero {
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-        }
-
-        /* Performance chart */
-        .perf-chart-container {
-            position: relative;
-            height: 220px;
-            margin-bottom: 1.25rem;
-            padding: 0.5rem;
-            background: var(--bg-tertiary);
-            border-radius: 6px;
-        }
-
-        .perf-chart-container canvas {
-            width: 100% !important;
-        }
-
-        .chart-placeholder {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        /* How it works */
-        .how-it-works {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1.25rem 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .how-it-works summary {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .how-content {
-            margin-top: 0.75rem;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            line-height: 1.7;
-        }
-
-        .how-content p {
-            margin-bottom: 0.5rem;
-        }
-
-        .signal-explainer {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            margin: 0.4rem 0;
-            font-size: 0.85rem;
-        }
-
-        .signal-explainer .signal-badge {
-            flex-shrink: 0;
-            min-width: 52px;
-            text-align: center;
-        }
-
-        .telegram-link {
-            display: inline-block;
-            margin-top: 0.75rem;
-            padding: 0.4rem 1rem;
-            border-radius: 20px;
-            background: rgba(0, 136, 204, 0.15);
-            color: #29b6f6;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: background 0.15s;
-        }
-
-        .telegram-link:hover {
-            background: rgba(0, 136, 204, 0.25);
-        }
-
-        /* Empty state */
-        .no-picks {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-secondary);
-        }
+        /* Telegram */
+        .tg-link { display: inline-block; margin-top: 0.5rem; padding: 0.35rem 0.9rem; border-radius: 20px; background: rgba(0,136,204,0.12); color: #29b6f6; font-size: 0.8rem; font-weight: 600; text-decoration: none; }
+        .tg-link:hover { background: rgba(0,136,204,0.22); }
 
         /* Footer */
-        footer {
-            margin-top: 3rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-color);
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-        }
+        footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); text-align: center; color: var(--dim); font-size: 0.75rem; }
+        footer a { color: var(--link); text-decoration: none; }
+        .disc { font-style: italic; margin-top: 0.3rem; }
 
-        footer a {
-            color: var(--link-color);
-            text-decoration: none;
-        }
+        .empty { text-align: center; padding: 3rem; color: var(--dim); }
 
-        .disclaimer {
-            margin-top: 0.5rem;
-            font-style: italic;
-        }
-
-        /* Info tooltips */
-        .info-tip {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            font-size: 0.55rem;
-            font-weight: 700;
-            font-style: normal;
-            cursor: help;
-            vertical-align: middle;
-            margin-left: 4px;
-            flex-shrink: 0;
-        }
-
-        .info-tip:hover {
-            background: var(--border-color);
-            color: var(--text-primary);
-        }
-
-        .info-tip .tip-text {
-            visibility: hidden;
-            opacity: 0;
-            position: absolute;
-            bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            font-size: 0.75rem;
-            font-weight: 400;
-            line-height: 1.4;
-            padding: 0.6rem 0.75rem;
-            border-radius: 6px;
-            width: 240px;
-            z-index: 100;
-            transition: opacity 0.15s, visibility 0.15s;
-            pointer-events: none;
-            text-align: left;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        }
-
-        .info-tip .tip-text::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 6px solid transparent;
-            border-top-color: var(--border-color);
-        }
-
-        .info-tip:hover .tip-text {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .info-tip.active .tip-text {
-            visibility: visible;
-            opacity: 1;
-            transition: none;
-        }
-
-        /* Flip tooltip down when near top */
-        .info-tip.tip-down .tip-text {
-            bottom: auto;
-            top: calc(100% + 8px);
-        }
-
-        .info-tip.tip-down .tip-text::after {
-            top: auto;
-            bottom: 100%;
-            border-top-color: transparent;
-            border-bottom-color: var(--border-color);
-        }
-
+        /* Mobile */
         @media (max-width: 600px) {
-            body {
-                padding: 1rem;
-            }
-
-            h1 {
-                font-size: 1.5rem;
-            }
-
-            .hero-card { padding: 1rem; }
-            .hero-card .hero-ticker { font-size: 1.4rem; }
-            .hero-card .hero-stats { gap: 1rem; }
-
-            .controls-bar {
-                position: static;
-                padding: 0 0 0.75rem;
-            }
-
-            .search-input { width: 100%; }
-
-            .card-grid { grid-template-columns: 1fr; }
-
-            .stats {
-                gap: 1rem;
-            }
-
-            .stat-value {
-                font-size: 1.2rem;
-            }
-
-            .controls-bar {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .filter-buttons {
-                width: 100%;
-            }
-
-            .filter-btn {
-                font-size: 0.75rem;
-                padding: 0.3rem 0.7rem;
-            }
-
-            .sort-select {
-                width: 100%;
-                font-size: 0.75rem;
-            }
-
-            .sort-control {
-                width: 100%;
-            }
-
-            .metrics-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            /* Model Performance mobile */
-            .perf-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .tf-selector {
-                width: 100%;
-            }
-
-            .tf-btn {
-                flex: 1;
-                text-align: center;
-                font-size: 0.7rem;
-                padding: 0.25rem 0.5rem;
-            }
-
-            .model-performance {
-                padding: 1rem;
-            }
-
-            .model-performance h2 {
-                font-size: 1.05rem;
-            }
-
-            .perf-stats {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.75rem;
-            }
-
-            .perf-stat-value {
-                font-size: 1.15rem;
-            }
-
-            .signal-accuracy-row {
-                flex-wrap: wrap;
-                gap: 0.25rem;
-            }
-
-            .signal-accuracy-label {
-                width: 45px;
-                font-size: 0.8rem;
-            }
-
-            .accuracy-bar-bg {
-                min-width: 0;
-            }
-
-            .accuracy-detail {
-                width: 100%;
-                text-align: left;
-                padding-left: 45px;
-                font-size: 0.7rem;
-            }
-
-            .perf-chart-container {
-                height: 180px;
-            }
-
-            .eval-table {
-                font-size: 0.75rem;
-            }
-
-            .eval-table th,
-            .eval-table td {
-                padding: 0.35rem 0.25rem;
-            }
-
-            .eval-table .signal-badge {
-                font-size: 0.65rem;
-                padding: 0.15rem 0.4rem;
-            }
-
-            .weight-adj {
-                font-size: 0.7rem;
-                padding: 0.1rem 0.4rem;
-            }
-
-            /* Tooltips: always flip down on mobile, shrink width */
-            .info-tip .tip-text {
-                bottom: auto;
-                top: calc(100% + 8px);
-                width: 200px;
-            }
-
-            .info-tip .tip-text::after {
-                top: auto;
-                bottom: 100%;
-                border-top-color: transparent;
-                border-bottom-color: var(--border-color);
-            }
+            .container { padding: 1rem; }
+            header h1 { font-size: 1.3rem; }
+            .header-pills { gap: 1rem; }
+            .pill-value { font-size: 1.1rem; }
+            .hero { padding: 1.25rem; }
+            .hero-ticker { font-size: 1.6rem; }
+            .hero-row { gap: 1.5rem; }
+            .controls { position: static; flex-wrap: wrap; }
+            .search { max-width: none; flex: 1 1 100%; order: 10; }
+            .grid { grid-template-columns: 1fr; }
+            .perf-nums { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+            .perf-chart { height: 160px; }
+            .sig-bar-row { flex-wrap: wrap; }
+            .sig-bar-pct { width: 100%; text-align: left; padding-left: 40px; font-size: 0.65rem; }
         }
     </style>
 </head>
@@ -1077,677 +194,263 @@
     <div class="container">
         <header>
             <h1>Stock Alpha Scanner</h1>
-            <p class="meta">
-                Last updated: {{ run_date[:19].replace('T', ' ') }} UTC
-            </p>
-            <div class="stats">
-                <div class="stat">
-                    <div class="stat-value">{{ stocks_scanned }}</div>
-                    <div class="stat-label">Stocks Scanned</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-value" style="color: var(--buy-text);">{{ buy_count }}</div>
-                    <div class="stat-label">BUY</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-value" style="color: var(--hold-text);">{{ hold_count }}</div>
-                    <div class="stat-label">HOLD</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-value" style="color: var(--avoid-text);">{{ avoid_count }}</div>
-                    <div class="stat-label">AVOID</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-value">{{ avg_score }}</div>
-                    <div class="stat-label">Avg Score</div>
-                </div>
+            <p class="meta">{{ run_date[:19].replace('T', ' ') }} UTC <span id="next-scan"></span></p>
+            <div class="header-pills">
+                <div class="pill"><div class="pill-value" style="color:var(--buyT)">{{ buy_count }}</div><div class="pill-label">Buy</div></div>
+                <div class="pill"><div class="pill-value" style="color:var(--holdT)">{{ hold_count }}</div><div class="pill-label">Hold</div></div>
+                <div class="pill"><div class="pill-value" style="color:var(--avoidT)">{{ avoid_count }}</div><div class="pill-label">Avoid</div></div>
+                <div class="pill"><div class="pill-value">{{ avg_score }}</div><div class="pill-label">Avg Score</div></div>
             </div>
-            <div class="next-scan" id="next-scan"></div>
         </header>
 
+        {# Hero: top BUY pick #}
         {% if picks %}
         {% set top_buy = picks | selectattr('signal', 'equalto', 'BUY') | list | first %}
         {% if top_buy %}
-        <div class="hero-card">
-            <div class="hero-label">Top pick this week</div>
+        <div class="hero">
+            <div class="hero-eyebrow">Top Pick</div>
             <div class="hero-ticker">{{ top_buy.ticker }}</div>
             <div class="hero-name">{{ top_buy.name }}</div>
-            <div class="hero-stats">
-                <div>
-                    <div class="hero-stat-value neutral">{{ top_buy.price }} {{ top_buy.currency }}</div>
-                    <div class="hero-stat-label">Price</div>
-                </div>
-                <div>
-                    <div class="hero-stat-value positive">{{ top_buy.alpha_score }}</div>
-                    <div class="hero-stat-label">Alpha Score</div>
-                </div>
-                {% if top_buy.stop_loss %}
-                <div>
-                    <div class="hero-stat-value stop">{{ "%.2f"|format(top_buy.stop_loss) }}</div>
-                    <div class="hero-stat-label">Stop Loss</div>
-                </div>
-                {% endif %}
-                {% if top_buy.take_profit %}
-                <div>
-                    <div class="hero-stat-value target">{{ "%.2f"|format(top_buy.take_profit) }}</div>
-                    <div class="hero-stat-label">Target</div>
-                </div>
-                {% endif %}
-                {% if top_buy.suggested_pct %}
-                <div>
-                    <div class="hero-stat-value" style="color: var(--link-color);">{{ "%.0f"|format(top_buy.suggested_pct) }}%</div>
-                    <div class="hero-stat-label">Allocation</div>
-                </div>
-                {% endif %}
+            <div class="hero-row">
+                <div><div class="hero-num">{{ top_buy.price }} {{ top_buy.currency }}</div><div class="hero-label">Price</div></div>
+                <div><div class="hero-num pos">{{ top_buy.alpha_score }}</div><div class="hero-label">Score</div></div>
+                {% if top_buy.stop_loss %}<div><div class="hero-num neg">{{ "%.2f"|format(top_buy.stop_loss) }}</div><div class="hero-label">Stop</div></div>{% endif %}
+                {% if top_buy.take_profit %}<div><div class="hero-num pos">{{ "%.2f"|format(top_buy.take_profit) }}</div><div class="hero-label">Target</div></div>{% endif %}
             </div>
+            <a href="https://t.me/StockScanner1234567890bot" class="tg-link" style="margin-top:1rem;">Get alerts on Telegram</a>
         </div>
         {% endif %}
         {% endif %}
 
-        <section class="how-it-works">
-            <details id="how-details" open>
-                <summary>How it works</summary>
-                <div class="how-content">
-                    <p>This scanner analyzes <strong>250 stocks</strong> across Europe and the US every week. Each stock is scored on 5 factors (value, quality, momentum, catalysts, liquidity), then researched by AI for recent news and outlook.</p>
-                    <div class="signal-explainer">
-                        <span class="signal-badge buy">BUY</span> Strong fundamentals + bullish AI research. Suggested stop-loss and target price included.
-                    </div>
-                    <div class="signal-explainer">
-                        <span class="signal-badge hold">HOLD</span> Decent stock but outlook is neutral or uncertain. Worth watching.
-                    </div>
-                    <div class="signal-explainer">
-                        <span class="signal-badge avoid">AVOID</span> Negative outlook or significant risks detected. Suggested allocation: 0%.
-                    </div>
-                    <p style="margin-top: 0.5rem;"><strong>Stop Loss</strong> = exit price to limit losses. <strong>Target</strong> = take-profit price. <strong>Allocation</strong> = suggested portfolio weight based on signal strength.</p>
-                </div>
-            </details>
-            <a href="https://t.me/StockScanner1234567890bot" class="telegram-link" target="_blank" rel="noopener">Get BUY alerts on Telegram</a>
-        </section>
-
+        {# Model Performance #}
         {% if has_history and model_stats %}
-        <section class="model-performance">
-            <div class="perf-header">
-                <h2>Model Performance <span class="info-tip tip-down">i<span class="tip-text">Tracks how well the scanner's past predictions performed. Predictions are evaluated at 30, 60, and 90 day intervals by comparing price at signal time to the price at evaluation.</span></span></h2>
+        <section class="perf">
+            <div class="perf-head">
+                <h2>Performance</h2>
                 {% if model_stats.timeframes %}
-                <div class="tf-selector">
+                <div class="tf-pills">
                     {% for tf in model_stats.timeframes %}
-                    <button class="tf-btn{% if tf == model_stats.default_timeframe %} active{% endif %}" data-tf="{{ tf }}">{{ tf }}</button>
+                    <button class="tf-pill{% if tf == model_stats.default_timeframe %} on{% endif %}" data-tf="{{ tf }}">{{ tf }}</button>
                     {% endfor %}
                 </div>
                 {% endif %}
             </div>
-
-            <div class="perf-stats" id="perf-stats">
-                <div class="perf-stat">
-                    <div class="perf-stat-value" id="ps-winrate">
-                        {{ "%.0f%%"|format(model_stats.win_rate) if model_stats.win_rate is not none else 'N/A' }}
-                    </div>
-                    <div class="perf-stat-label">Win Rate</div>
-                </div>
-                <div class="perf-stat">
-                    <div class="perf-stat-value neutral">{{ model_stats.total_predictions }}</div>
-                    <div class="perf-stat-label">Total Predictions</div>
-                </div>
-                <div class="perf-stat">
-                    <div class="perf-stat-value neutral" id="ps-evaluated">{{ model_stats.evaluated }}</div>
-                    <div class="perf-stat-label">Evaluated</div>
-                </div>
-                <div class="perf-stat">
-                    <div class="perf-stat-value neutral" id="ps-pending">{{ model_stats.pending }}</div>
-                    <div class="perf-stat-label">Pending</div>
-                </div>
+            <div class="perf-nums">
+                <div class="perf-n"><div class="perf-nv {% if model_stats.win_rate and model_stats.win_rate >= 50 %}pos{% elif model_stats.win_rate %}neg{% endif %}" id="ps-wr">{{ "%.0f%%"|format(model_stats.win_rate) if model_stats.win_rate is not none else 'N/A' }}</div><div class="perf-nl">Win Rate</div></div>
+                <div class="perf-n"><div class="perf-nv">{{ model_stats.total_predictions }}</div><div class="perf-nl">Predictions</div></div>
+                <div class="perf-n"><div class="perf-nv" id="ps-ev">{{ model_stats.evaluated }}</div><div class="perf-nl">Evaluated</div></div>
+                <div class="perf-n"><div class="perf-nv" id="ps-pe">{{ model_stats.pending }}</div><div class="perf-nl">Pending</div></div>
             </div>
 
-            <div class="signal-accuracy" id="signal-accuracy">
-                {% if model_stats.per_signal %}
-                {% for signal in ['BUY', 'HOLD', 'AVOID'] %}
-                {% set s = model_stats.per_signal.get(signal, {}) %}
-                {% if s.total is defined and s.total > 0 %}
-                <div class="signal-accuracy-row" data-signal="{{ signal }}">
-                    <span class="signal-accuracy-label" style="color: var(--{{ signal|lower }}-text);">{{ signal }}</span>
-                    <div class="accuracy-bar-bg">
-                        <div class="accuracy-bar-fill {{ signal|lower }}" id="bar-{{ signal|lower }}" style="width: {{ s.accuracy if s.accuracy else 0 }}%"></div>
-                    </div>
-                    <span class="accuracy-detail" id="detail-{{ signal|lower }}">
-                        {{ s.correct }}/{{ s.decisive }} correct
-                        {% if s.avg_return is not none %} | {{ "%+.1f%%"|format(s.avg_return) }} avg{% endif %}
-                    </span>
-                </div>
-                {% endif %}
-                {% endfor %}
-                {% endif %}
+            {% if model_stats.per_signal %}
+            {% for sig in ['BUY', 'HOLD', 'AVOID'] %}
+            {% set s = model_stats.per_signal.get(sig, {}) %}
+            {% if s.total is defined and s.total > 0 %}
+            <div class="sig-bar-row">
+                <span class="sig-bar-label" style="color:var(--{{ sig|lower }}T)">{{ sig }}</span>
+                <div class="sig-bar-bg"><div class="sig-bar-fill {{ sig|lower }}" id="bar-{{ sig|lower }}" style="width:{{ s.accuracy if s.accuracy else 0 }}%"></div></div>
+                <span class="sig-bar-pct" id="detail-{{ sig|lower }}">{{ s.correct }}/{{ s.decisive }}{% if s.avg_return is not none %} {{ "%+.1f%%"|format(s.avg_return) }}{% endif %}</span>
             </div>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
 
             {% if model_stats.performance_timeline and model_stats.performance_timeline|length > 1 %}
-            <div class="perf-chart-container">
-                <canvas id="perfChart"></canvas>
-            </div>
+            <div class="perf-chart"><canvas id="perfChart"></canvas></div>
             <script>
-            (function() {
-                const timeline = {{ model_stats.performance_timeline | tojson }};
-                const labels = timeline.map(s => s.date);
-
-                /* Build datasets per timeframe */
-                var datasets = [];
-                var tfColors = { '30d': '#f0883e', '60d': '#a371f7', '90d': '#3fb950' };
-                var tfs = {{ model_stats.timeframes | tojson }};
-                tfs.forEach(function(tf) {
-                    datasets.push({
-                        label: tf + ' Win Rate %',
-                        data: timeline.map(s => s[tf + '_win_rate']),
-                        borderColor: tfColors[tf] || '#8b949e',
-                        backgroundColor: 'transparent',
-                        fill: false,
-                        tension: 0.3,
-                        yAxisID: 'y',
-                        pointRadius: 3,
-                        pointHoverRadius: 5,
-                    });
-                });
-
-                datasets.push({
-                    label: 'Avg Return %',
-                    data: timeline.map(s => s.avg_return),
-                    borderColor: '#58a6ff',
-                    backgroundColor: 'rgba(88,166,255,0.1)',
-                    fill: false,
-                    tension: 0.3,
-                    yAxisID: 'y',
-                    pointRadius: 3,
-                    pointHoverRadius: 5,
-                    borderDash: [5, 3],
-                });
-
-                const ctx = document.getElementById('perfChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'line',
-                    data: { labels: labels, datasets: datasets },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: { mode: 'index', intersect: false },
-                        plugins: {
-                            legend: {
-                                labels: { color: '#8b949e', font: { size: 11 } }
-                            },
-                            tooltip: {
-                                backgroundColor: '#21262d',
-                                titleColor: '#e6edf3',
-                                bodyColor: '#e6edf3',
-                                borderColor: '#30363d',
-                                borderWidth: 1,
-                            }
-                        },
-                        scales: {
-                            x: {
-                                ticks: { color: '#8b949e', font: { size: 10 }, maxRotation: 45 },
-                                grid: { color: 'rgba(48,54,61,0.5)' }
-                            },
-                            y: {
-                                position: 'left',
-                                title: { display: true, text: '%', color: '#8b949e' },
-                                ticks: { color: '#8b949e', font: { size: 10 } },
-                                grid: { color: 'rgba(48,54,61,0.5)' }
-                            }
-                        }
-                    }
-                });
+            (function(){
+                var tl={{ model_stats.performance_timeline | tojson }},labels=tl.map(function(s){return s.date}),ds=[],tc={'30d':'#f0883e','60d':'#a371f7','90d':'#3fb950'},tfs={{ model_stats.timeframes | tojson }};
+                tfs.forEach(function(tf){ds.push({label:tf+' Win %',data:tl.map(function(s){return s[tf+'_win_rate']}),borderColor:tc[tf]||'#8b949e',backgroundColor:'transparent',fill:false,tension:.3,pointRadius:2,pointHoverRadius:4})});
+                ds.push({label:'Avg Return %',data:tl.map(function(s){return s.avg_return}),borderColor:'#58a6ff',fill:false,tension:.3,pointRadius:2,borderDash:[5,3]});
+                new Chart(document.getElementById('perfChart'),{type:'line',data:{labels:labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#8b949e',font:{size:10}}},tooltip:{backgroundColor:'#21262d',titleColor:'#e6edf3',bodyColor:'#e6edf3',borderColor:'#30363d',borderWidth:1}},scales:{x:{ticks:{color:'#8b949e',font:{size:9},maxRotation:45},grid:{color:'rgba(48,54,61,0.5)'}},y:{ticks:{color:'#8b949e',font:{size:9}},grid:{color:'rgba(48,54,61,0.5)'}}}}});
             })();
             </script>
             {% elif model_stats.performance_timeline and model_stats.performance_timeline|length == 1 %}
-            <div class="perf-chart-container">
-                <div class="chart-placeholder">Performance chart will appear after the second scan with history.</div>
-            </div>
+            <div class="perf-chart"><div class="chart-empty">Chart after 2+ scans</div></div>
             {% endif %}
 
             {% if model_stats.weight_overrides %}
-            <details>
-                <summary>Adaptive Weight Adjustments</summary>
-                <div class="detail-content">
-                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
-                        Weights are automatically adjusted based on which factors best predicted actual returns.
-                    </p>
-                    {% for factor, base in model_stats.base_weights.items() %}
-                    {% set override = model_stats.weight_overrides.get(factor, 0) %}
-                    {% set active = model_stats.active_weights.get(factor, base) %}
-                    <span class="weight-adj {% if override > 0 %}positive{% elif override < 0 %}negative{% else %}zero{% endif %}">
-                        {{ factor|capitalize }}: {{ active }} {% if override != 0 %}({{ "%+d"|format(override) }}){% endif %}
-                    </span>
-                    {% endfor %}
-                </div>
-            </details>
+            <details><summary>Weight adjustments</summary><div class="detail-body" style="margin-top:0.5rem">
+                {% for factor, base in model_stats.base_weights.items() %}
+                {% set o = model_stats.weight_overrides.get(factor, 0) %}
+                {% set a = model_stats.active_weights.get(factor, base) %}
+                <span class="w-adj {% if o > 0 %}pos{% elif o < 0 %}neg{% else %}zero{% endif %}">{{ factor|capitalize }} {{ a }}{% if o != 0 %} ({{ "%+d"|format(o) }}){% endif %}</span>
+                {% endfor %}
+            </div></details>
             {% endif %}
 
             {% if model_stats.recent_evaluations %}
-            <details>
-                <summary>Recent Evaluations</summary>
-                <div class="detail-content">
-                    <table class="eval-table">
-                        <thead>
-                            <tr>
-                                <th>Ticker</th>
-                                <th>Signal</th>
-                                <th>Outcome</th>
-                                <th>Return</th>
-                                <th>Scan Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for e in model_stats.recent_evaluations %}
-                            <tr>
-                                <td>{{ e.ticker }}</td>
-                                <td><span class="signal-badge {{ e.signal|lower }}">{{ e.signal }}</span></td>
-                                <td class="outcome-{{ e.outcome|lower }}">{{ e.outcome }}</td>
-                                <td class="{% if e.return_pct and e.return_pct > 0 %}positive{% elif e.return_pct and e.return_pct < 0 %}negative{% else %}neutral{% endif %}">
-                                    {{ "%+.1f%%"|format(e.return_pct) if e.return_pct is not none else 'N/A' }}
-                                </td>
-                                <td style="color: var(--text-secondary);">{{ e.scan_date }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </details>
+            <details><summary>Recent evaluations</summary><div class="detail-body">
+                <table class="eval-tbl"><thead><tr><th>Ticker</th><th>Signal</th><th>Result</th><th>Return</th></tr></thead><tbody>
+                {% for e in model_stats.recent_evaluations %}
+                <tr><td>{{ e.ticker }}</td><td><span class="signal {{ e.signal|lower }}">{{ e.signal }}</span></td><td class="{% if e.outcome == 'CORRECT' %}oc{% elif e.outcome == 'INCORRECT' %}oi{% else %}ou{% endif %}">{{ e.outcome }}</td><td class="{% if e.return_pct and e.return_pct > 0 %}pos{% elif e.return_pct and e.return_pct < 0 %}neg{% endif %}">{{ "%+.1f%%"|format(e.return_pct) if e.return_pct is not none else '-' }}</td></tr>
+                {% endfor %}
+                </tbody></table>
+            </div></details>
             {% endif %}
         </section>
 
-        <!-- Timeframe switcher data & logic -->
         {% if model_stats.timeframe_stats %}
         <script>
-        (function() {
-            var tfData = {{ model_stats.timeframe_stats | tojson }};
-            var btns = document.querySelectorAll('.tf-btn');
-            if (!btns.length) return;
-
-            function switchTimeframe(tf) {
-                var s = tfData[tf];
-                if (!s) return;
-
-                /* Update stats */
-                var wr = document.getElementById('ps-winrate');
-                if (wr) {
-                    wr.textContent = s.win_rate !== null ? Math.round(s.win_rate) + '%' : 'N/A';
-                    wr.className = 'perf-stat-value ' + (s.win_rate !== null ? (s.win_rate >= 50 ? 'positive' : 'negative') : 'neutral');
-                }
-                var ev = document.getElementById('ps-evaluated');
-                if (ev) ev.textContent = s.evaluated;
-                var pe = document.getElementById('ps-pending');
-                if (pe) pe.textContent = s.pending;
-
-                /* Update per-signal bars */
-                ['BUY', 'HOLD', 'AVOID'].forEach(function(sig) {
-                    var ps = (s.per_signal || {})[sig] || {};
-                    var bar = document.getElementById('bar-' + sig.toLowerCase());
-                    var detail = document.getElementById('detail-' + sig.toLowerCase());
-                    if (bar) bar.style.width = (ps.accuracy || 0) + '%';
-                    if (detail) {
-                        var txt = (ps.correct || 0) + '/' + (ps.decisive || 0) + ' correct';
-                        if (ps.avg_return !== null && ps.avg_return !== undefined) {
-                            txt += ' | ' + (ps.avg_return > 0 ? '+' : '') + ps.avg_return.toFixed(1) + '% avg';
-                        }
-                        detail.textContent = txt;
-                    }
-                });
-
-                /* Update active button */
-                btns.forEach(function(b) {
-                    b.classList.toggle('active', b.getAttribute('data-tf') === tf);
-                });
+        (function(){
+            var d={{ model_stats.timeframe_stats | tojson }},bs=document.querySelectorAll('.tf-pill');
+            if(!bs.length)return;
+            function sw(tf){var s=d[tf];if(!s)return;
+                var wr=document.getElementById('ps-wr');if(wr){wr.textContent=s.win_rate!==null?Math.round(s.win_rate)+'%':'N/A';wr.className='perf-nv '+(s.win_rate!==null?(s.win_rate>=50?'pos':'neg'):'');}
+                var ev=document.getElementById('ps-ev');if(ev)ev.textContent=s.evaluated;
+                var pe=document.getElementById('ps-pe');if(pe)pe.textContent=s.pending;
+                ['BUY','HOLD','AVOID'].forEach(function(sig){var ps=(s.per_signal||{})[sig]||{};var bar=document.getElementById('bar-'+sig.toLowerCase());var det=document.getElementById('detail-'+sig.toLowerCase());if(bar)bar.style.width=(ps.accuracy||0)+'%';if(det){var t=(ps.correct||0)+'/'+(ps.decisive||0);if(ps.avg_return!==null&&ps.avg_return!==undefined)t+=' '+(ps.avg_return>0?'+':'')+ps.avg_return.toFixed(1)+'%';det.textContent=t;}});
+                bs.forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tf')===tf);});
             }
-
-            btns.forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    switchTimeframe(btn.getAttribute('data-tf'));
-                });
-            });
+            bs.forEach(function(b){b.addEventListener('click',function(){sw(b.getAttribute('data-tf'));});});
         })();
         </script>
         {% endif %}
         {% endif %}
 
+        {# Cards #}
         <main>
-            {% if picks %}
-                <div class="controls-bar">
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-filter="all">All</button>
-                        <button class="filter-btn filter-buy active" data-filter="buy">BUY</button>
-                        <button class="filter-btn filter-hold active" data-filter="hold">HOLD</button>
-                        <button class="filter-btn filter-avoid active" data-filter="avoid">AVOID</button>
-                    </div>
-                    <input type="text" id="search-input" class="search-input" placeholder="Search ticker...">
-                    <div class="sort-control">
-                        <select id="sort-select" class="sort-select">
-                            <option value="score-desc">Score (high-low)</option>
-                            <option value="score-asc">Score (low-high)</option>
-                            <option value="ticker-az">Ticker A-Z</option>
-                        </select>
-                    </div>
+        {% if picks %}
+            <div class="controls">
+                <button class="fbtn on" data-f="all">All</button>
+                <button class="fbtn f-buy on" data-f="buy">BUY</button>
+                <button class="fbtn f-hold on" data-f="hold">HOLD</button>
+                <button class="fbtn f-avoid on" data-f="avoid">AVOID</button>
+                <input type="text" class="search" id="search" placeholder="Search...">
+                <select class="sort" id="sort">
+                    <option value="sd">Score</option>
+                    <option value="sa">Score (low)</option>
+                    <option value="az">A-Z</option>
+                </select>
+            </div>
+
+            <div class="grid" id="grid">
+            {% for pick in picks %}
+            {% set sc = pick.signal|lower %}
+            <div class="card {{ sc }}">
+                <div class="card-top">
+                    <span class="signal {{ sc }}">{{ pick.signal }}</span>
+                    {% if pick.sector %}<span class="card-sector">{{ pick.sector }}</span>{% endif %}
+                    <span class="card-score">{{ pick.alpha_score }}</span>
+                </div>
+                <div style="margin-bottom:0.5rem">
+                    <span class="card-ticker">{{ pick.ticker }}</span>
+                    <span class="card-name">&mdash; {{ pick.name }}</span>
+                    {% if streaks.get(pick.ticker, 0) > 1 %}<span class="streak">{{ streaks[pick.ticker] }}x</span>{% endif %}
                 </div>
 
-                <div class="card-grid">
-                {% for pick in picks %}
-                {% set signal_class = pick.signal|lower %}
-                <div class="pick-card {{ signal_class }}">
-                    <div class="pick-header">
-                        <div class="header-left">
-                            <span class="signal-badge {{ signal_class }}">{{ pick.signal }}</span>
-                            <span class="info-tip tip-down">i<span class="tip-text">{% if pick.signal == 'BUY' %}BUY: AI research is bullish with high confidence and the stock scores well on fundamentals, momentum, and quality.{% elif pick.signal == 'HOLD' %}HOLD: AI research found a neutral outlook, or the bullish case wasn't strong enough to warrant a BUY. The stock may still score well on fundamentals -- worth monitoring.{% else %}AVOID: AI research is bearish with medium-high confidence. Significant risks or negative outlook detected.{% endif %}</span></span>
-                            <span class="alpha-score">Score: {{ pick.alpha_score }}<span class="info-tip tip-down">i<span class="tip-text">Alpha Score (0-100): Composite score based on 5 factors -- Value (25pts), Quality (25pts), Momentum (25pts), Catalyst (15pts), and Liquidity (10pts). Higher = stronger opportunity.</span></span></span>
-                            {% if pick.sector %}
-                            <span class="sector-tag">{{ pick.sector }}</span>
-                            {% endif %}
-                        </div>
-                        <span class="alpha-score">{{ pick.confidence }} confidence<span class="info-tip tip-down">i<span class="tip-text">{% if pick.confidence == 'HIGH' %}HIGH: AI research is very certain about its assessment. Note: high confidence in a NEUTRAL outlook still results in HOLD.{% elif pick.confidence == 'MEDIUM' %}MEDIUM: AI research found supporting evidence but with some uncertainty or conflicting signals.{% else %}LOW: Limited evidence available or significant uncertainty in the outlook.{% endif %}</span></span></span>
+                {# Visual price range: stop → price → target #}
+                {% if pick.stop_loss and pick.take_profit and pick.price %}
+                {% set range = pick.take_profit - pick.stop_loss %}
+                {% set pos = ((pick.price - pick.stop_loss) / range * 100) if range > 0 else 50 %}
+                <div class="range-bar">
+                    <div class="range-labels">
+                        <span class="range-stop">{{ "%.2f"|format(pick.stop_loss) }}</span>
+                        <span class="range-price">{{ pick.price }}</span>
+                        <span class="range-target">{{ "%.2f"|format(pick.take_profit) }}</span>
                     </div>
-
-                    <h3 class="stock-title">
-                        <span class="ticker">{{ pick.ticker }}</span>
-                        <span class="name"> &mdash; {{ pick.name }}</span>
-                        {% if streaks.get(pick.ticker, 0) > 1 %}
-                        <span class="streak-badge">{{ streaks[pick.ticker] }}x streak</span>
-                        {% endif %}
-                    </h3>
-
-                    <!-- Metrics & scoring (collapsed by default) -->
-                    <details>
-                        <summary>Metrics & Score Breakdown</summary>
-                    <div class="metrics-grid">
-                        <div class="metric">
-                            <div class="metric-value neutral">{{ "%.1f"|format(pick.pe_ratio) if pick.pe_ratio else 'N/A' }}</div>
-                            <div class="metric-label">P/E <span class="info-tip">i<span class="tip-text">Price-to-Earnings ratio. Compares stock price to earnings per share. Lower = cheaper relative to profits. Compare within the same sector.</span></span></div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value {% if pick.roe and pick.roe > 15 %}positive{% elif pick.roe and pick.roe < 5 %}negative{% else %}neutral{% endif %}">
-                                {{ "%.1f%%"|format(pick.roe) if pick.roe else 'N/A' }}
-                            </div>
-                            <div class="metric-label">ROE <span class="info-tip">i<span class="tip-text">Return on Equity. How efficiently the company generates profit from shareholder money. Above 15% is strong, above 20% is excellent.</span></span></div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value {% if pick.dividend_yield and pick.dividend_yield > 2 %}positive{% else %}neutral{% endif %}">
-                                {{ "%.1f%%"|format(pick.dividend_yield) if pick.dividend_yield else 'N/A' }}
-                            </div>
-                            <div class="metric-label">Div Yield <span class="info-tip">i<span class="tip-text">Annual dividend as % of stock price. Above 2% is solid, above 3% is high yield. 0% means the company doesn't pay dividends.</span></span></div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value {% if pick.momentum_6m and pick.momentum_6m > 0 %}positive{% elif pick.momentum_6m and pick.momentum_6m < 0 %}negative{% else %}neutral{% endif %}">
-                                {{ "%+.1f%%"|format(pick.momentum_6m) if pick.momentum_6m else 'N/A' }}
-                            </div>
-                            <div class="metric-label">6m <span class="info-tip">i<span class="tip-text">Price return over the last 6 months. Green = stock has been rising, red = declining. Shows medium-term trend.</span></span></div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value {% if pick.momentum_12m and pick.momentum_12m > 0 %}positive{% elif pick.momentum_12m and pick.momentum_12m < 0 %}negative{% else %}neutral{% endif %}">
-                                {{ "%+.1f%%"|format(pick.momentum_12m) if pick.momentum_12m else 'N/A' }}
-                            </div>
-                            <div class="metric-label">12m <span class="info-tip">i<span class="tip-text">Price return over the last 12 months. Shows the longer-term trend. Stocks with positive 12m momentum tend to continue performing.</span></span></div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value {% if pick.rsi_14 and pick.rsi_14 > 70 %}negative{% elif pick.rsi_14 and pick.rsi_14 < 30 %}positive{% else %}neutral{% endif %}">
-                                {{ "%.0f"|format(pick.rsi_14) if pick.rsi_14 else 'N/A' }}
-                            </div>
-                            <div class="metric-label">RSI <span class="info-tip">i<span class="tip-text">Relative Strength Index (0-100). Below 30 = oversold (potential bounce), above 70 = overbought (potential pullback), 40-70 = healthy range.</span></span></div>
-                        </div>
-                    </div>
-
-                    <!-- Risk levels & position sizing -->
-                    {% if pick.stop_loss or pick.suggested_pct %}
-                    <div class="risk-row">
-                        {% if pick.stop_loss %}
-                        <div class="risk-item">
-                            <span class="risk-label">Stop Loss</span>
-                            <span class="risk-value stop">{{ "%.2f"|format(pick.stop_loss) }}</span>
-                            <span class="info-tip">i<span class="tip-text">Suggested stop-loss based on 2x ATR (Average True Range). If the price drops to this level, consider exiting to limit losses.</span></span>
-                        </div>
-                        {% endif %}
-                        {% if pick.take_profit %}
-                        <div class="risk-item">
-                            <span class="risk-label">Target</span>
-                            <span class="risk-value target">{{ "%.2f"|format(pick.take_profit) }}</span>
-                            <span class="info-tip">i<span class="tip-text">Suggested take-profit based on 3x ATR. A 1.5:1 reward-to-risk ratio. Consider taking profits near this level.</span></span>
-                        </div>
-                        {% endif %}
-                        {% if pick.suggested_pct and pick.suggested_pct > 0 %}
-                        <div class="risk-item">
-                            <span class="risk-label">Allocation</span>
-                            <span class="risk-value" style="color: var(--link-color);">{{ "%.0f"|format(pick.suggested_pct) }}%</span>
-                            <span class="info-tip">i<span class="tip-text">Suggested portfolio allocation based on signal strength, alpha score, and confidence. Higher score + stronger signal = larger position. AVOID signals get 0%.</span></span>
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-
-                    <!-- Score breakdown bar -->
-                    {% if pick.score_breakdown %}
-                    {% set bd = pick.score_breakdown %}
-                    {% set total = pick.alpha_score if pick.alpha_score > 0 else 1 %}
-                    <div class="score-bar">
-                        <div class="score-segment value" style="width: {{ (bd.get('value', 0) / total * 100)|round }}%"></div>
-                        <div class="score-segment quality" style="width: {{ (bd.get('quality', 0) / total * 100)|round }}%"></div>
-                        <div class="score-segment momentum" style="width: {{ (bd.get('momentum', 0) / total * 100)|round }}%"></div>
-                        <div class="score-segment catalyst" style="width: {{ (bd.get('catalyst', 0) / total * 100)|round }}%"></div>
-                        <div class="score-segment liquidity" style="width: {{ (bd.get('liquidity', 0) / total * 100)|round }}%"></div>
-                    </div>
-                    <div class="score-legend">
-                        <span class="l-value">Value {{ bd.get('value', 0) }}/25 <span class="info-tip">i<span class="tip-text">Value: Is the stock cheap? Based on P/E and P/B vs sector median, plus dividend yield.</span></span></span>
-                        <span class="l-quality">Quality {{ bd.get('quality', 0) }}/25 <span class="info-tip">i<span class="tip-text">Quality: Is it a good business? Based on ROE, low debt, dividend track record, and earnings growth.</span></span></span>
-                        <span class="l-momentum">Momentum {{ bd.get('momentum', 0) }}/25 <span class="info-tip">i<span class="tip-text">Momentum: Is it trending up? Based on 6m/12m returns, price vs moving averages, and RSI health.</span></span></span>
-                        <span class="l-catalyst">Catalyst {{ bd.get('catalyst', 0) }}/15 <span class="info-tip">i<span class="tip-text">Catalyst: Are there upcoming events? Scores for earnings dates, priority sectors, and recovery potential from 52-week highs.</span></span></span>
-                        <span class="l-liquidity">Liquidity {{ bd.get('liquidity', 0) }}/10 <span class="info-tip">i<span class="tip-text">Liquidity: Can you trade it easily? Based on market cap size, trading volume, and major index membership.</span></span></span>
-                    </div>
-                    {% endif %}
-                    </details>
-
-                    <!-- Reasoning -->
-                    {% if pick.reasoning %}
-                    <div class="reasoning">{{ pick.reasoning }}</div>
-                    {% endif %}
-
-                    <!-- Expandable details -->
-                    <details>
-                        <summary>Developments, Catalysts & Risks</summary>
-                        <div class="detail-content">
-                            {% if pick.company_overview %}
-                            <h4>Overview</h4>
-                            <p style="margin-bottom: 1rem; font-size: 0.9rem;">{{ pick.company_overview }}</p>
-                            {% endif %}
-
-                            {% if pick.key_developments %}
-                            <h4>Key Developments</h4>
-                            <ul>
-                                {% for dev in pick.key_developments[:5] %}
-                                <li>{{ dev }}</li>
-                                {% endfor %}
-                            </ul>
-                            {% endif %}
-
-                            {% if pick.catalysts %}
-                            <h4>Catalysts</h4>
-                            <ul>
-                                {% for cat in pick.catalysts[:4] %}
-                                <li>{{ cat }}</li>
-                                {% endfor %}
-                            </ul>
-                            {% endif %}
-
-                            {% if pick.risk_factors %}
-                            <h4>Risk Factors</h4>
-                            <ul>
-                                {% for risk in pick.risk_factors[:4] %}
-                                <li>{{ risk }}</li>
-                                {% endfor %}
-                            </ul>
-                            {% endif %}
-
-                            {% if pick.sources %}
-                            <h4>Sources</h4>
-                            <ul>
-                                {% for src in pick.sources[:5] %}
-                                <li><a href="{{ src }}" target="_blank" rel="noopener">{{ src[:70] }}{% if src|length > 70 %}...{% endif %}</a></li>
-                                {% endfor %}
-                            </ul>
-                            {% endif %}
-                        </div>
-                    </details>
-
-                    <div class="card-footer">
-                        {% set yf_symbol = pick.ticker %}
-                        {% if pick.exchange == 'AMS' %}{% set yf_symbol = pick.ticker ~ '.AS' %}
-                        {% elif pick.exchange == 'XETR' %}{% set yf_symbol = pick.ticker ~ '.DE' %}
-                        {% elif pick.exchange == 'EPA' %}{% set yf_symbol = pick.ticker ~ '.PA' %}
-                        {% elif pick.exchange == 'LSE' %}{% set yf_symbol = pick.ticker ~ '.L' %}
-                        {% endif %}
-                        <a href="https://finance.yahoo.com/quote/{{ yf_symbol }}" class="yahoo-link" target="_blank" rel="noopener">
-                            View on Yahoo Finance &rarr;
-                        </a>
-                        <span class="timeframe-badge">{{ pick.target_timeframe if pick.target_timeframe else '3-6 months' }} <span class="info-tip">i<span class="tip-text">Suggested investment horizon. This signal is based on medium-term analysis -- not a day-trading recommendation.</span></span></span>
+                    <div class="range-track">
+                        <div class="range-fill" style="width:100%"></div>
+                        <div class="range-dot" style="left:{{ pos|round }}%"></div>
                     </div>
                 </div>
-                {% endfor %}
-                </div><!-- /card-grid -->
-            {% else %}
-                <div class="no-picks">
-                    No high-alpha opportunities found in this scan.
+                {% endif %}
+
+                {% if pick.suggested_pct and pick.suggested_pct > 0 %}
+                <span class="alloc">{{ "%.0f"|format(pick.suggested_pct) }}% allocation</span>
+                {% endif %}
+
+                {% if pick.reasoning %}
+                <div class="reasoning" id="r{{ loop.index }}">{{ pick.reasoning }}</div>
+                <button class="read-more" onclick="var r=document.getElementById('r{{ loop.index }}');r.classList.toggle('expanded');this.textContent=r.classList.contains('expanded')?'less':'more'">more</button>
+                {% endif %}
+
+                {# Score bar (no labels) #}
+                {% if pick.score_breakdown %}
+                {% set bd = pick.score_breakdown %}
+                {% set t = pick.alpha_score if pick.alpha_score > 0 else 1 %}
+                <div class="score-bar" style="margin-top:0.75rem">
+                    <div class="sb-val" style="width:{{ (bd.get('value',0)/t*100)|round }}%"></div>
+                    <div class="sb-qual" style="width:{{ (bd.get('quality',0)/t*100)|round }}%"></div>
+                    <div class="sb-mom" style="width:{{ (bd.get('momentum',0)/t*100)|round }}%"></div>
+                    <div class="sb-cat" style="width:{{ (bd.get('catalyst',0)/t*100)|round }}%"></div>
+                    <div class="sb-liq" style="width:{{ (bd.get('liquidity',0)/t*100)|round }}%"></div>
                 </div>
-            {% endif %}
+                {% endif %}
+
+                <details>
+                    <summary>Details</summary>
+                    <div class="detail-body">
+                        {% if pick.company_overview %}<p>{{ pick.company_overview }}</p>{% endif %}
+                        {% if pick.key_developments %}<h4>Developments</h4><ul>{% for d in pick.key_developments[:4] %}<li>{{ d }}</li>{% endfor %}</ul>{% endif %}
+                        {% if pick.catalysts %}<h4>Catalysts</h4><ul>{% for c in pick.catalysts[:3] %}<li>{{ c }}</li>{% endfor %}</ul>{% endif %}
+                        {% if pick.risk_factors %}<h4>Risks</h4><ul>{% for r in pick.risk_factors[:3] %}<li>{{ r }}</li>{% endfor %}</ul>{% endif %}
+                        {% if pick.sources %}<h4>Sources</h4><ul>{% for s in pick.sources[:3] %}<li><a href="{{ s }}" target="_blank" rel="noopener">{{ s[:60] }}{% if s|length > 60 %}...{% endif %}</a></li>{% endfor %}</ul>{% endif %}
+
+                        {# Metrics in details #}
+                        <h4>Key Metrics</h4>
+                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.3rem;font-size:0.8rem;margin-top:0.25rem">
+                            <div>P/E <strong>{{ "%.1f"|format(pick.pe_ratio) if pick.pe_ratio else '-' }}</strong></div>
+                            <div>ROE <strong class="{% if pick.roe and pick.roe > 15 %}pos{% endif %}">{{ "%.0f%%"|format(pick.roe) if pick.roe else '-' }}</strong></div>
+                            <div>Div <strong>{{ "%.1f%%"|format(pick.dividend_yield) if pick.dividend_yield else '-' }}</strong></div>
+                            <div>6m <strong class="{% if pick.momentum_6m and pick.momentum_6m > 0 %}pos{% elif pick.momentum_6m and pick.momentum_6m < 0 %}neg{% endif %}">{{ "%+.0f%%"|format(pick.momentum_6m) if pick.momentum_6m else '-' }}</strong></div>
+                            <div>12m <strong class="{% if pick.momentum_12m and pick.momentum_12m > 0 %}pos{% elif pick.momentum_12m and pick.momentum_12m < 0 %}neg{% endif %}">{{ "%+.0f%%"|format(pick.momentum_12m) if pick.momentum_12m else '-' }}</strong></div>
+                            <div>RSI <strong>{{ "%.0f"|format(pick.rsi_14) if pick.rsi_14 else '-' }}</strong></div>
+                        </div>
+                    </div>
+                </details>
+
+                <div class="card-foot">
+                    {% set yf = pick.ticker %}
+                    {% if pick.exchange == 'AMS' %}{% set yf = pick.ticker ~ '.AS' %}{% elif pick.exchange == 'XETR' %}{% set yf = pick.ticker ~ '.DE' %}{% elif pick.exchange == 'EPA' %}{% set yf = pick.ticker ~ '.PA' %}{% elif pick.exchange == 'LSE' %}{% set yf = pick.ticker ~ '.L' %}{% endif %}
+                    <a href="https://finance.yahoo.com/quote/{{ yf }}" target="_blank" rel="noopener">Yahoo Finance &rarr;</a>
+                    <span class="tf-badge">{{ pick.target_timeframe if pick.target_timeframe else '3-6 mo' }}</span>
+                </div>
+            </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty">No opportunities found.</div>
+        {% endif %}
         </main>
 
         <footer>
-            <p>
-                Data from <a href="https://finance.yahoo.com" target="_blank">Yahoo Finance</a>
-                & <a href="https://twelvedata.com" target="_blank">Twelve Data</a>
-                | Research via <a href="https://perplexity.ai" target="_blank">Perplexity</a>
-            </p>
-            <p class="disclaimer">
-                Signal generation only. Not financial advice. Do your own research.
-            </p>
+            <p>Data: <a href="https://finance.yahoo.com">Yahoo Finance</a> & <a href="https://twelvedata.com">Twelve Data</a> | AI: <a href="https://perplexity.ai">Perplexity</a></p>
+            <p class="disc">Signal generation only. Not financial advice.</p>
         </footer>
     </div>
+
     <script>
-    /* Collapse "How it works" on mobile */
-    if (window.innerWidth <= 600) {
-        var hd = document.getElementById('how-details');
-        if (hd) hd.removeAttribute('open');
-    }
-
-    /* Toggle tooltips on tap for touch devices */
-    document.addEventListener('click', function(e) {
-        var tip = e.target.closest('.info-tip');
-        document.querySelectorAll('.info-tip.active').forEach(function(el) {
-            if (el !== tip) el.classList.remove('active');
-        });
-        if (tip) {
-            e.preventDefault();
-            tip.classList.toggle('active');
-        }
-    });
-
     /* Next scan countdown */
-    (function() {
-        var el = document.getElementById('next-scan');
-        if (!el) return;
-        function update() {
-            var now = new Date();
-            var next = new Date(now);
-            next.setUTCHours(8, 0, 0, 0);
-            var day = next.getUTCDay();
-            var daysUntilSunday = (7 - day) % 7;
-            if (daysUntilSunday === 0 && now >= next) daysUntilSunday = 7;
-            next.setUTCDate(next.getUTCDate() + daysUntilSunday);
-            var diff = next - now;
-            var d = Math.floor(diff / 86400000);
-            var h = Math.floor((diff % 86400000) / 3600000);
-            el.textContent = 'Next scan in ' + d + 'd ' + h + 'h';
+    (function(){var el=document.getElementById('next-scan');if(!el)return;var now=new Date(),next=new Date(now);next.setUTCHours(8,0,0,0);var d=(7-next.getUTCDay())%7;if(d===0&&now>=next)d=7;next.setUTCDate(next.getUTCDate()+d);var diff=next-now;el.textContent='\u00b7 next in '+Math.floor(diff/864e5)+'d '+Math.floor(diff%864e5/36e5)+'h';})();
+
+    /* Tooltip toggle for touch */
+    document.addEventListener('click',function(e){var t=e.target.closest('.info-tip');document.querySelectorAll('.info-tip.active').forEach(function(el){if(el!==t)el.classList.remove('active')});if(t){e.preventDefault();t.classList.toggle('active');}});
+
+    /* Filter, sort, search */
+    (function(){
+        var bs=document.querySelectorAll('.fbtn'),sort=document.getElementById('sort'),search=document.getElementById('search'),grid=document.getElementById('grid');
+        if(!bs.length||!sort||!grid)return;
+        var af={buy:true,hold:true,avoid:true},st='';
+        function sig(c){return c.classList.contains('buy')?'buy':c.classList.contains('hold')?'hold':c.classList.contains('avoid')?'avoid':'';}
+        function sc(c){var e=c.querySelector('.card-score');return e?parseInt(e.textContent)||0:0;}
+        function tk(c){var e=c.querySelector('.card-ticker');return e?e.textContent.trim():'';}
+        function nm(c){var e=c.querySelector('.card-name');return e?e.textContent.toLowerCase():'';}
+        function run(){
+            var cards=Array.from(grid.querySelectorAll('.card'));
+            cards.forEach(function(c){var s=sig(c),t=tk(c).toLowerCase(),n=nm(c);c.style.display=(af[s]&&(!st||t.indexOf(st)!==-1||n.indexOf(st)!==-1))?'':'none';});
+            var sv=sort.value;
+            cards.sort(function(a,b){return sv==='sa'?sc(a)-sc(b):sv==='az'?tk(a).localeCompare(tk(b)):sc(b)-sc(a);});
+            cards.forEach(function(c){grid.appendChild(c);});
         }
-        update();
-        setInterval(update, 60000);
-    })();
-
-    /* Filter, sort, and search controls */
-    (function() {
-        var filterBtns = document.querySelectorAll('.filter-btn');
-        var sortSelect = document.getElementById('sort-select');
-        var searchInput = document.getElementById('search-input');
-        var grid = document.querySelector('.card-grid');
-        if (!filterBtns.length || !sortSelect || !grid) return;
-
-        var activeFilters = { buy: true, hold: true, avoid: true };
-        var searchTerm = '';
-
-        function getCardSignal(card) {
-            if (card.classList.contains('buy')) return 'buy';
-            if (card.classList.contains('hold')) return 'hold';
-            if (card.classList.contains('avoid')) return 'avoid';
-            return '';
-        }
-
-        function getCardScore(card) {
-            var el = card.querySelector('.alpha-score');
-            if (!el) return 0;
-            var m = el.textContent.match(/Score:\s*(\d+)/);
-            return m ? parseInt(m[1], 10) : 0;
-        }
-
-        function getCardTicker(card) {
-            var el = card.querySelector('.ticker');
-            return el ? el.textContent.trim() : '';
-        }
-
-        function getCardName(card) {
-            var el = card.querySelector('.name');
-            return el ? el.textContent.trim().toLowerCase() : '';
-        }
-
-        function applyAll() {
-            var cards = Array.from(grid.querySelectorAll('.pick-card'));
-
-            cards.forEach(function(card) {
-                var signal = getCardSignal(card);
-                var ticker = getCardTicker(card).toLowerCase();
-                var name = getCardName(card);
-                var matchFilter = activeFilters[signal];
-                var matchSearch = !searchTerm || ticker.indexOf(searchTerm) !== -1 || name.indexOf(searchTerm) !== -1;
-                card.style.display = (matchFilter && matchSearch) ? '' : 'none';
-            });
-
-            var sortVal = sortSelect.value;
-            cards.sort(function(a, b) {
-                if (sortVal === 'score-desc') return getCardScore(b) - getCardScore(a);
-                if (sortVal === 'score-asc') return getCardScore(a) - getCardScore(b);
-                return getCardTicker(a).localeCompare(getCardTicker(b));
-            });
-
-            cards.forEach(function(card) { grid.appendChild(card); });
-        }
-
-        function updateAllButton() {
-            var allBtn = document.querySelector('.filter-btn[data-filter="all"]');
-            if (!allBtn) return;
-            allBtn.classList.toggle('active', activeFilters.buy && activeFilters.hold && activeFilters.avoid);
-        }
-
-        filterBtns.forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                var filter = btn.getAttribute('data-filter');
-                if (filter === 'all') {
-                    activeFilters.buy = true; activeFilters.hold = true; activeFilters.avoid = true;
-                    btn.classList.add('active');
-                    document.querySelectorAll('.filter-btn[data-filter!="all"]').forEach(function(b) { b.classList.add('active'); });
-                } else {
-                    activeFilters[filter] = !activeFilters[filter];
-                    btn.classList.toggle('active', activeFilters[filter]);
-                    updateAllButton();
-                }
-                applyAll();
-            });
-        });
-
-        sortSelect.addEventListener('change', applyAll);
-
-        if (searchInput) {
-            searchInput.addEventListener('input', function() {
-                searchTerm = searchInput.value.trim().toLowerCase();
-                applyAll();
-            });
-        }
+        bs.forEach(function(b){b.addEventListener('click',function(){
+            var f=b.getAttribute('data-f');
+            if(f==='all'){af.buy=af.hold=af.avoid=true;b.classList.add('on');document.querySelectorAll('.fbtn[data-f]:not([data-f="all"])').forEach(function(x){x.classList.add('on')});}
+            else{af[f]=!af[f];b.classList.toggle('on',af[f]);var ab=document.querySelector('.fbtn[data-f="all"]');if(ab)ab.classList.toggle('on',af.buy&&af.hold&&af.avoid);}
+            run();
+        });});
+        sort.addEventListener('change',run);
+        if(search)search.addEventListener('input',function(){st=search.value.trim().toLowerCase();run();});
     })();
     </script>
 </body>
