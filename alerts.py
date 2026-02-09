@@ -14,6 +14,7 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 async def send_telegram_alert(
     results: list[dict],
     client: httpx.AsyncClient,
+    scan_diff: dict | None = None,
 ) -> bool:
     """Send a Telegram message summarizing BUY signals. Returns True on success."""
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
@@ -42,6 +43,28 @@ async def send_telegram_alert(
         if sl is not None and tp is not None:
             lines.append(f"  Stop: {sl} | Target: {tp}")
         lines.append("")
+
+    # Scan diff summary
+    if scan_diff and scan_diff.get("previous_date"):
+        new_entries = scan_diff.get("new_entries", [])
+        exits = scan_diff.get("exits", [])
+        signal_changes = scan_diff.get("signal_changes", [])
+
+        if new_entries or exits or signal_changes:
+            lines.append(f"_Changes vs {scan_diff['previous_date']}:_")
+            if new_entries:
+                tickers = ", ".join(e["ticker"] for e in new_entries)
+                lines.append(f"  New: {tickers}")
+            if exits:
+                tickers = ", ".join(e["ticker"] for e in exits)
+                lines.append(f"  Exited: {tickers}")
+            if signal_changes:
+                changes = ", ".join(
+                    f"{e['ticker']} {e['old_signal']}\u2192{e['new_signal']}"
+                    for e in signal_changes
+                )
+                lines.append(f"  Changed: {changes}")
+            lines.append("")
 
     text = "\n".join(lines)
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"

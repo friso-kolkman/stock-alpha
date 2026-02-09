@@ -31,6 +31,7 @@ from history import (
     get_adaptive_weights,
     record_predictions,
     get_dashboard_stats,
+    get_scan_diff,
 )
 from alerts import send_telegram_alert
 
@@ -168,12 +169,16 @@ async def main():
         console.print("\n[bold]Step 4: Results Summary[/bold]")
         display_results(results)
 
+        # Step 4.5: Compare with previous scan
+        console.print("\n[bold]Step 4.5: Scan diff[/bold]")
+        scan_diff = get_scan_diff(results, history)
+
         # Step 5: Publish
         console.print("\n[bold]Step 5: Publishing[/bold]")
         scan_date = datetime.now(timezone.utc).isoformat()
         dashboard_stats = get_dashboard_stats(history)
         publish_results(results, len(stocks), push_to_github=False,
-                        dashboard_stats=dashboard_stats)
+                        dashboard_stats=dashboard_stats, scan_diff=scan_diff)
 
         # Step 5.5: Record predictions
         console.print("\n[bold]Step 5.5: Recording predictions[/bold]")
@@ -181,7 +186,7 @@ async def main():
 
         # Step 6: Telegram alert
         console.print("\n[bold]Step 6: Alerts[/bold]")
-        await send_telegram_alert(results, client)
+        await send_telegram_alert(results, client, scan_diff=scan_diff)
 
         console.print("\n[bold green]Scan complete![/bold green]")
         console.print(f"  Results saved to docs/index.html and docs/data.json")

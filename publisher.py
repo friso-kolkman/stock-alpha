@@ -21,6 +21,7 @@ def publish_results(
     stocks_scanned: int,
     push_to_github: bool = False,
     dashboard_stats: dict | None = None,
+    scan_diff: dict | None = None,
 ) -> bool:
     """
     Generate HTML dashboard and data.json, optionally push to GitHub.
@@ -40,6 +41,7 @@ def publish_results(
         "stocks_scanned": stocks_scanned,
         "top_picks": results,
         "dashboard_stats": dashboard_stats,
+        "scan_diff": scan_diff,
     }
 
     # Write data.json
@@ -91,6 +93,7 @@ def render_dashboard(data: dict) -> str:
     avoid_count = sum(1 for p in picks if p.get("signal") == "AVOID")
 
     stats = data.get("dashboard_stats") or {}
+    scan_diff = data.get("scan_diff") or {}
 
     return template.render(
         run_date=data["run_date"],
@@ -103,6 +106,7 @@ def render_dashboard(data: dict) -> str:
         has_history=stats.get("has_history", False),
         model_stats=stats,
         streaks=stats.get("streaks", {}),
+        scan_diff=scan_diff,
     )
 
 

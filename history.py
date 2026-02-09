@@ -298,6 +298,111 @@ def get_streaks(results: list[dict], history: dict | None = None) -> dict[str, i
     return streaks
 
 
+def get_scan_diff(current_results: list[dict], history: dict | None = None) -> dict:
+    """Compare current scan results with the previous scan.
+
+    Returns a dict with:
+        - new_entries: stocks in current scan but not in previous
+        - exits: stocks in previous scan but not in current
+        - score_changes: stocks in both scans with score deltas
+        - signal_changes: stocks whose signal changed between scans
+        - previous_date: the date of the scan we're comparing against (or None)
+    """
+    if history is None:
+        history = load_history()
+
+    predictions = history.get("predictions", [])
+    if not predictions:
+        return {"new_entries": [], "exits": [], "score_changes": [],
+                "signal_changes": [], "previous_date": None}
+
+    # Group predictions by scan date and find the most recent one
+    date_preds: dict[str, list[dict]] = {}
+    for p in predictions:
+        sd = p.get("scan_date", "")[:10]
+        if sd:
+            date_preds.setdefault(sd, []).append(p)
+
+    if not date_preds:
+        return {"new_entries": [], "exits": [], "score_changes": [],
+                "signal_changes": [], "previous_date": None}
+
+    previous_date = max(date_preds.keys())
+    prev_preds = date_preds[previous_date]
+
+    # Build lookup from previous scan
+    prev_by_ticker = {}
+    for p in prev_preds:
+        prev_by_ticker[p["ticker"]] = {
+            "alpha_score": p.get("alpha_score", 0),
+            "signal": p.get("signal", "HOLD"),
+            "name": p.get("ticker"),
+        }
+
+    current_by_ticker = {}
+    for r in current_results:
+        current_by_ticker[r["ticker"]] = {
+            "alpha_score": r.get("alpha_score", 0),
+            "signal": r.get("signal", "HOLD"),
+            "name": r.get("name", r["ticker"]),
+        }
+
+    prev_tickers = set(prev_by_ticker.keys())
+    curr_tickers = set(current_by_ticker.keys())
+
+    # New entries
+    new_entries = []
+    for t in sorted(curr_tickers - prev_tickers):
+        c = current_by_ticker[t]
+        new_entries.append({
+            "ticker": t, "name": c["name"],
+            "signal": c["signal"], "alpha_score": c["alpha_score"],
+        })
+
+    # Exits
+    exits = []
+    for t in sorted(prev_tickers - curr_tickers):
+        p = prev_by_ticker[t]
+        exits.append({
+            "ticker": t, "signal": p["signal"],
+            "alpha_score": p["alpha_score"],
+        })
+
+    # Score and signal changes for stocks in both scans
+    score_changes = []
+    signal_changes = []
+    for t in sorted(curr_tickers & prev_tickers):
+        c = current_by_ticker[t]
+        p = prev_by_ticker[t]
+        delta = c["alpha_score"] - p["alpha_score"]
+        if delta != 0:
+            score_changes.append({
+                "ticker": t, "name": c["name"],
+                "old_score": p["alpha_score"], "new_score": c["alpha_score"],
+                "delta": delta,
+            })
+        if c["signal"] != p["signal"]:
+            signal_changes.append({
+                "ticker": t, "name": c["name"],
+                "old_signal": p["signal"], "new_signal": c["signal"],
+            })
+
+    # Sort score changes by absolute delta descending
+    score_changes.sort(key=lambda x: abs(x["delta"]), reverse=True)
+
+    console.print(f"  Scan diff vs {previous_date}: "
+                  f"{len(new_entries)} new, {len(exits)} exited, "
+                  f"{len(signal_changes)} signal changes")
+
+    return {
+        "new_entries": new_entries,
+        "exits": exits,
+        "score_changes": score_changes,
+        "signal_changes": signal_changes,
+        "previous_date": previous_date,
+    }
+
+
 def get_dashboard_stats(history: dict | None = None) -> dict | None:
     """Return formatted stats for the dashboard template, per timeframe."""
     if history is None:

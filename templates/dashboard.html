@@ -161,6 +161,13 @@
         .w-adj.neg { background: rgba(218,54,51,0.2); }
         .w-adj.zero { background: var(--card2); color: var(--dim); }
 
+        /* Scan diff */
+        .diff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; }
+        .diff-col { }
+        .diff-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+        .diff-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; padding: 0.2rem 0; }
+        .diff-score { color: var(--dim); font-size: 0.8rem; margin-left: auto; }
+
         /* Telegram */
         .tg-link { display: inline-block; margin-top: 0.5rem; padding: 0.35rem 0.9rem; border-radius: 20px; background: rgba(0,136,204,0.12); color: #29b6f6; font-size: 0.8rem; font-weight: 600; text-decoration: none; }
         .tg-link:hover { background: rgba(0,136,204,0.22); }
@@ -221,6 +228,63 @@
             <a href="https://t.me/StockScanner1234567890bot" class="tg-link" style="margin-top:1rem;">Get alerts on Telegram</a>
         </div>
         {% endif %}
+        {% endif %}
+
+        {# Scan Diff: Changes since last scan #}
+        {% if scan_diff and scan_diff.previous_date and (scan_diff.new_entries or scan_diff.exits or scan_diff.signal_changes) %}
+        <section class="perf" style="margin-bottom:2rem">
+            <div class="perf-head">
+                <h2>Changes Since {{ scan_diff.previous_date }}</h2>
+            </div>
+            <div class="diff-grid">
+                {% if scan_diff.new_entries %}
+                <div class="diff-col">
+                    <div class="diff-label" style="color:var(--buyT)">New Entries</div>
+                    {% for e in scan_diff.new_entries %}
+                    <div class="diff-item">
+                        <span class="signal {{ e.signal|lower }}" style="font-size:0.6rem">{{ e.signal }}</span>
+                        <strong>{{ e.ticker }}</strong>
+                        <span class="diff-score">{{ e.alpha_score }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if scan_diff.exits %}
+                <div class="diff-col">
+                    <div class="diff-label" style="color:var(--avoidT)">Exited</div>
+                    {% for e in scan_diff.exits %}
+                    <div class="diff-item">
+                        <span class="signal {{ e.signal|lower }}" style="font-size:0.6rem">{{ e.signal }}</span>
+                        <strong>{{ e.ticker }}</strong>
+                        <span class="diff-score">{{ e.alpha_score }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if scan_diff.signal_changes %}
+                <div class="diff-col">
+                    <div class="diff-label" style="color:var(--holdT)">Signal Changed</div>
+                    {% for e in scan_diff.signal_changes %}
+                    <div class="diff-item">
+                        <strong>{{ e.ticker }}</strong>
+                        <span class="signal {{ e.old_signal|lower }}" style="font-size:0.6rem">{{ e.old_signal }}</span>
+                        <span style="color:var(--dim)">&rarr;</span>
+                        <span class="signal {{ e.new_signal|lower }}" style="font-size:0.6rem">{{ e.new_signal }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% if scan_diff.score_changes %}
+            <details style="margin-top:0.75rem"><summary>Score changes</summary>
+                <div class="detail-body" style="margin-top:0.5rem">
+                    {% for s in scan_diff.score_changes[:10] %}
+                    <span class="w-adj {% if s.delta > 0 %}pos{% elif s.delta < 0 %}neg{% else %}zero{% endif %}">{{ s.ticker }} {{ s.new_score }} ({{ "%+d"|format(s.delta) }})</span>
+                    {% endfor %}
+                </div>
+            </details>
+            {% endif %}
+        </section>
         {% endif %}
 
         {# Model Performance #}
