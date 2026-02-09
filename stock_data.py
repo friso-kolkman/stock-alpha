@@ -1,6 +1,7 @@
 """Fetch stock data from yfinance and Twelve Data."""
 
 import asyncio
+import logging
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 
@@ -17,6 +18,7 @@ from config import (
 )
 
 console = Console()
+logger = logging.getLogger(__name__)
 
 # Thread pool for yfinance calls (which are synchronous)
 _executor = ThreadPoolExecutor(max_workers=8)
@@ -98,6 +100,7 @@ def _fetch_single_stock(
         )
 
     except Exception:
+        logger.debug("Failed to fetch data for %s (%s)", ticker, symbol, exc_info=True)
         return None
 
 
@@ -211,7 +214,7 @@ def build_stock_dict(
         try:
             earnings_date = datetime.fromtimestamp(raw_earnings).isoformat()
         except (ValueError, TypeError, OSError):
-            pass
+            logger.debug("Failed to parse earnings timestamp %r for %s", raw_earnings, ticker)
 
     return {
         "ticker": ticker,
@@ -254,4 +257,5 @@ def _pct_if_decimal(value) -> float | None:
             return v * 100
         return v
     except (ValueError, TypeError):
+        logger.debug("Failed to convert value %r to percentage", value)
         return None
