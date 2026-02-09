@@ -83,9 +83,10 @@
         .range-fill { position: absolute; height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--avoidT), var(--buyT)); }
         .range-dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--text); top: -3px; transform: translateX(-50%); }
         .range-labels { display: flex; justify-content: space-between; font-size: 0.7rem; }
-        .range-stop { color: var(--avoidT); }
+        .range-stop { color: var(--avoidT); text-align: left; }
         .range-price { color: var(--text); font-weight: 600; }
-        .range-target { color: var(--buyT); }
+        .range-target { color: var(--buyT); text-align: right; }
+        .range-hint { display: block; font-size: 0.55rem; color: var(--dim); font-weight: 400; letter-spacing: 0.03em; }
 
         /* Allocation */
         .alloc { display: inline-block; font-size: 0.7rem; font-weight: 600; color: var(--link); background: rgba(88,166,255,0.1); padding: 0.15rem 0.5rem; border-radius: 10px; margin-top: 0.25rem; }
@@ -345,9 +346,9 @@
                 {% set pos = ((pick.price - pick.stop_loss) / range * 100) if range > 0 else 50 %}
                 <div class="range-bar">
                     <div class="range-labels">
-                        <span class="range-stop">{{ "%.2f"|format(pick.stop_loss) }}</span>
-                        <span class="range-price">{{ pick.price }}</span>
-                        <span class="range-target">{{ "%.2f"|format(pick.take_profit) }}</span>
+                        <span class="range-stop">{{ "%.2f"|format(pick.stop_loss) }}<span class="range-hint">Stop</span></span>
+                        <span class="range-price">{{ pick.price }} {{ pick.currency }}<span class="range-hint">Now</span></span>
+                        <span class="range-target">{{ "%.2f"|format(pick.take_profit) }}<span class="range-hint">Target</span></span>
                     </div>
                     <div class="range-track">
                         <div class="range-fill" style="width:100%"></div>
