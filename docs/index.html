@@ -204,6 +204,136 @@
             .sig-bar-row { flex-wrap: wrap; }
             .sig-bar-pct { width: 100%; text-align: left; padding-left: 40px; font-size: 0.65rem; }
         }
+
+        /* ── Pipeline Visualization ── */
+        .pipeline-section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 2rem 1.5rem; margin-bottom: 2rem; overflow: hidden; }
+        .pipeline-section h2 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+        .pipeline-sub { font-size: 0.85rem; color: var(--dim); margin-bottom: 1.5rem; line-height: 1.6; }
+        .pipeline-flow { display: flex; align-items: flex-start; justify-content: center; }
+        .pipe-step { display: flex; flex-direction: column; align-items: center; text-align: center; width: 110px; flex-shrink: 0; }
+        .pipe-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem;
+            position: relative; transition: transform 0.2s;
+        }
+        .pipe-step:hover .pipe-icon { transform: scale(1.1); }
+        .pipe-icon::after {
+            content: ''; position: absolute; inset: -3px; border-radius: 14px;
+            border: 2px solid currentColor; opacity: 0;
+            animation: pipePulse 3s ease-in-out infinite;
+        }
+        @keyframes pipePulse { 0%,100% { opacity: 0; } 50% { opacity: 0.25; } }
+        .pi-fetch { background: rgba(240,136,62,0.15); color: #f0883e; }
+        .pi-fetch::after { animation-delay: 0s; }
+        .pi-score { background: rgba(163,113,247,0.15); color: #a371f7; }
+        .pi-score::after { animation-delay: 0.6s; }
+        .pi-research { background: rgba(88,166,255,0.15); color: #58a6ff; }
+        .pi-research::after { animation-delay: 1.2s; }
+        .pi-eval { background: rgba(63,185,80,0.15); color: #3fb950; }
+        .pi-eval::after { animation-delay: 1.8s; }
+        .pi-publish { background: rgba(210,153,34,0.15); color: #d29922; }
+        .pi-publish::after { animation-delay: 2.4s; }
+        .pipe-title { font-size: 0.75rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
+        .pipe-desc { font-size: 0.6rem; color: var(--dim); line-height: 1.35; }
+        .pipe-stat { font-size: 0.6rem; font-weight: 600; margin-top: 0.35rem; padding: 0.12rem 0.5rem; border-radius: 10px; display: inline-block; }
+        .ps-orange { background: rgba(240,136,62,0.1); color: #f0883e; }
+        .ps-purple { background: rgba(163,113,247,0.1); color: #a371f7; }
+        .ps-blue { background: rgba(88,166,255,0.1); color: #58a6ff; }
+        .ps-green { background: rgba(63,185,80,0.1); color: #3fb950; }
+        .ps-yellow { background: rgba(210,153,34,0.1); color: #d29922; }
+
+        /* Pipeline connectors with flowing dots */
+        .pipe-conn {
+            display: flex; align-items: center; justify-content: center;
+            width: 28px; height: 48px; flex-shrink: 0; position: relative;
+        }
+        .pipe-conn::before {
+            content: ''; position: absolute; top: 50%; left: 2px; right: 10px;
+            height: 2px; background: var(--border); transform: translateY(-50%);
+        }
+        .pipe-conn::after {
+            content: ''; position: absolute; top: 50%; right: 2px;
+            border: 4px solid transparent; border-left: 6px solid var(--border);
+            transform: translateY(-50%);
+        }
+        .flow-dot {
+            position: absolute; top: 50%; width: 5px; height: 5px;
+            border-radius: 50%; background: var(--link); transform: translateY(-50%);
+            animation: dotFlow 2.5s linear infinite;
+        }
+        @keyframes dotFlow {
+            0% { left: 2px; opacity: 0; }
+            10% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { left: calc(100% - 10px); opacity: 0; }
+        }
+        .pipe-conn:nth-of-type(1) .flow-dot { animation-delay: 0s; }
+        .pipe-conn:nth-of-type(2) .flow-dot { animation-delay: 0.5s; }
+        .pipe-conn:nth-of-type(3) .flow-dot { animation-delay: 1.0s; }
+        .pipe-conn:nth-of-type(4) .flow-dot { animation-delay: 1.5s; }
+
+        /* ── Data Funnel ── */
+        .funnel { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
+        .funnel-row { margin-bottom: 0.5rem; display: flex; }
+        .funnel-bar {
+            height: 34px; border-radius: 6px;
+            display: flex; align-items: center; padding: 0 0.75rem;
+            font-size: 0.75rem; font-weight: 600;
+        }
+        .fb-wide { background: rgba(88,166,255,0.1); color: var(--link); width: 100%; }
+        .fb-mid { background: rgba(163,113,247,0.1); color: #a371f7; min-width: fit-content; }
+        .funnel-signals { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+        .funnel-sig {
+            padding: 0.45rem 0.75rem; border-radius: 6px;
+            font-size: 0.75rem; font-weight: 700;
+        }
+        .funnel-sig.buy { background: rgba(35,134,54,0.12); color: var(--buyT); }
+        .funnel-sig.hold { background: rgba(31,111,235,0.12); color: var(--holdT); }
+        .funnel-sig.avoid { background: rgba(218,54,51,0.12); color: var(--avoidT); }
+
+        /* ── Scan Overview (Sector Heatmap + Index Donut) ── */
+        .scan-overview { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+        .scan-overview > div { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+        .scan-overview h3 { font-size: 0.9rem; margin-bottom: 0.75rem; }
+        .heat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.4rem; }
+        .heat-cell {
+            padding: 0.5rem; border-radius: 6px; text-align: center;
+            border: 1px solid var(--border); transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .heat-cell:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .hc-buy { background: rgba(35,134,54,0.06); border-color: rgba(35,134,54,0.25); }
+        .hc-hold { background: rgba(31,111,235,0.06); border-color: rgba(31,111,235,0.25); }
+        .hc-avoid { background: rgba(218,54,51,0.06); border-color: rgba(218,54,51,0.25); }
+        .heat-sector { font-size: 0.65rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .heat-count { font-size: 1.1rem; font-weight: 800; margin: 0.15rem 0; }
+        .hc-buy .heat-count { color: var(--buyT); }
+        .hc-hold .heat-count { color: var(--holdT); }
+        .hc-avoid .heat-count { color: var(--avoidT); }
+        .heat-score { font-size: 0.55rem; color: var(--dim); }
+        .index-chart-wrap { position: relative; height: 200px; max-width: 280px; margin: 0 auto; }
+
+        /* ── Confidence Badge ── */
+        .conf { font-size: 0.6rem; font-weight: 600; padding: 0.1rem 0.4rem; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.03em; }
+        .conf-high { background: rgba(35,134,54,0.12); color: var(--buyT); }
+        .conf-medium { background: rgba(210,153,34,0.12); color: #d29922; }
+        .conf-low { background: rgba(139,148,158,0.12); color: var(--dim); }
+
+        /* ── Risk/Reward Badge ── */
+        .rr-badge { font-size: 0.65rem; font-weight: 600; color: var(--dim); background: var(--card2); padding: 0.12rem 0.5rem; border-radius: 3px; margin-left: 0.5rem; }
+        .rr-good { color: var(--buyT); background: rgba(35,134,54,0.1); }
+
+        /* ── Mobile overrides for new sections ── */
+        @media (max-width: 600px) {
+            .pipeline-flow { flex-direction: column; align-items: center; }
+            .pipe-step { width: auto; min-width: 180px; }
+            .pipe-conn { width: 2px; height: 20px; background: var(--border); margin: 0 auto; }
+            .pipe-conn::before, .pipe-conn::after, .flow-dot { display: none; }
+            .scan-overview { grid-template-columns: 1fr; }
+            .pipeline-section { padding: 1.25rem; }
+            .funnel-bar { font-size: 0.7rem; }
+            .fb-mid { min-width: fit-content; }
+        }
     </style>
 </head>
 <body>
@@ -239,19 +369,111 @@
         
 
         
-        <section class="explainer">
-            <h2>How does this work?</h2>
-            <p>Every Monday before markets open, this scanner analyzes <strong>235+ stocks</strong> across 6 major indices (AEX, DAX, CAC40, FTSE100, DJIA, NASDAQ) and scores each on 5 factors.</p>
-            <div class="steps">
-                <div class="step"><div class="step-icon">1</div><div class="step-title">Scan</div><div class="step-desc">250 stocks from 6 indices</div></div>
-                <div class="step"><div class="step-icon">2</div><div class="step-title">Score</div><div class="step-desc">Value, Quality, Momentum, Catalyst, Liquidity</div></div>
-                <div class="step"><div class="step-icon">3</div><div class="step-title">Research</div><div class="step-desc">AI reads latest news &amp; filings</div></div>
-                <div class="step"><div class="step-icon">4</div><div class="step-title">Signal</div><div class="step-desc">BUY, HOLD, or AVOID with stop &amp; target</div></div>
+        <section class="pipeline-section">
+            <h2>How the Scanner Works</h2>
+            <p class="pipeline-sub">Every Monday before markets open, a 5-step automated pipeline scans <strong>235+ stocks</strong> across 6 major indices and generates actionable signals.</p>
+
+            <div class="pipeline-flow">
+                <div class="pipe-step">
+                    <div class="pipe-icon pi-fetch">1</div>
+                    <div class="pipe-title">Fetch</div>
+                    <div class="pipe-desc">Pull price, fundamentals &amp; technicals via yfinance</div>
+                    <span class="pipe-stat ps-orange">235+ stocks</span>
+                </div>
+                <div class="pipe-conn"><span class="flow-dot"></span></div>
+                <div class="pipe-step">
+                    <div class="pipe-icon pi-score">2</div>
+                    <div class="pipe-title">Score</div>
+                    <div class="pipe-desc">5-factor model: Value, Quality, Momentum, Catalyst, Liquidity</div>
+                    <span class="pipe-stat ps-purple">max 100 pts</span>
+                </div>
+                <div class="pipe-conn"><span class="flow-dot"></span></div>
+                <div class="pipe-step">
+                    <div class="pipe-icon pi-research">3</div>
+                    <div class="pipe-title">Research</div>
+                    <div class="pipe-desc">AI reads latest news, filings &amp; analyst reports</div>
+                    <span class="pipe-stat ps-blue">Perplexity AI</span>
+                </div>
+                <div class="pipe-conn"><span class="flow-dot"></span></div>
+                <div class="pipe-step">
+                    <div class="pipe-icon pi-eval">4</div>
+                    <div class="pipe-title">Evaluate</div>
+                    <div class="pipe-desc">Combine score + research into BUY, HOLD, or AVOID</div>
+                    <span class="pipe-stat ps-green">+ stop &amp; target</span>
+                </div>
+                <div class="pipe-conn"><span class="flow-dot"></span></div>
+                <div class="pipe-step">
+                    <div class="pipe-icon pi-publish">5</div>
+                    <div class="pipe-title">Publish</div>
+                    <div class="pipe-desc">Dashboard updates &amp; Telegram alert sent</div>
+                    <span class="pipe-stat ps-yellow">every Monday</span>
+                </div>
             </div>
-            <p>The top picks combine <strong>undervaluation</strong> (low P/E, high ROE), <strong>momentum</strong> (rising price trend), and <strong>real-world catalysts</strong> (earnings beats, analyst upgrades, sector tailwinds) -- verified by AI research. Each card shows a risk range: where to cut losses (Stop) and where to take profit (Target).</p>
-            <p>Results update automatically every Monday at 06:00 CET -- or get them straight to your phone.</p>
-            <a href="https://t.me/StockScanner1234567890bot" class="tg-cta">Get weekly alerts on Telegram</a>
+
+            
+            <div class="funnel">
+                <div class="funnel-row">
+                    <div class="funnel-bar fb-wide">235+ stocks from 6 indices (AEX, DAX, CAC40, FTSE100, DJIA, NASDAQ)</div>
+                </div>
+                <div class="funnel-row">
+                    
+                    <div class="funnel-bar fb-mid" style="width:25%">Top 10 scored above threshold</div>
+                </div>
+                <div class="funnel-row">
+                    <div class="funnel-signals">
+                        <span class="funnel-sig buy">9 BUY</span>
+                        <span class="funnel-sig hold">1 HOLD</span>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <p class="pipeline-sub" style="margin-top:1rem;margin-bottom:0">Top picks combine <strong>undervaluation</strong>, <strong>rising momentum</strong>, and <strong>real-world catalysts</strong> -- verified by AI research. Each card shows risk range: where to cut losses (Stop) and take profit (Target).</p>
+            <a href="https://t.me/StockScanner1234567890bot" class="tg-cta" style="margin-top:0.75rem">Get weekly alerts on Telegram</a>
         </section>
+
+        
+        
+        <div class="scan-overview">
+            <div>
+                <h3>Signals by Sector</h3>
+                <div class="heat-grid">
+                    
+                    
+                    
+                    
+                    <div class="heat-cell hc-buy">
+                        <div class="heat-sector">Industrials</div>
+                        <div class="heat-count">8</div>
+                        <div class="heat-score">avg 71</div>
+                    </div>
+                    
+                    
+                    
+                    
+                    <div class="heat-cell hc-buy">
+                        <div class="heat-sector">Healthcare</div>
+                        <div class="heat-count">1</div>
+                        <div class="heat-score">avg 72</div>
+                    </div>
+                    
+                    
+                    
+                    
+                    <div class="heat-cell hc-buy">
+                        <div class="heat-sector">Technology</div>
+                        <div class="heat-count">1</div>
+                        <div class="heat-score">avg 70</div>
+                    </div>
+                    
+                </div>
+            </div>
+            <div>
+                <h3>Picks by Index</h3>
+                <div class="index-chart-wrap"><canvas id="indexChart"></canvas></div>
+            </div>
+        </div>
+        
 
         
         
@@ -347,6 +569,7 @@
             <div class="card buy">
                 <div class="card-top">
                     <span class="signal buy">BUY</span>
+                    <span class="conf conf-high">HIGH</span>
                     <span class="card-sector">Industrials</span>
                     <span class="card-score">77</span>
                 </div>
@@ -375,6 +598,13 @@
 
                 
                 <span class="alloc">12% allocation</span>
+                
+                
+                
+                
+                
+                <span class="rr-badge rr-good">1:1.5 R:R</span>
+                
                 
 
                 
@@ -438,6 +668,7 @@
             <div class="card buy">
                 <div class="card-top">
                     <span class="signal buy">BUY</span>
+                    <span class="conf conf-medium">MEDIUM</span>
                     <span class="card-sector">Industrials</span>
                     <span class="card-score">73</span>
                 </div>
@@ -466,6 +697,13 @@
 
                 
                 <span class="alloc">9% allocation</span>
+                
+                
+                
+                
+                
+                <span class="rr-badge rr-good">1:1.5 R:R</span>
+                
                 
 
                 
@@ -529,6 +767,7 @@
             <div class="card buy">
                 <div class="card-top">
                     <span class="signal buy">BUY</span>
+                    <span class="conf conf-high">HIGH</span>
                     <span class="card-sector">Industrials</span>
                     <span class="card-score">72</span>
                 </div>
@@ -557,6 +796,13 @@
 
                 
                 <span class="alloc">12% allocation</span>
+                
+                
+                
+                
+                
+                <span class="rr-badge rr-good">1:1.5 R:R</span>
+                
                 
 
                 
@@ -620,6 +866,7 @@
             <div class="card buy">
                 <div class="card-top">
                     <span class="signal buy">BUY</span>
+                    <span class="conf conf-medium">MEDIUM</span>
                     <span class="card-sector">Healthcare</span>
                     <span class="card-score">72</span>
                 </div>
@@ -648,6 +895,13 @@
 
                 
                 <span class="alloc">9% allocation</span>
+                
+                
+                
+                
+                
+                <span class="rr-badge rr-good">1:1.5 R:R</span>
+                
                 
 
                 
@@ -711,6 +965,7 @@
             <div class="card buy">
                 <div class="card-top">
                     <span class="signal buy">BUY</span>
+                    <span class="conf conf-high">HIGH</span>
                     <span class="card-sector">Industrials</span>
                     <span class="card-score">71</span>
                 </div>
@@ -739,6 +994,13 @@
 
                 
                 <span class="alloc">11% allocation</span>
+                
+                
+                
+                
+                
+                <span class="rr-badge rr-good">1:1.5 R:R</span>
+                
                 
 
                 
@@ -802,6 +1064,7 @@
             <div class="card buy">
                 <div class="card-top">
                     <span class="signal buy">BUY</span>
+                    <span class="conf conf-medium">MEDIUM</span>
                     <span class="card-sector">Industrials</span>
                     <span class="card-score">70</span>
                 </div>
@@ -830,6 +1093,13 @@
 
                 
                 <span class="alloc">9% allocation</span>
+                
+                
+                
+                
+                
+                <span class="rr-badge">1:1.5 R:R</span>
+                
                 
 
                 
@@ -893,6 +1163,7 @@
             <div class="card buy">
                 <div class="card-top">
                     <span class="signal buy">BUY</span>
+                    <span class="conf conf-high">HIGH</span>
                     <span class="card-sector">Industrials</span>
                     <span class="card-score">70</span>
                 </div>
@@ -921,6 +1192,13 @@
 
                 
                 <span class="alloc">11% allocation</span>
+                
+                
+                
+                
+                
+                <span class="rr-badge rr-good">1:1.5 R:R</span>
+                
                 
 
                 
@@ -985,6 +1263,7 @@ Siemens Energy AG is a Germany-based energy technology company focused on power 
             <div class="card buy">
                 <div class="card-top">
                     <span class="signal buy">BUY</span>
+                    <span class="conf conf-high">HIGH</span>
                     <span class="card-sector">Technology</span>
                     <span class="card-score">70</span>
                 </div>
@@ -1013,6 +1292,13 @@ Siemens Energy AG is a Germany-based energy technology company focused on power 
 
                 
                 <span class="alloc">11% allocation</span>
+                
+                
+                
+                
+                
+                <span class="rr-badge">1:1.5 R:R</span>
+                
                 
 
                 
@@ -1076,6 +1362,7 @@ Siemens Energy AG is a Germany-based energy technology company focused on power 
             <div class="card hold">
                 <div class="card-top">
                     <span class="signal hold">HOLD</span>
+                    <span class="conf conf-medium">MEDIUM</span>
                     <span class="card-sector">Industrials</span>
                     <span class="card-score">69</span>
                 </div>
@@ -1104,6 +1391,13 @@ Siemens Energy AG is a Germany-based energy technology company focused on power 
 
                 
                 <span class="alloc">4% allocation</span>
+                
+                
+                
+                
+                
+                <span class="rr-badge">1:1.5 R:R</span>
+                
                 
 
                 
@@ -1167,6 +1461,7 @@ Siemens Energy AG is a Germany-based energy technology company focused on power 
             <div class="card buy">
                 <div class="card-top">
                     <span class="signal buy">BUY</span>
+                    <span class="conf conf-high">HIGH</span>
                     <span class="card-sector">Industrials</span>
                     <span class="card-score">69</span>
                 </div>
@@ -1195,6 +1490,13 @@ Siemens Energy AG is a Germany-based energy technology company focused on power 
 
                 
                 <span class="alloc">11% allocation</span>
+                
+                
+                
+                
+                
+                <span class="rr-badge rr-good">1:1.5 R:R</span>
+                
                 
 
                 
@@ -1295,6 +1597,34 @@ Siemens Energy AG is a Germany-based energy technology company focused on power 
         });});
         sort.addEventListener('change',run);
         if(search)search.addEventListener('input',function(){st=search.value.trim().toLowerCase();run();});
+    })();
+    </script>
+
+    
+    <script>
+    /* Index distribution donut chart */
+    
+    (function(){
+        var el=document.getElementById('indexChart');if(!el)return;
+        var d={"CAC40": 3, "DAX": 5, "FTSE100": 1, "NASDAQ_SELECT": 1},lb=Object.keys(d),vals=Object.values(d);
+        var cs=['#f0883e','#a371f7','#58a6ff','#3fb950','#d29922','#f85149','#8b949e'];
+        new Chart(el,{type:'doughnut',data:{labels:lb,datasets:[{data:vals,backgroundColor:cs.slice(0,lb.length),borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b949e',font:{size:10},padding:12},position:'right'},tooltip:{backgroundColor:'#21262d',titleColor:'#e6edf3',bodyColor:'#e6edf3',borderColor:'#30363d',borderWidth:1}},cutout:'62%'}});
+    })();
+    
+
+    /* Animated count-up for header pills */
+    (function(){
+        document.querySelectorAll('.pill-value').forEach(function(el){
+            var t=parseFloat(el.textContent);if(isNaN(t)||t===0)return;
+            var dur=900,st=null;el.textContent='0';
+            function anim(ts){
+                if(!st)st=ts;var p=Math.min((ts-st)/dur,1);
+                var e=1-Math.pow(1-p,3);
+                el.textContent=Math.round(t*e);
+                if(p<1)requestAnimationFrame(anim);else el.textContent=t;
+            }
+            requestAnimationFrame(anim);
+        });
     })();
     </script>
 </body>
