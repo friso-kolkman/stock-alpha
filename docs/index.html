@@ -76,6 +76,9 @@
         .card-ticker { font-size: 1.15rem; font-weight: 700; }
         .card-name { color: var(--dim); font-weight: 400; font-size: 0.9rem; }
         .streak { font-size: 0.6rem; font-weight: 600; background: rgba(210,153,34,0.2); color: #d29922; padding: 0.1rem 0.4rem; border-radius: 8px; margin-left: 0.3rem; vertical-align: middle; }
+        .badge-new { font-size: 0.6rem; font-weight: 700; background: rgba(35,134,54,0.25); color: var(--buyT); padding: 0.1rem 0.45rem; border-radius: 8px; margin-left: 0.3rem; vertical-align: middle; letter-spacing: 0.04em; }
+        .badge-changed { font-size: 0.55rem; font-weight: 600; color: var(--dim); margin-left: 0.3rem; vertical-align: middle; }
+        .badge-changed .signal { font-size: 0.55rem; padding: 0.05rem 0.35rem; vertical-align: middle; }
 
         /* Price range bar */
         .range-bar { margin: 1rem 0; }
@@ -106,6 +109,13 @@
         .sb-mom { background: #3fb950; }
         .sb-cat { background: #58a6ff; }
         .sb-liq { background: #d29922; }
+        .sb-legend { display: flex; gap: 0.5rem; flex-wrap: wrap; font-size: 0.6rem; color: var(--dim); margin-bottom: 0.5rem; }
+        .sb-legend span::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 1px; margin-right: 0.2rem; vertical-align: middle; }
+        .sb-legend .l-val::before { background: #f0883e; }
+        .sb-legend .l-qual::before { background: #a371f7; }
+        .sb-legend .l-mom::before { background: #3fb950; }
+        .sb-legend .l-cat::before { background: #58a6ff; }
+        .sb-legend .l-liq::before { background: #d29922; }
 
         /* Card details */
         .card details { margin-top: 0.5rem; }
@@ -161,6 +171,13 @@
         .w-adj.neg { background: rgba(218,54,51,0.2); }
         .w-adj.zero { background: var(--card2); color: var(--dim); }
 
+        /* Scan diff */
+        .diff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; }
+        .diff-col { }
+        .diff-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+        .diff-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; padding: 0.2rem 0; }
+        .diff-score { color: var(--dim); font-size: 0.8rem; margin-left: auto; }
+
         /* Telegram */
         .tg-link { display: inline-block; margin-top: 0.5rem; padding: 0.35rem 0.9rem; border-radius: 20px; background: rgba(0,136,204,0.12); color: #29b6f6; font-size: 0.8rem; font-weight: 600; text-decoration: none; }
         .tg-link:hover { background: rgba(0,136,204,0.22); }
@@ -170,11 +187,21 @@
         footer a { color: var(--link); text-decoration: none; }
         .disc { font-style: italic; margin-top: 0.3rem; }
 
+        /* Nav */
+        nav { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        nav a { color: var(--dim); text-decoration: none; font-weight: 600; padding: 0.4rem 0.7rem; border-radius: 6px; transition: all 0.15s; }
+        nav a:hover { color: var(--text); background: var(--card2); }
+        nav a.active { color: var(--text); background: var(--card2); }
+        .nav-brand { font-weight: 700; font-size: 0.9rem; color: var(--text); margin-right: auto; }
+
         .empty { text-align: center; padding: 3rem; color: var(--dim); }
 
         /* Mobile */
         @media (max-width: 600px) {
             .container { padding: 1rem; }
+            nav { gap: 0.5rem; padding: 0.5rem 0; }
+            nav a { font-size: 0.85rem; padding: 0.5rem 0.75rem; }
+            .nav-brand { font-size: 0.85rem; }
             header h1 { font-size: 1.3rem; }
             .header-pills { gap: 1rem; }
             .pill-value { font-size: 1.1rem; }
@@ -188,11 +215,17 @@
             .perf-chart { height: 160px; }
             .sig-bar-row { flex-wrap: wrap; }
             .sig-bar-pct { width: 100%; text-align: left; padding-left: 40px; font-size: 0.65rem; }
+            .diff-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <nav>
+            <span class="nav-brand">Stock Alpha</span>
+            <a href="index.html" class="active">Dashboard</a>
+            <a href="history.html">History</a>
+        </nav>
         <header>
             <h1>Stock Alpha Scanner</h1>
             <p class="meta">2026-02-09 08:44:53 UTC <span id="next-scan"></span></p>
@@ -220,6 +253,9 @@
             </div>
             <a href="https://t.me/StockScanner1234567890bot" class="tg-link" style="margin-top:1rem;">Get alerts on Telegram</a>
         </div>
+        
+        
+
         
         
 
@@ -323,6 +359,8 @@
                 <div style="margin-bottom:0.5rem">
                     <span class="card-ticker">TKA</span>
                     <span class="card-name">&mdash; thyssenkrupp AG</span>
+                    
+                    
                     <span class="streak">2x</span>
                 </div>
 
@@ -362,6 +400,13 @@
                     <div class="sb-mom" style="width:30.0%"></div>
                     <div class="sb-cat" style="width:17.0%"></div>
                     <div class="sb-liq" style="width:6.0%"></div>
+                </div>
+                <div class="sb-legend">
+                    <span class="l-val">Val 21</span>
+                    <span class="l-qual">Qual 15</span>
+                    <span class="l-mom">Mom 23</span>
+                    <span class="l-cat">Cat 13</span>
+                    <span class="l-liq">Liq 5</span>
                 </div>
                 
 
@@ -405,6 +450,8 @@
                 <div style="margin-bottom:0.5rem">
                     <span class="card-ticker">EN</span>
                     <span class="card-name">&mdash; Bouygues SA</span>
+                    
+                    
                     <span class="streak">2x</span>
                 </div>
 
@@ -444,6 +491,13 @@
                     <div class="sb-mom" style="width:32.0%"></div>
                     <div class="sb-cat" style="width:18.0%"></div>
                     <div class="sb-liq" style="width:10.0%"></div>
+                </div>
+                <div class="sb-legend">
+                    <span class="l-val">Val 21</span>
+                    <span class="l-qual">Qual 9</span>
+                    <span class="l-mom">Mom 23</span>
+                    <span class="l-cat">Cat 13</span>
+                    <span class="l-liq">Liq 7</span>
                 </div>
                 
 
@@ -487,6 +541,8 @@
                 <div style="margin-bottom:0.5rem">
                     <span class="card-ticker">SAF</span>
                     <span class="card-name">&mdash; Safran SA</span>
+                    
+                    
                     <span class="streak">2x</span>
                 </div>
 
@@ -526,6 +582,13 @@
                     <div class="sb-mom" style="width:31.0%"></div>
                     <div class="sb-cat" style="width:18.0%"></div>
                     <div class="sb-liq" style="width:10.0%"></div>
+                </div>
+                <div class="sb-legend">
+                    <span class="l-val">Val 5</span>
+                    <span class="l-qual">Qual 25</span>
+                    <span class="l-mom">Mom 22</span>
+                    <span class="l-cat">Cat 13</span>
+                    <span class="l-liq">Liq 7</span>
                 </div>
                 
 
@@ -569,6 +632,8 @@
                 <div style="margin-bottom:0.5rem">
                     <span class="card-ticker">AZN</span>
                     <span class="card-name">&mdash; AstraZeneca PLC</span>
+                    
+                    
                     <span class="streak">2x</span>
                 </div>
 
@@ -608,6 +673,13 @@
                     <div class="sb-mom" style="width:35.0%"></div>
                     <div class="sb-cat" style="width:18.0%"></div>
                     <div class="sb-liq" style="width:10.0%"></div>
+                </div>
+                <div class="sb-legend">
+                    <span class="l-val">Val 5</span>
+                    <span class="l-qual">Qual 22</span>
+                    <span class="l-mom">Mom 25</span>
+                    <span class="l-cat">Cat 13</span>
+                    <span class="l-liq">Liq 7</span>
                 </div>
                 
 
@@ -652,6 +724,8 @@
                     <span class="card-ticker">SIE</span>
                     <span class="card-name">&mdash; Siemens Aktiengesellschaft</span>
                     
+                    
+                    
                 </div>
 
                 
@@ -690,6 +764,13 @@
                     <div class="sb-mom" style="width:35.0%"></div>
                     <div class="sb-cat" style="width:18.0%"></div>
                     <div class="sb-liq" style="width:10.0%"></div>
+                </div>
+                <div class="sb-legend">
+                    <span class="l-val">Val 10</span>
+                    <span class="l-qual">Qual 16</span>
+                    <span class="l-mom">Mom 25</span>
+                    <span class="l-cat">Cat 13</span>
+                    <span class="l-liq">Liq 7</span>
                 </div>
                 
 
@@ -734,6 +815,8 @@
                     <span class="card-ticker">MTX</span>
                     <span class="card-name">&mdash; MTU Aero Engines AG</span>
                     
+                    
+                    
                 </div>
 
                 
@@ -772,6 +855,13 @@
                     <div class="sb-mom" style="width:24.0%"></div>
                     <div class="sb-cat" style="width:19.0%"></div>
                     <div class="sb-liq" style="width:10.0%"></div>
+                </div>
+                <div class="sb-legend">
+                    <span class="l-val">Val 11</span>
+                    <span class="l-qual">Qual 22</span>
+                    <span class="l-mom">Mom 17</span>
+                    <span class="l-cat">Cat 13</span>
+                    <span class="l-liq">Liq 7</span>
                 </div>
                 
 
@@ -815,6 +905,8 @@
                 <div style="margin-bottom:0.5rem">
                     <span class="card-ticker">ENR</span>
                     <span class="card-name">&mdash; Siemens Energy AG</span>
+                    
+                    
                     <span class="streak">2x</span>
                 </div>
 
@@ -854,6 +946,13 @@
                     <div class="sb-mom" style="width:33.0%"></div>
                     <div class="sb-cat" style="width:19.0%"></div>
                     <div class="sb-liq" style="width:10.0%"></div>
+                </div>
+                <div class="sb-legend">
+                    <span class="l-val">Val 5</span>
+                    <span class="l-qual">Qual 22</span>
+                    <span class="l-mom">Mom 23</span>
+                    <span class="l-cat">Cat 13</span>
+                    <span class="l-liq">Liq 7</span>
                 </div>
                 
 
@@ -898,6 +997,8 @@ Siemens Energy AG is a Germany-based energy technology company focused on power 
                 <div style="margin-bottom:0.5rem">
                     <span class="card-ticker">AMAT</span>
                     <span class="card-name">&mdash; Applied Materials, Inc.</span>
+                    
+                    
                     <span class="streak">2x</span>
                 </div>
 
@@ -937,6 +1038,13 @@ Siemens Energy AG is a Germany-based energy technology company focused on power 
                     <div class="sb-mom" style="width:24.0%"></div>
                     <div class="sb-cat" style="width:19.0%"></div>
                     <div class="sb-liq" style="width:14.0%"></div>
+                </div>
+                <div class="sb-legend">
+                    <span class="l-val">Val 5</span>
+                    <span class="l-qual">Qual 25</span>
+                    <span class="l-mom">Mom 17</span>
+                    <span class="l-cat">Cat 13</span>
+                    <span class="l-liq">Liq 10</span>
                 </div>
                 
 
@@ -981,6 +1089,8 @@ Siemens Energy AG is a Germany-based energy technology company focused on power 
                     <span class="card-ticker">DHL</span>
                     <span class="card-name">&mdash; Deutsche Post AG</span>
                     
+                    
+                    
                 </div>
 
                 
@@ -1019,6 +1129,13 @@ Siemens Energy AG is a Germany-based energy technology company focused on power 
                     <div class="sb-mom" style="width:33.0%"></div>
                     <div class="sb-cat" style="width:7.0%"></div>
                     <div class="sb-liq" style="width:10.0%"></div>
+                </div>
+                <div class="sb-legend">
+                    <span class="l-val">Val 18</span>
+                    <span class="l-qual">Qual 16</span>
+                    <span class="l-mom">Mom 23</span>
+                    <span class="l-cat">Cat 5</span>
+                    <span class="l-liq">Liq 7</span>
                 </div>
                 
 
@@ -1063,6 +1180,8 @@ Siemens Energy AG is a Germany-based energy technology company focused on power 
                     <span class="card-ticker">DG</span>
                     <span class="card-name">&mdash; Vinci SA</span>
                     
+                    
+                    
                 </div>
 
                 
@@ -1101,6 +1220,13 @@ Siemens Energy AG is a Germany-based energy technology company focused on power 
                     <div class="sb-mom" style="width:29.0%"></div>
                     <div class="sb-cat" style="width:7.0%"></div>
                     <div class="sb-liq" style="width:10.0%"></div>
+                </div>
+                <div class="sb-legend">
+                    <span class="l-val">Val 21</span>
+                    <span class="l-qual">Qual 16</span>
+                    <span class="l-mom">Mom 20</span>
+                    <span class="l-cat">Cat 5</span>
+                    <span class="l-liq">Liq 7</span>
                 </div>
                 
 

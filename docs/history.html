@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - Stock Alpha Scanner</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1f4c8;</text></svg>">
+    <style>
+        :root {
+            --bg: #0d1117; --card: #161b22; --card2: #21262d;
+            --text: #e6edf3; --dim: #8b949e; --border: #30363d;
+            --buy: #238636; --buyT: #3fb950;
+            --hold: #1f6feb; --holdT: #58a6ff;
+            --avoid: #da3633; --avoidT: #f85149;
+            --link: #58a6ff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+        .container { max-width: 960px; margin: 0 auto; padding: 2rem; }
+
+        /* Nav */
+        nav { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        nav a { color: var(--dim); text-decoration: none; font-weight: 600; padding: 0.4rem 0.7rem; border-radius: 6px; transition: all 0.15s; }
+        nav a:hover { color: var(--text); background: var(--card2); }
+        nav a.active { color: var(--text); background: var(--card2); }
+        .nav-brand { font-weight: 700; font-size: 0.9rem; color: var(--text); margin-right: auto; }
+
+        /* Header */
+        header { text-align: center; padding-bottom: 2rem; }
+        header h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .meta { color: var(--dim); font-size: 0.8rem; }
+        .header-pills { display: flex; justify-content: center; gap: 1.5rem; margin-top: 1rem; }
+        .pill { text-align: center; }
+        .pill-value { font-size: 1.4rem; font-weight: 700; }
+        .pill-label { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 0; margin-bottom: 2rem; border-bottom: 1px solid var(--border); }
+        .tab { padding: 0.6rem 1.2rem; font-size: 0.85rem; font-weight: 600; color: var(--dim); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; transition: all 0.15s; }
+        .tab:hover { color: var(--text); }
+        .tab.on { color: var(--link); border-bottom-color: var(--link); }
+        .tab-panel { display: none; }
+        .tab-panel.on { display: block; }
+
+        /* Section card */
+        .section { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .section h2 { font-size: 1.1rem; margin-bottom: 1rem; }
+
+        /* Scan timeline */
+        .scan-row { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid var(--card2); flex-wrap: wrap; }
+        .scan-row:last-child { border-bottom: none; }
+        .scan-date { font-weight: 700; font-size: 0.9rem; min-width: 90px; }
+        .scan-signals { display: flex; gap: 0.3rem; }
+        .scan-pill { font-size: 0.65rem; font-weight: 700; padding: 0.1rem 0.4rem; border-radius: 10px; }
+        .scan-pill.buy { background: rgba(35,134,54,0.2); color: var(--buyT); }
+        .scan-pill.hold { background: rgba(31,111,235,0.2); color: var(--holdT); }
+        .scan-pill.avoid { background: rgba(218,54,51,0.2); color: var(--avoidT); }
+        .scan-meta { font-size: 0.8rem; color: var(--dim); margin-left: auto; }
+        .scan-tickers { width: 100%; font-size: 0.8rem; color: var(--dim); padding-top: 0.3rem; display: none; }
+        .scan-tickers.open { display: block; }
+        .scan-toggle { font-size: 0.75rem; color: var(--link); cursor: pointer; border: none; background: none; }
+        .scan-toggle:hover { text-decoration: underline; }
+        .pos { color: var(--buyT); }
+        .neg { color: var(--avoidT); }
+
+        /* Ticker table */
+        .tbl { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .tbl th { text-align: left; padding: 0.5rem 0.4rem; border-bottom: 1px solid var(--border); color: var(--dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; user-select: none; }
+        .tbl th:hover { color: var(--text); }
+        .tbl td { padding: 0.5rem 0.4rem; border-bottom: 1px solid var(--card2); }
+        .tbl tr:hover td { background: var(--card2); }
+        .tbl .ticker { font-weight: 700; }
+        .signal-sm { padding: 0.1rem 0.4rem; border-radius: 10px; font-size: 0.65rem; font-weight: 700; }
+        .signal-sm.buy { background: rgba(35,134,54,0.2); color: var(--buyT); }
+        .signal-sm.hold { background: rgba(31,111,235,0.2); color: var(--holdT); }
+        .signal-sm.avoid { background: rgba(218,54,51,0.2); color: var(--avoidT); }
+        .wr-bar { display: inline-block; height: 6px; border-radius: 3px; min-width: 4px; vertical-align: middle; margin-right: 0.3rem; }
+
+        .empty { text-align: center; padding: 3rem; color: var(--dim); }
+
+        /* Footer */
+        footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); text-align: center; color: var(--dim); font-size: 0.75rem; }
+        footer a { color: var(--link); text-decoration: none; }
+        .disc { font-style: italic; margin-top: 0.3rem; }
+
+        /* Mobile */
+        @media (max-width: 600px) {
+            .container { padding: 1rem; }
+            nav { gap: 0.5rem; padding: 0.5rem 0; }
+            nav a { font-size: 0.85rem; padding: 0.5rem 0.75rem; }
+            .nav-brand { font-size: 0.85rem; }
+            header h1 { font-size: 1.3rem; }
+            .header-pills { gap: 1rem; }
+            .pill-value { font-size: 1.1rem; }
+            .tabs { margin-bottom: 1rem; }
+            .tab { padding: 0.6rem 1rem; font-size: 0.85rem; flex: 1; text-align: center; }
+            .section { padding: 1rem; }
+            .scan-row { gap: 0.5rem; }
+            .scan-signals { flex-wrap: wrap; }
+            .scan-meta { width: 100%; margin-left: 0; font-size: 0.75rem; }
+            .tbl { font-size: 0.75rem; }
+            .tbl th, .tbl td { padding: 0.4rem 0.25rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <span class="nav-brand">Stock Alpha</span>
+            <a href="index.html">Dashboard</a>
+            <a href="history.html" class="active">History</a>
+        </nav>
+
+        <header>
+            <h1>Prediction History</h1>
+            <p class="meta">Track record of all past scans and predictions</p>
+            <div class="header-pills">
+                <div class="pill"><div class="pill-value">3</div><div class="pill-label">Scans</div></div>
+                <div class="pill"><div class="pill-value">60</div><div class="pill-label">Predictions</div></div>
+                <div class="pill"><div class="pill-value">13</div><div class="pill-label">Unique Tickers</div></div>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab on" data-tab="scans">Past Scans</button>
+            <button class="tab" data-tab="tickers">Stock Track Record</button>
+        </div>
+
+        
+        <div class="tab-panel on" id="tab-scans">
+        
+            
+            <div class="section" style="padding:1rem 1.25rem">
+                <div class="scan-row">
+                    <span class="scan-date">2026-02-09</span>
+                    <div class="scan-signals">
+                        <span class="scan-pill buy">9 BUY</span>
+                        <span class="scan-pill hold">1 HOLD</span>
+                        
+                    </div>
+                    <span class="scan-meta">
+                        10 picks
+                        
+                        
+                    </span>
+                    <button class="scan-toggle" onclick="this.parentElement.nextElementSibling.classList.toggle('open');this.textContent=this.textContent==='show'?'hide':'show'">show</button>
+                </div>
+                <div class="scan-tickers">
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>TKA</strong> <span style="color:var(--dim)">77</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>EN</strong> <span style="color:var(--dim)">73</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>SAF</strong> <span style="color:var(--dim)">72</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>AZN</strong> <span style="color:var(--dim)">72</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>SIE</strong> <span style="color:var(--dim)">71</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>MTX</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>ENR</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>AMAT</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm hold">HOLD</span> <strong>DHL</strong> <span style="color:var(--dim)">69</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>DG</strong> <span style="color:var(--dim)">69</span>
+                    
+                </div>
+            </div>
+            
+            <div class="section" style="padding:1rem 1.25rem">
+                <div class="scan-row">
+                    <span class="scan-date">2026-02-08</span>
+                    <div class="scan-signals">
+                        <span class="scan-pill buy">23 BUY</span>
+                        <span class="scan-pill hold">7 HOLD</span>
+                        
+                    </div>
+                    <span class="scan-meta">
+                        30 picks
+                        
+                        
+                    </span>
+                    <button class="scan-toggle" onclick="this.parentElement.nextElementSibling.classList.toggle('open');this.textContent=this.textContent==='show'?'hide':'show'">show</button>
+                </div>
+                <div class="scan-tickers">
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>TKA</strong> <span style="color:var(--dim)">82</span> &nbsp;
+                    
+                    <span class="signal-sm hold">HOLD</span> <strong>EN</strong> <span style="color:var(--dim)">78</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>AZN</strong> <span style="color:var(--dim)">75</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>DG</strong> <span style="color:var(--dim)">72</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>FERG</strong> <span style="color:var(--dim)">71</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>ENR</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>SAF</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>GSK</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm hold">HOLD</span> <strong>RIO</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>AMAT</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm hold">HOLD</span> <strong>TKA</strong> <span style="color:var(--dim)">82</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>EN</strong> <span style="color:var(--dim)">78</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>AZN</strong> <span style="color:var(--dim)">75</span> &nbsp;
+                    
+                    <span class="signal-sm hold">HOLD</span> <strong>DG</strong> <span style="color:var(--dim)">72</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>FERG</strong> <span style="color:var(--dim)">71</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>ENR</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>SAF</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>GSK</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>RIO</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>AMAT</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm hold">HOLD</span> <strong>TKA</strong> <span style="color:var(--dim)">82</span> &nbsp;
+                    
+                    <span class="signal-sm hold">HOLD</span> <strong>EN</strong> <span style="color:var(--dim)">78</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>AZN</strong> <span style="color:var(--dim)">75</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>DG</strong> <span style="color:var(--dim)">72</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>FERG</strong> <span style="color:var(--dim)">71</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>ENR</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>SAF</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>GSK</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>RIO</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm hold">HOLD</span> <strong>AMAT</strong> <span style="color:var(--dim)">70</span>
+                    
+                </div>
+            </div>
+            
+            <div class="section" style="padding:1rem 1.25rem">
+                <div class="scan-row">
+                    <span class="scan-date">2026-02-07</span>
+                    <div class="scan-signals">
+                        <span class="scan-pill buy">17 BUY</span>
+                        <span class="scan-pill hold">3 HOLD</span>
+                        
+                    </div>
+                    <span class="scan-meta">
+                        20 picks
+                        
+                        
+                    </span>
+                    <button class="scan-toggle" onclick="this.parentElement.nextElementSibling.classList.toggle('open');this.textContent=this.textContent==='show'?'hide':'show'">show</button>
+                </div>
+                <div class="scan-tickers">
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>TKA</strong> <span style="color:var(--dim)">82</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>EN</strong> <span style="color:var(--dim)">78</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>AZN</strong> <span style="color:var(--dim)">75</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>FERG</strong> <span style="color:var(--dim)">71</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>ENR</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>SAF</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>GSK</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>RIO</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>AMAT</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>DHL</strong> <span style="color:var(--dim)">69</span> &nbsp;
+                    
+                    <span class="signal-sm hold">HOLD</span> <strong>TKA</strong> <span style="color:var(--dim)">82</span> &nbsp;
+                    
+                    <span class="signal-sm hold">HOLD</span> <strong>EN</strong> <span style="color:var(--dim)">78</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>AZN</strong> <span style="color:var(--dim)">75</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>FERG</strong> <span style="color:var(--dim)">71</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>ENR</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>SAF</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>GSK</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>RIO</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm buy">BUY</span> <strong>AMAT</strong> <span style="color:var(--dim)">70</span> &nbsp;
+                    
+                    <span class="signal-sm hold">HOLD</span> <strong>DHL</strong> <span style="color:var(--dim)">69</span>
+                    
+                </div>
+            </div>
+            
+        
+        </div>
+
+        
+        <div class="tab-panel" id="tab-tickers">
+        
+            <div class="section">
+                <table class="tbl" id="ticker-tbl">
+                    <thead>
+                        <tr>
+                            <th data-sort="ticker">Ticker</th>
+                            <th data-sort="appearances">Picks</th>
+                            <th data-sort="signal">Signal</th>
+                            <th data-sort="win_rate">Win Rate</th>
+                            <th data-sort="avg_return">Avg Return</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    
+                        <tr>
+                            <td class="ticker">AMAT</td>
+                            <td>6</td>
+                            <td><span class="signal-sm buy">BUY</span></td>
+                            <td>
+                                -
+                            </td>
+                            <td class="">
+                                -
+                            </td>
+                        </tr>
+                    
+                        <tr>
+                            <td class="ticker">AZN</td>
+                            <td>6</td>
+                            <td><span class="signal-sm buy">BUY</span></td>
+                            <td>
+                                -
+                            </td>
+                            <td class="">
+                                -
+                            </td>
+                        </tr>
+                    
+                        <tr>
+                            <td class="ticker">EN</td>
+                            <td>6</td>
+                            <td><span class="signal-sm buy">BUY</span></td>
+                            <td>
+                                -
+                            </td>
+                            <td class="">
+                                -
+                            </td>
+                        </tr>
+                    
+                        <tr>
+                            <td class="ticker">ENR</td>
+                            <td>6</td>
+                            <td><span class="signal-sm buy">BUY</span></td>
+                            <td>
+                                -
+                            </td>
+                            <td class="">
+                                -
+                            </td>
+                        </tr>
+                    
+                        <tr>
+                            <td class="ticker">SAF</td>
+                            <td>6</td>
+                            <td><span class="signal-sm buy">BUY</span></td>
+                            <td>
+                                -
+                            </td>
+                            <td class="">
+                                -
+                            </td>
+                        </tr>
+                    
+                        <tr>
+                            <td class="ticker">TKA</td>
+                            <td>6</td>
+                            <td><span class="signal-sm buy">BUY</span></td>
+                            <td>
+                                -
+                            </td>
+                            <td class="">
+                                -
+                            </td>
+                        </tr>
+                    
+                        <tr>
+                            <td class="ticker">FERG</td>
+                            <td>5</td>
+                            <td><span class="signal-sm buy">BUY</span></td>
+                            <td>
+                                -
+                            </td>
+                            <td class="">
+                                -
+                            </td>
+                        </tr>
+                    
+                        <tr>
+                            <td class="ticker">GSK</td>
+                            <td>5</td>
+                            <td><span class="signal-sm buy">BUY</span></td>
+                            <td>
+                                -
+                            </td>
+                            <td class="">
+                                -
+                            </td>
+                        </tr>
+                    
+                        <tr>
+                            <td class="ticker">RIO</td>
+                            <td>5</td>
+                            <td><span class="signal-sm buy">BUY</span></td>
+                            <td>
+                                -
+                            </td>
+                            <td class="">
+                                -
+                            </td>
+                        </tr>
+                    
+                        <tr>
+                            <td class="ticker">DG</td>
+                            <td>4</td>
+                            <td><span class="signal-sm buy">BUY</span></td>
+                            <td>
+                                -
+                            </td>
+                            <td class="">
+                                -
+                            </td>
+                        </tr>
+                    
+                        <tr>
+                            <td class="ticker">DHL</td>
+                            <td>3</td>
+                            <td><span class="signal-sm hold">HOLD</span></td>
+                            <td>
+                                -
+                            </td>
+                            <td class="">
+                                -
+                            </td>
+                        </tr>
+                    
+                        <tr>
+                            <td class="ticker">MTX</td>
+                            <td>1</td>
+                            <td><span class="signal-sm buy">BUY</span></td>
+                            <td>
+                                -
+                            </td>
+                            <td class="">
+                                -
+                            </td>
+                        </tr>
+                    
+                        <tr>
+                            <td class="ticker">SIE</td>
+                            <td>1</td>
+                            <td><span class="signal-sm buy">BUY</span></td>
+                            <td>
+                                -
+                            </td>
+                            <td class="">
+                                -
+                            </td>
+                        </tr>
+                    
+                    </tbody>
+                </table>
+            </div>
+        
+        </div>
+
+        <footer>
+            <p>Data: <a href="https://finance.yahoo.com">Yahoo Finance</a> & <a href="https://twelvedata.com">Twelve Data</a> | AI: <a href="https://perplexity.ai">Perplexity</a></p>
+            <p class="disc">Signal generation only. Not financial advice.</p>
+        </footer>
+    </div>
+
+    <script>
+    /* Tabs */
+    (function(){
+        var tabs=document.querySelectorAll('.tab');
+        tabs.forEach(function(tab){
+            tab.addEventListener('click',function(){
+                tabs.forEach(function(t){t.classList.remove('on')});
+                document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('on')});
+                tab.classList.add('on');
+                var panel=document.getElementById('tab-'+tab.getAttribute('data-tab'));
+                if(panel)panel.classList.add('on');
+            });
+        });
+    })();
+
+    /* Sortable ticker table */
+    (function(){
+        var tbl=document.getElementById('ticker-tbl');
+        if(!tbl)return;
+        var headers=tbl.querySelectorAll('th[data-sort]');
+        var tbody=tbl.querySelector('tbody');
+        var dir={};
+
+        headers.forEach(function(th){
+            th.addEventListener('click',function(){
+                var key=th.getAttribute('data-sort');
+                dir[key]=!dir[key];
+                var rows=Array.from(tbody.querySelectorAll('tr'));
+                var idx=Array.from(th.parentElement.children).indexOf(th);
+                rows.sort(function(a,b){
+                    var av=a.children[idx].textContent.trim();
+                    var bv=b.children[idx].textContent.trim();
+                    var an=parseFloat(av), bn=parseFloat(bv);
+                    if(!isNaN(an)&&!isNaN(bn))return dir[key]?an-bn:bn-an;
+                    return dir[key]?av.localeCompare(bv):bv.localeCompare(av);
+                });
+                rows.forEach(function(r){tbody.appendChild(r)});
+            });
+        });
+    })();
+    </script>
+</body>
+</html>
