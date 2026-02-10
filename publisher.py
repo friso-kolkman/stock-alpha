@@ -90,6 +90,29 @@ def render_dashboard(data: dict) -> str:
     hold_count = sum(1 for p in picks if p.get("signal") == "HOLD")
     avoid_count = sum(1 for p in picks if p.get("signal") == "AVOID")
 
+    # Sector distribution for heatmap
+    sector_dist = {}
+    for p in picks:
+        sector = p.get("sector") or "Other"
+        if sector not in sector_dist:
+            sector_dist[sector] = {
+                "count": 0, "total_score": 0,
+                "signals": {"BUY": 0, "HOLD": 0, "AVOID": 0},
+            }
+        sector_dist[sector]["count"] += 1
+        sector_dist[sector]["total_score"] += p.get("alpha_score", 0)
+        sig = p.get("signal", "HOLD")
+        if sig in sector_dist[sector]["signals"]:
+            sector_dist[sector]["signals"][sig] += 1
+    for s in sector_dist.values():
+        s["avg_score"] = round(s["total_score"] / s["count"]) if s["count"] > 0 else 0
+
+    # Index distribution for donut chart
+    index_dist = {}
+    for p in picks:
+        idx = p.get("index") or "Unknown"
+        index_dist[idx] = index_dist.get(idx, 0) + 1
+
     stats = data.get("dashboard_stats") or {}
 
     return template.render(
@@ -103,6 +126,9 @@ def render_dashboard(data: dict) -> str:
         has_history=stats.get("has_history", False),
         model_stats=stats,
         streaks=stats.get("streaks", {}),
+        sector_dist=sector_dist,
+        index_dist=index_dist,
+        top_n=len(picks),
     )
 
 
