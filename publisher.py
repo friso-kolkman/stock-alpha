@@ -8,6 +8,8 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 from rich.console import Console
 
+from history import get_history_page_data
+
 console = Console()
 
 # Paths
@@ -65,6 +67,16 @@ def publish_results(
         console.print(f"  [red]Error rendering HTML: {e}[/red]")
         return False
 
+    # Render history page
+    try:
+        history_html = render_history_page()
+        history_path = DOCS_DIR / "history.html"
+        with open(history_path, "w") as f:
+            f.write(history_html)
+        console.print(f"  [green]Wrote {history_path}[/green]")
+    except Exception as e:
+        console.print(f"  [yellow]Warning: Could not render history page: {e}[/yellow]")
+
     # Optionally push to GitHub
     if push_to_github:
         return push_to_git()
@@ -108,6 +120,14 @@ def render_dashboard(data: dict) -> str:
         streaks=stats.get("streaks", {}),
         scan_diff=scan_diff,
     )
+
+
+def render_history_page() -> str:
+    """Render the history page HTML using Jinja2 template."""
+    env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
+    template = env.get_template("history.html")
+    history_data = get_history_page_data()
+    return template.render(history_data=history_data)
 
 
 def render_default_dashboard(data: dict) -> str:

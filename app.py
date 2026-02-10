@@ -304,6 +304,15 @@ def results():
     return "No results yet. Run a scan first.", 404
 
 
+@app.route("/history")
+def history():
+    """Serve the generated history page."""
+    html_path = DOCS_DIR / "history.html"
+    if html_path.exists():
+        return html_path.read_text()
+    return "No history yet. Run a scan first.", 404
+
+
 @app.route("/run", methods=["POST"])
 def run_scan():
     if scan_status["running"]:

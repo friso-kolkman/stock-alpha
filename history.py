@@ -537,6 +537,107 @@ def _get_recent_evaluations(history: dict, tf_key: str) -> list[dict]:
     return items[:10]
 
 
+def get_history_page_data(history: dict | None = None) -> dict:
+    """Prepare data for the history page template."""
+    if history is None:
+        history = load_history()
+
+    predictions = history.get("predictions", [])
+    if not predictions:
+        return {"scans": [], "ticker_stats": [], "total_predictions": 0}
+
+    # Group by scan date
+    scans_by_date: dict[str, list[dict]] = {}
+    for p in predictions:
+        sd = p.get("scan_date", "")[:10]
+        if sd:
+            scans_by_date.setdefault(sd, []).append(p)
+
+    # Build per-scan summaries (newest first)
+    scans = []
+    for date in sorted(scans_by_date.keys(), reverse=True):
+        preds = scans_by_date[date]
+        buy_count = sum(1 for p in preds if p.get("signal") == "BUY")
+        hold_count = sum(1 for p in preds if p.get("signal") == "HOLD")
+        avoid_count = sum(1 for p in preds if p.get("signal") == "AVOID")
+
+        # Best available evaluation per prediction
+        evaluated = 0
+        correct = 0
+        returns = []
+        for p in preds:
+            evals = p.get("evaluations", {})
+            # Use longest timeframe that's been evaluated
+            for tf_key in reversed(_TF_KEYS):
+                ev = evals.get(tf_key)
+                if ev and ev.get("outcome") in ("CORRECT", "INCORRECT", "INCONCLUSIVE"):
+                    evaluated += 1
+                    if ev["outcome"] == "CORRECT":
+                        correct += 1
+                    if ev.get("return_pct") is not None:
+                        returns.append(ev["return_pct"])
+                    break
+
+        avg_return = round(sum(returns) / len(returns), 2) if returns else None
+
+        scans.append({
+            "date": date,
+            "total": len(preds),
+            "buy": buy_count,
+            "hold": hold_count,
+            "avoid": avoid_count,
+            "evaluated": evaluated,
+            "correct": correct,
+            "avg_return": avg_return,
+            "tickers": [{"ticker": p["ticker"], "signal": p.get("signal", "HOLD"),
+                         "score": p.get("alpha_score", 0)} for p in preds],
+        })
+
+    # Build per-ticker stats
+    ticker_data: dict[str, dict] = {}
+    for p in predictions:
+        t = p["ticker"]
+        if t not in ticker_data:
+            ticker_data[t] = {"appearances": 0, "signals": [], "returns": [],
+                              "outcomes": []}
+        ticker_data[t]["appearances"] += 1
+        ticker_data[t]["signals"].append(p.get("signal", "HOLD"))
+        for tf_key in reversed(_TF_KEYS):
+            ev = p.get("evaluations", {}).get(tf_key)
+            if ev and ev.get("outcome") in ("CORRECT", "INCORRECT", "INCONCLUSIVE"):
+                ticker_data[t]["outcomes"].append(ev["outcome"])
+                if ev.get("return_pct") is not None:
+                    ticker_data[t]["returns"].append(ev["return_pct"])
+                break
+
+    ticker_stats = []
+    for ticker, data in ticker_data.items():
+        decisive = [o for o in data["outcomes"] if o in ("CORRECT", "INCORRECT")]
+        correct_count = sum(1 for o in decisive if o == "CORRECT")
+        avg_ret = round(sum(data["returns"]) / len(data["returns"]), 2) if data["returns"] else None
+        last_signal = data["signals"][-1] if data["signals"] else "HOLD"
+
+        ticker_stats.append({
+            "ticker": ticker,
+            "appearances": data["appearances"],
+            "last_signal": last_signal,
+            "evaluated": len(data["outcomes"]),
+            "correct": correct_count,
+            "decisive": len(decisive),
+            "win_rate": round(correct_count / len(decisive) * 100) if decisive else None,
+            "avg_return": avg_ret,
+        })
+
+    # Sort by appearances desc, then alphabetically
+    ticker_stats.sort(key=lambda x: (-x["appearances"], x["ticker"]))
+
+    return {
+        "scans": scans,
+        "ticker_stats": ticker_stats,
+        "total_predictions": len(predictions),
+    }
+
+
 def _record_performance_snapshot(history: dict, date_label: str) -> None:
     """Append a snapshot of current model stats for the timeline chart."""
     snapshots = history.setdefault("performance_snapshots", [])

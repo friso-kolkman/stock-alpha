@@ -76,6 +76,9 @@
         .card-ticker { font-size: 1.15rem; font-weight: 700; }
         .card-name { color: var(--dim); font-weight: 400; font-size: 0.9rem; }
         .streak { font-size: 0.6rem; font-weight: 600; background: rgba(210,153,34,0.2); color: #d29922; padding: 0.1rem 0.4rem; border-radius: 8px; margin-left: 0.3rem; vertical-align: middle; }
+        .badge-new { font-size: 0.6rem; font-weight: 700; background: rgba(35,134,54,0.25); color: var(--buyT); padding: 0.1rem 0.45rem; border-radius: 8px; margin-left: 0.3rem; vertical-align: middle; letter-spacing: 0.04em; }
+        .badge-changed { font-size: 0.55rem; font-weight: 600; color: var(--dim); margin-left: 0.3rem; vertical-align: middle; }
+        .badge-changed .signal { font-size: 0.55rem; padding: 0.05rem 0.35rem; vertical-align: middle; }
 
         /* Price range bar */
         .range-bar { margin: 1rem 0; }
@@ -106,6 +109,13 @@
         .sb-mom { background: #3fb950; }
         .sb-cat { background: #58a6ff; }
         .sb-liq { background: #d29922; }
+        .sb-legend { display: flex; gap: 0.5rem; flex-wrap: wrap; font-size: 0.6rem; color: var(--dim); margin-bottom: 0.5rem; }
+        .sb-legend span::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 1px; margin-right: 0.2rem; vertical-align: middle; }
+        .sb-legend .l-val::before { background: #f0883e; }
+        .sb-legend .l-qual::before { background: #a371f7; }
+        .sb-legend .l-mom::before { background: #3fb950; }
+        .sb-legend .l-cat::before { background: #58a6ff; }
+        .sb-legend .l-liq::before { background: #d29922; }
 
         /* Card details */
         .card details { margin-top: 0.5rem; }
@@ -177,6 +187,13 @@
         footer a { color: var(--link); text-decoration: none; }
         .disc { font-style: italic; margin-top: 0.3rem; }
 
+        /* Nav */
+        nav { display: flex; align-items: center; gap: 1.5rem; padding: 0.75rem 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        nav a { color: var(--dim); text-decoration: none; font-weight: 600; transition: color 0.15s; }
+        nav a:hover { color: var(--text); }
+        nav a.active { color: var(--text); }
+        .nav-brand { font-weight: 700; font-size: 0.9rem; color: var(--text); margin-right: auto; }
+
         .empty { text-align: center; padding: 3rem; color: var(--dim); }
 
         /* Mobile */
@@ -200,6 +217,11 @@
 </head>
 <body>
     <div class="container">
+        <nav>
+            <span class="nav-brand">Stock Alpha</span>
+            <a href="index.html" class="active">Dashboard</a>
+            <a href="history.html">History</a>
+        </nav>
         <header>
             <h1>Stock Alpha Scanner</h1>
             <p class="meta">{{ run_date[:19].replace('T', ' ') }} UTC <span id="next-scan"></span></p>
@@ -401,6 +423,8 @@
                 <div style="margin-bottom:0.5rem">
                     <span class="card-ticker">{{ pick.ticker }}</span>
                     <span class="card-name">&mdash; {{ pick.name }}</span>
+                    {% if scan_diff and scan_diff.new_entries %}{% for ne in scan_diff.new_entries %}{% if ne.ticker == pick.ticker %}<span class="badge-new">NEW</span>{% endif %}{% endfor %}{% endif %}
+                    {% if scan_diff and scan_diff.signal_changes %}{% for sc in scan_diff.signal_changes %}{% if sc.ticker == pick.ticker %}<span class="badge-changed"><span class="signal {{ sc.old_signal|lower }}">{{ sc.old_signal }}</span> &rarr;</span>{% endif %}{% endfor %}{% endif %}
                     {% if streaks.get(pick.ticker, 0) > 1 %}<span class="streak">{{ streaks[pick.ticker] }}x</span>{% endif %}
                 </div>
 
@@ -430,7 +454,7 @@
                 <button class="read-more" onclick="var r=document.getElementById('r{{ loop.index }}');r.classList.toggle('expanded');this.textContent=r.classList.contains('expanded')?'less':'more'">more</button>
                 {% endif %}
 
-                {# Score bar (no labels) #}
+                {# Score bar with legend #}
                 {% if pick.score_breakdown %}
                 {% set bd = pick.score_breakdown %}
                 {% set t = pick.alpha_score if pick.alpha_score > 0 else 1 %}
@@ -440,6 +464,13 @@
                     <div class="sb-mom" style="width:{{ (bd.get('momentum',0)/t*100)|round }}%"></div>
                     <div class="sb-cat" style="width:{{ (bd.get('catalyst',0)/t*100)|round }}%"></div>
                     <div class="sb-liq" style="width:{{ (bd.get('liquidity',0)/t*100)|round }}%"></div>
+                </div>
+                <div class="sb-legend">
+                    <span class="l-val">Val {{ bd.get('value',0) }}</span>
+                    <span class="l-qual">Qual {{ bd.get('quality',0) }}</span>
+                    <span class="l-mom">Mom {{ bd.get('momentum',0) }}</span>
+                    <span class="l-cat">Cat {{ bd.get('catalyst',0) }}</span>
+                    <span class="l-liq">Liq {{ bd.get('liquidity',0) }}</span>
                 </div>
                 {% endif %}
 
