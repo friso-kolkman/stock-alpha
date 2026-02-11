@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance - Stock Alpha Scanner</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1f4c8;</text></svg>">
+    <meta property="og:title" content="Stock Alpha Scanner">
+    <meta property="og:description" content="9 BUY signals this week from 235 stocks scanned across AEX, DAX, CAC40, FTSE100, DJIA &amp; NASDAQ.">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Weekly AI-powered stock scanner. 9 BUY signals from 235 stocks.">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #0d1117; --card: #161b22; --card2: #21262d;
+            --text: #e6edf3; --dim: #8b949e; --border: #30363d;
+            --buy: #238636; --buyT: #3fb950;
+            --hold: #1f6feb; --holdT: #58a6ff;
+            --avoid: #da3633; --avoidT: #f85149;
+            --link: #58a6ff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+        .container { max-width: 960px; margin: 0 auto; padding: 2rem; }
+        .pos { color: var(--buyT); }
+        .neg { color: var(--avoidT); }
+
+        /* Navigation */
+        .nav { background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        .nav-inner { max-width: 960px; margin: 0 auto; padding: 0 2rem; display: flex; align-items: center; gap: 0; }
+        .nav-brand { font-size: 0.9rem; font-weight: 700; color: var(--text); text-decoration: none; padding: 0.75rem 0; margin-right: 1.5rem; white-space: nowrap; flex-shrink: 0; }
+        .nav-links { display: flex; gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex: 1; min-width: 0; }
+        .nav-links::-webkit-scrollbar { display: none; }
+        .nav-link { padding: 0.75rem 0.85rem; font-size: 0.8rem; color: var(--dim); text-decoration: none; font-weight: 500; white-space: nowrap; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; min-height: 44px; display: flex; align-items: center; }
+        .nav-short { display: none; }
+        .nav-full { display: inline; }
+        .nav-link:hover { color: var(--text); }
+        .nav-link.active { color: var(--text); border-bottom-color: var(--link); }
+        .nav-meta { margin-left: auto; font-size: 0.7rem; color: var(--dim); white-space: nowrap; padding: 0.75rem 0; }
+        .nav-pills { display: flex; gap: 0.6rem; margin-left: auto; padding: 0.75rem 0; flex-shrink: 0; }
+        .nav-pill { font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 10px; }
+        .nav-pill.buy { background: rgba(35,134,54,0.15); color: var(--buyT); }
+        .nav-pill.hold { background: rgba(31,111,235,0.15); color: var(--holdT); }
+        .nav-pill.avoid { background: rgba(218,54,51,0.15); color: var(--avoidT); }
+
+        /* Footer */
+        footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); text-align: center; color: var(--dim); font-size: 0.75rem; }
+        footer a { color: var(--link); text-decoration: none; }
+        .disc { font-style: italic; margin-top: 0.3rem; }
+
+        /* Mobile */
+        @media (max-width: 600px) {
+            .container { padding: 0.75rem; }
+            .nav-inner { padding: 0 0.75rem; }
+            .nav-brand { font-size: 0.8rem; margin-right: 0.5rem; }
+            .nav-link { padding: 0.75rem 0.5rem; font-size: 0.75rem; }
+            .nav-short { display: inline; }
+            .nav-full { display: none; }
+            .nav-pills { display: none; }
+            footer { font-size: 0.7rem; margin-top: 2rem; }
+        }
+
+        
+    .perf-header { padding: 1.5rem 0 1rem; }
+    .perf-header h1 { font-size: 1.3rem; font-weight: 700; }
+    .perf-header p { font-size: 0.85rem; color: var(--dim); }
+
+    /* Performance card */
+    .perf { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .perf h2 { font-size: 1rem; margin-bottom: 1rem; }
+    .perf-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
+    .tf-pills { display: flex; gap: 0.3rem; }
+    .tf-pill { padding: 0.25rem 0.6rem; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--dim); font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+    .tf-pill.on { background: rgba(88,166,255,0.15); color: var(--link); border-color: var(--link); }
+    .perf-nums { display: flex; gap: 2rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .perf-n { text-align: center; }
+    .perf-nv { font-size: 1.5rem; font-weight: 700; }
+    .perf-nl { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; }
+
+    /* Signal accuracy bars */
+    .sig-bar-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; }
+    .sig-bar-label { width: 50px; font-size: 0.85rem; font-weight: 600; }
+    .sig-bar-bg { flex: 1; height: 10px; background: var(--card2); border-radius: 5px; overflow: hidden; }
+    .sig-bar-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
+    .sig-bar-fill.buy { background: var(--buy); }
+    .sig-bar-fill.hold { background: var(--hold); }
+    .sig-bar-fill.avoid { background: var(--avoid); }
+    .sig-bar-pct { font-size: 0.75rem; color: var(--dim); width: 100px; text-align: right; }
+
+    /* Chart */
+    .perf-chart { position: relative; height: 250px; margin: 1.5rem 0; padding: 0.5rem; background: var(--card2); border-radius: 8px; }
+    .chart-empty { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--dim); font-size: 0.85rem; }
+
+    /* Weight adjustments */
+    .weights-section { margin-top: 1.5rem; }
+    .weights-section h3 { font-size: 0.9rem; margin-bottom: 0.75rem; }
+    .w-grid { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .w-adj { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.7rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
+    .w-adj.pos { background: rgba(35,134,54,0.15); color: var(--buyT); }
+    .w-adj.neg { background: rgba(218,54,51,0.15); color: var(--avoidT); }
+    .w-adj.zero { background: var(--card2); color: var(--dim); }
+    .w-base { font-size: 0.65rem; color: var(--dim); font-weight: 400; }
+
+    /* Evaluations table */
+    .eval-section { margin-top: 1.5rem; }
+    .eval-section h3 { font-size: 0.9rem; margin-bottom: 0.75rem; }
+    .eval-tbl { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .eval-tbl th { text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--border); color: var(--dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; }
+    .eval-tbl td { padding: 0.5rem; border-bottom: 1px solid var(--card2); }
+    .eval-tbl tr:hover td { background: rgba(88,166,255,0.03); }
+    .signal-sm { padding: 0.12rem 0.4rem; border-radius: 10px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
+    .signal-sm.buy { background: rgba(35,134,54,0.2); color: var(--buyT); }
+    .signal-sm.hold { background: rgba(31,111,235,0.2); color: var(--holdT); }
+    .signal-sm.avoid { background: rgba(218,54,51,0.2); color: var(--avoidT); }
+    .oc { color: var(--buyT); font-weight: 600; }
+    .oi { color: var(--avoidT); font-weight: 600; }
+    .ou { color: var(--dim); }
+
+    /* Empty state */
+    .empty-perf { text-align: center; padding: 4rem 2rem; }
+    .empty-perf h2 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+    .empty-perf p { color: var(--dim); font-size: 0.9rem; }
+
+    @media (max-width: 600px) {
+        .perf-header { padding: 1rem 0 0.5rem; }
+        .perf-header h1 { font-size: 1.1rem; }
+        .perf { padding: 1rem; }
+        .perf h2 { font-size: 0.9rem; }
+        .perf-head { gap: 0.5rem; }
+        .tf-pill { padding: 0.4rem 0.7rem; min-height: 36px; display: inline-flex; align-items: center; font-size: 0.75rem; }
+        .perf-nums { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+        .perf-nv { font-size: 1.2rem; }
+        .perf-chart { height: 180px; }
+        .sig-bar-row { gap: 0.4rem; }
+        .sig-bar-label { width: 45px; font-size: 0.8rem; }
+        .sig-bar-pct { font-size: 0.7rem; width: 80px; }
+        .w-grid { gap: 0.4rem; }
+        .w-adj { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
+        .eval-tbl { font-size: 0.75rem; }
+        .eval-tbl th { padding: 0.4rem 0.3rem; font-size: 0.65rem; }
+        .eval-tbl td { padding: 0.5rem 0.3rem; }
+        .eval-section h3 { font-size: 0.85rem; }
+    }
+    @media (max-width: 380px) {
+        .perf-nv { font-size: 1rem; }
+        .perf-nums { gap: 0.5rem; }
+        .sig-bar-pct { width: auto; font-size: 0.65rem; }
+    }
+
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-brand">Stock Alpha</a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Overview</a>
+                <a href="picks.html" class="nav-link">Picks <span style="color:var(--buyT)">(9)</span></a>
+                <a href="performance.html" class="nav-link active"><span class="nav-full">Performance</span><span class="nav-short">Perf</span></a>
+                <a href="methodology.html" class="nav-link"><span class="nav-full">Methodology</span><span class="nav-short">Method</span></a>
+            </div>
+            <div class="nav-pills">
+                <span class="nav-pill buy">9 BUY</span>
+                <span class="nav-pill hold">1 HOLD</span>
+                <span class="nav-pill avoid">0 AVOID</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+    <div class="perf-header">
+        <h1>Model Performance</h1>
+        <p>Tracking prediction accuracy across timeframes</p>
+    </div>
+
+    
+    
+    <section class="perf">
+        <div class="perf-head">
+            <h2>Accuracy Overview</h2>
+            
+            <div class="tf-pills">
+                
+                <button class="tf-pill" data-tf="30d">30d</button>
+                
+                <button class="tf-pill" data-tf="60d">60d</button>
+                
+                <button class="tf-pill on" data-tf="90d">90d</button>
+                
+            </div>
+            
+        </div>
+
+        <div class="perf-nums">
+            <div class="perf-n">
+                <div class="perf-nv " id="ps-wr">N/A</div>
+                <div class="perf-nl">Win Rate</div>
+            </div>
+            <div class="perf-n">
+                <div class="perf-nv">50</div>
+                <div class="perf-nl">Total Predictions</div>
+            </div>
+            <div class="perf-n">
+                <div class="perf-nv" id="ps-ev">0</div>
+                <div class="perf-nl">Evaluated</div>
+            </div>
+            <div class="perf-n">
+                <div class="perf-nv" id="ps-pe">50</div>
+                <div class="perf-nl">Pending</div>
+            </div>
+        </div>
+
+        
+        
+        <h2 style="margin-top:1.5rem">Signal Accuracy</h2>
+        <div style="margin-top:0.75rem">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        </div>
+        
+    </section>
+
+    
+    
+    <section class="perf">
+        <h2>Performance Over Time</h2>
+        <div class="perf-chart"><canvas id="perfChart"></canvas></div>
+    </section>
+    
+
+    
+    
+
+    
+    
+
+    
+
+
+        <footer>
+            <p>Data: <a href="https://finance.yahoo.com">Yahoo Finance</a> & <a href="https://twelvedata.com">Twelve Data</a> | AI: <a href="https://perplexity.ai">Perplexity</a></p>
+            <p class="disc">Signal generation only. Not financial advice.</p>
+        </footer>
+    </div>
+
+    
+    
+    
+    
+    <script>
+    (function(){
+        var tl=[{"avg_return": null, "avoid_accuracy": null, "buy_accuracy": null, "correct": 0, "date": "2026-02-07", "evaluated": 0, "hold_accuracy": null, "total_predictions": 20, "win_rate": null}, {"30d_evaluated": 0, "30d_win_rate": null, "60d_evaluated": 0, "60d_win_rate": null, "90d_evaluated": 0, "90d_win_rate": null, "avg_return": null, "date": "2026-02-08", "total_predictions": 50}],labels=tl.map(function(s){return s.date}),ds=[],tc={'30d':'#f0883e','60d':'#a371f7','90d':'#3fb950'},tfs=["30d", "60d", "90d"];
+        tfs.forEach(function(tf){ds.push({label:tf+' Win %',data:tl.map(function(s){return s[tf+'_win_rate']}),borderColor:tc[tf]||'#8b949e',backgroundColor:'transparent',fill:false,tension:.3,pointRadius:3,pointHoverRadius:5})});
+        ds.push({label:'Avg Return %',data:tl.map(function(s){return s.avg_return}),borderColor:'#58a6ff',fill:false,tension:.3,pointRadius:3,borderDash:[5,3]});
+        new Chart(document.getElementById('perfChart'),{type:'line',data:{labels:labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#8b949e',font:{size:11}}},tooltip:{backgroundColor:'#21262d',titleColor:'#e6edf3',bodyColor:'#e6edf3',borderColor:'#30363d',borderWidth:1}},scales:{x:{ticks:{color:'#8b949e',font:{size:10},maxRotation:45},grid:{color:'rgba(48,54,61,0.5)'}},y:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(48,54,61,0.5)'}}}}});
+    })();
+    </script>
+    
+
+    
+    
+    <script>
+    (function(){
+        var d={"30d": {"correct": 0, "evaluated": 0, "inconclusive": 0, "incorrect": 0, "pending": 50, "per_signal": {"AVOID": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "BUY": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "HOLD": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}}, "win_rate": null}, "60d": {"correct": 0, "evaluated": 0, "inconclusive": 0, "incorrect": 0, "pending": 50, "per_signal": {"AVOID": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "BUY": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "HOLD": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}}, "win_rate": null}, "90d": {"correct": 0, "evaluated": 0, "inconclusive": 0, "incorrect": 0, "pending": 50, "per_signal": {"AVOID": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "BUY": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "HOLD": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}}, "win_rate": null}},bs=document.querySelectorAll('.tf-pill');
+        if(!bs.length)return;
+        function sw(tf){var s=d[tf];if(!s)return;
+            var wr=document.getElementById('ps-wr');if(wr){wr.textContent=s.win_rate!==null?Math.round(s.win_rate)+'%':'N/A';wr.className='perf-nv '+(s.win_rate!==null?(s.win_rate>=50?'pos':'neg'):'');}
+            var ev=document.getElementById('ps-ev');if(ev)ev.textContent=s.evaluated;
+            var pe=document.getElementById('ps-pe');if(pe)pe.textContent=s.pending;
+            ['BUY','HOLD','AVOID'].forEach(function(sig){var ps=(s.per_signal||{})[sig]||{};var bar=document.getElementById('bar-'+sig.toLowerCase());var det=document.getElementById('detail-'+sig.toLowerCase());if(bar)bar.style.width=(ps.accuracy||0)+'%';if(det){var t=(ps.correct||0)+'/'+(ps.decisive||0);if(ps.avg_return!==null&&ps.avg_return!==undefined)t+=' \u00b7 '+(ps.avg_return>0?'+':'')+ps.avg_return.toFixed(1)+'% avg';det.textContent=t;}});
+            bs.forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tf')===tf);});
+        }
+        bs.forEach(function(b){b.addEventListener('click',function(){sw(b.getAttribute('data-tf'));});});
+    })();
+    </script>
+    
+    
+
+</body>
+</html>

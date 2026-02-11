@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+{% block title %}Picks - Stock Alpha Scanner{% endblock %}
+
+{% block style %}
+    /* Controls */
+    .controls { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; position: sticky; top: 44px; z-index: 50; background: var(--bg); padding: 0.75rem 0; }
+    .fbtn { padding: 0.3rem 0.75rem; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--dim); font-size: 0.75rem; font-weight: 600; cursor: pointer; opacity: 0.5; transition: all 0.15s; }
+    .fbtn.on { opacity: 1; }
+    .fbtn[data-f="all"].on { color: var(--text); border-color: var(--dim); }
+    .fbtn.f-buy.on { color: var(--buyT); border-color: var(--buy); }
+    .fbtn.f-hold.on { color: var(--holdT); border-color: var(--hold); }
+    .fbtn.f-avoid.on { color: var(--avoidT); border-color: var(--avoid); }
+    .search { flex: 1; min-width: 80px; max-width: 160px; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid var(--border); background: var(--card2); color: var(--text); font-size: 0.75rem; }
+    .search:focus { outline: none; border-color: var(--link); }
+    .search::placeholder { color: var(--dim); }
+    .sort { padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid var(--border); background: var(--card2); color: var(--text); font-size: 0.75rem; margin-left: auto; }
+
+    /* Page header */
+    .picks-header { padding: 1.5rem 0 0.5rem; }
+    .picks-header h1 { font-size: 1.3rem; font-weight: 700; }
+    .picks-header p { font-size: 0.85rem; color: var(--dim); }
+
+    /* Card grid */
+    .grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    @media (min-width: 700px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+
+    /* Cards */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; transition: border-color 0.15s; }
+    .card:hover { border-color: var(--dim); }
+    .card.buy { border-left: 3px solid var(--buy); }
+    .card.hold { border-left: 3px solid var(--hold); }
+    .card.avoid { border-left: 3px solid var(--avoid); }
+
+    .card-top { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+    .signal { padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+    .signal.buy { background: rgba(35,134,54,0.2); color: var(--buyT); }
+    .signal.hold { background: rgba(31,111,235,0.2); color: var(--holdT); }
+    .signal.avoid { background: rgba(218,54,51,0.2); color: var(--avoidT); }
+    .card-score { font-size: 0.8rem; color: var(--dim); margin-left: auto; }
+    .card-sector { font-size: 0.7rem; color: var(--dim); background: var(--card2); padding: 0.1rem 0.4rem; border-radius: 3px; }
+    .card-ticker { font-size: 1.15rem; font-weight: 700; }
+    .card-name { color: var(--dim); font-weight: 400; font-size: 0.9rem; }
+    .streak { font-size: 0.6rem; font-weight: 600; background: rgba(210,153,34,0.2); color: #d29922; padding: 0.1rem 0.4rem; border-radius: 8px; margin-left: 0.3rem; vertical-align: middle; }
+
+    /* Confidence Badge */
+    .conf { font-size: 0.6rem; font-weight: 600; padding: 0.1rem 0.4rem; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.03em; }
+    .conf-high { background: rgba(35,134,54,0.12); color: var(--buyT); }
+    .conf-medium { background: rgba(210,153,34,0.12); color: #d29922; }
+    .conf-low { background: rgba(139,148,158,0.12); color: var(--dim); }
+
+    /* Price range bar */
+    .range-bar { margin: 1rem 0; }
+    .range-track { position: relative; height: 4px; background: var(--card2); border-radius: 2px; margin: 0.25rem 0; }
+    .range-fill { position: absolute; height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--avoidT), var(--buyT)); }
+    .range-dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--text); top: -3px; transform: translateX(-50%); }
+    .range-labels { display: flex; justify-content: space-between; font-size: 0.7rem; }
+    .range-stop { color: var(--avoidT); text-align: left; }
+    .range-price { color: var(--text); font-weight: 600; }
+    .range-target { color: var(--buyT); text-align: right; }
+    .range-hint { display: block; font-size: 0.55rem; color: var(--dim); font-weight: 400; letter-spacing: 0.03em; }
+
+    /* Allocation */
+    .alloc { display: inline-block; font-size: 0.7rem; font-weight: 600; color: var(--link); background: rgba(88,166,255,0.1); padding: 0.15rem 0.5rem; border-radius: 10px; margin-top: 0.25rem; }
+
+    /* Risk/Reward Badge */
+    .rr-badge { font-size: 0.65rem; font-weight: 600; color: var(--dim); background: var(--card2); padding: 0.12rem 0.5rem; border-radius: 3px; margin-left: 0.5rem; }
+    .rr-good { color: var(--buyT); background: rgba(35,134,54,0.1); }
+
+    /* Reasoning */
+    .reasoning { font-size: 0.85rem; color: var(--dim); margin: 0.75rem 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .reasoning.expanded { -webkit-line-clamp: unset; }
+    .read-more { color: var(--link); font-size: 0.8rem; cursor: pointer; border: none; background: none; padding: 0; }
+    .read-more:hover { text-decoration: underline; }
+
+    /* Score bar */
+    .score-bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--card2); }
+    .score-bar > div { height: 100%; position: relative; }
+    .sb-val { background: #f0883e; }
+    .sb-qual { background: #a371f7; }
+    .sb-mom { background: #3fb950; }
+    .sb-cat { background: #58a6ff; }
+    .sb-liq { background: #d29922; }
+    .score-legend { display: flex; justify-content: space-between; margin-top: 0.3rem; font-size: 0.6rem; color: var(--dim); }
+    .score-legend span { display: flex; align-items: center; gap: 0.2rem; }
+    .score-legend i { display: inline-block; width: 6px; height: 6px; border-radius: 2px; }
+
+    /* Card details */
+    .card details { margin-top: 0.5rem; }
+    .card summary { font-size: 0.8rem; color: var(--link); cursor: pointer; }
+    .card summary:hover { text-decoration: underline; }
+    .detail-body { margin-top: 0.5rem; font-size: 0.85rem; color: var(--dim); }
+    .detail-body h4 { font-size: 0.8rem; color: var(--text); margin: 0.75rem 0 0.25rem; }
+    .detail-body ul { list-style: none; }
+    .detail-body li { padding: 0.2rem 0 0.2rem 0.75rem; position: relative; }
+    .detail-body li::before { content: "\2022"; position: absolute; left: 0; color: var(--dim); }
+    .detail-body a { color: var(--link); text-decoration: none; word-break: break-all; }
+
+    .card-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid var(--border); font-size: 0.8rem; }
+    .card-foot a { color: var(--link); text-decoration: none; }
+    .card-foot a:hover { text-decoration: underline; }
+    .tf-badge { color: var(--dim); font-size: 0.7rem; }
+
+    .empty { text-align: center; padding: 3rem; color: var(--dim); }
+
+    @media (max-width: 600px) {
+        .picks-header { padding: 1rem 0 0.25rem; }
+        .picks-header h1 { font-size: 1.1rem; }
+        .controls { position: static; flex-wrap: wrap; gap: 0.4rem; padding: 0.5rem 0; }
+        .fbtn { padding: 0.5rem 0.75rem; min-height: 36px; font-size: 0.75rem; }
+        .search { max-width: none; flex: 1 1 100%; order: 10; padding: 0.5rem 0.6rem; min-height: 40px; font-size: 0.85rem; }
+        .sort { padding: 0.5rem 0.6rem; min-height: 40px; font-size: 0.8rem; }
+        .grid { grid-template-columns: 1fr; }
+        .card { padding: 1rem; }
+        .card-ticker { font-size: 1.05rem; }
+        .card-name { font-size: 0.8rem; }
+        .range-labels { font-size: 0.65rem; }
+        .range-hint { font-size: 0.5rem; }
+        .score-legend { flex-wrap: wrap; gap: 0.3rem; justify-content: flex-start; }
+        .score-legend span { font-size: 0.6rem; }
+        .read-more { padding: 0.35rem 0; min-height: 36px; display: inline-flex; align-items: center; font-size: 0.85rem; }
+        .card details summary { padding: 0.4rem 0; min-height: 40px; display: flex; align-items: center; font-size: 0.85rem; }
+        .card-foot { font-size: 0.75rem; }
+        .card-foot a { min-height: 36px; display: inline-flex; align-items: center; }
+        .detail-body { font-size: 0.8rem; }
+        .detail-body li { padding: 0.3rem 0 0.3rem 0.75rem; line-height: 1.6; }
+    }
+{% endblock %}
+
+{% block content %}
+    <div class="picks-header">
+        <h1>Stock Picks</h1>
+        <p>{{ picks|length }} stocks from {{ stocks_scanned }}+ scanned &mdash; {{ run_date[:10] }}</p>
+    </div>
+
+    {% if picks %}
+    <div class="controls">
+        <button class="fbtn on" data-f="all">All</button>
+        <button class="fbtn f-buy on" data-f="buy">BUY ({{ buy_count }})</button>
+        <button class="fbtn f-hold on" data-f="hold">HOLD ({{ hold_count }})</button>
+        <button class="fbtn f-avoid on" data-f="avoid">AVOID ({{ avoid_count }})</button>
+        <input type="text" class="search" id="search" placeholder="Search ticker or name...">
+        <select class="sort" id="sort">
+            <option value="sd">Score (high)</option>
+            <option value="sa">Score (low)</option>
+            <option value="az">A-Z</option>
+        </select>
+    </div>
+
+    <div class="grid" id="grid">
+    {% for pick in picks %}
+    {% set sc = pick.signal|lower %}
+    <div class="card {{ sc }}" id="{{ pick.ticker }}">
+        <div class="card-top">
+            <span class="signal {{ sc }}">{{ pick.signal }}</span>
+            {% if pick.confidence %}<span class="conf conf-{{ pick.confidence|lower }}">{{ pick.confidence }}</span>{% endif %}
+            {% if pick.sector %}<span class="card-sector">{{ pick.sector }}</span>{% endif %}
+            <span class="card-score">{{ pick.alpha_score }}</span>
+        </div>
+        <div style="margin-bottom:0.5rem">
+            <span class="card-ticker">{{ pick.ticker }}</span>
+            <span class="card-name">&mdash; {{ pick.name }}</span>
+            {% if streaks.get(pick.ticker, 0) > 1 %}<span class="streak">{{ streaks[pick.ticker] }}x</span>{% endif %}
+        </div>
+
+        {% if pick.stop_loss and pick.take_profit and pick.price %}
+        {% set range = pick.take_profit - pick.stop_loss %}
+        {% set pos = ((pick.price - pick.stop_loss) / range * 100) if range > 0 else 50 %}
+        <div class="range-bar">
+            <div class="range-labels">
+                <span class="range-stop">{{ "%.2f"|format(pick.stop_loss) }}<span class="range-hint">Stop</span></span>
+                <span class="range-price">{{ pick.price }} {{ pick.currency }}<span class="range-hint">Now</span></span>
+                <span class="range-target">{{ "%.2f"|format(pick.take_profit) }}<span class="range-hint">Target</span></span>
+            </div>
+            <div class="range-track">
+                <div class="range-fill" style="width:100%"></div>
+                <div class="range-dot" style="left:{{ pos|round }}%"></div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if pick.suggested_pct and pick.suggested_pct > 0 %}
+        <span class="alloc">{{ "%.0f"|format(pick.suggested_pct) }}% allocation</span>
+        {% endif %}
+        {% if pick.stop_loss and pick.take_profit and pick.price %}
+        {% set downside = pick.price - pick.stop_loss %}
+        {% set upside = pick.take_profit - pick.price %}
+        {% if downside > 0 %}
+        <span class="rr-badge{% if (upside / downside) >= 1.5 %} rr-good{% endif %}">1:{{ "%.1f"|format(upside / downside) }} R:R</span>
+        {% endif %}
+        {% endif %}
+
+        {% if pick.reasoning %}
+        <div class="reasoning" id="r{{ loop.index }}">{{ pick.reasoning }}</div>
+        <button class="read-more" onclick="var r=document.getElementById('r{{ loop.index }}');r.classList.toggle('expanded');this.textContent=r.classList.contains('expanded')?'less':'more'">more</button>
+        {% endif %}
+
+        {% if pick.score_breakdown %}
+        {% set bd = pick.score_breakdown %}
+        {% set t = pick.alpha_score if pick.alpha_score > 0 else 1 %}
+        <div style="margin-top:0.75rem">
+            <div class="score-bar">
+                <div class="sb-val" style="width:{{ (bd.get('value',0)/t*100)|round }}%"></div>
+                <div class="sb-qual" style="width:{{ (bd.get('quality',0)/t*100)|round }}%"></div>
+                <div class="sb-mom" style="width:{{ (bd.get('momentum',0)/t*100)|round }}%"></div>
+                <div class="sb-cat" style="width:{{ (bd.get('catalyst',0)/t*100)|round }}%"></div>
+                <div class="sb-liq" style="width:{{ (bd.get('liquidity',0)/t*100)|round }}%"></div>
+            </div>
+            <div class="score-legend">
+                <span><i style="background:#f0883e"></i>Val {{ bd.get('value',0) }}</span>
+                <span><i style="background:#a371f7"></i>Qual {{ bd.get('quality',0) }}</span>
+                <span><i style="background:#3fb950"></i>Mom {{ bd.get('momentum',0) }}</span>
+                <span><i style="background:#58a6ff"></i>Cat {{ bd.get('catalyst',0) }}</span>
+                <span><i style="background:#d29922"></i>Liq {{ bd.get('liquidity',0) }}</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <details>
+            <summary>Details</summary>
+            <div class="detail-body">
+                {% if pick.company_overview %}<p>{{ pick.company_overview }}</p>{% endif %}
+                {% if pick.key_developments %}<h4>Developments</h4><ul>{% for d in pick.key_developments[:4] %}<li>{{ d }}</li>{% endfor %}</ul>{% endif %}
+                {% if pick.catalysts %}<h4>Catalysts</h4><ul>{% for c in pick.catalysts[:3] %}<li>{{ c }}</li>{% endfor %}</ul>{% endif %}
+                {% if pick.risk_factors %}<h4>Risks</h4><ul>{% for r in pick.risk_factors[:3] %}<li>{{ r }}</li>{% endfor %}</ul>{% endif %}
+                {% if pick.sources %}<h4>Sources</h4><ul>{% for s in pick.sources[:3] %}<li><a href="{{ s }}" target="_blank" rel="noopener">{{ s[:60] }}{% if s|length > 60 %}...{% endif %}</a></li>{% endfor %}</ul>{% endif %}
+                <h4>Key Metrics</h4>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.3rem;font-size:0.8rem;margin-top:0.25rem">
+                    <div>P/E <strong>{{ "%.1f"|format(pick.pe_ratio) if pick.pe_ratio else '-' }}</strong></div>
+                    <div>ROE <strong class="{% if pick.roe and pick.roe > 15 %}pos{% endif %}">{{ "%.0f%%"|format(pick.roe) if pick.roe else '-' }}</strong></div>
+                    <div>Div <strong>{{ "%.1f%%"|format(pick.dividend_yield) if pick.dividend_yield else '-' }}</strong></div>
+                    <div>6m <strong class="{% if pick.momentum_6m and pick.momentum_6m > 0 %}pos{% elif pick.momentum_6m and pick.momentum_6m < 0 %}neg{% endif %}">{{ "%+.0f%%"|format(pick.momentum_6m) if pick.momentum_6m else '-' }}</strong></div>
+                    <div>12m <strong class="{% if pick.momentum_12m and pick.momentum_12m > 0 %}pos{% elif pick.momentum_12m and pick.momentum_12m < 0 %}neg{% endif %}">{{ "%+.0f%%"|format(pick.momentum_12m) if pick.momentum_12m else '-' }}</strong></div>
+                    <div>RSI <strong>{{ "%.0f"|format(pick.rsi_14) if pick.rsi_14 else '-' }}</strong></div>
+                </div>
+            </div>
+        </details>
+
+        <div class="card-foot">
+            {% set yf = pick.ticker %}
+            {% if pick.exchange == 'AMS' %}{% set yf = pick.ticker ~ '.AS' %}{% elif pick.exchange == 'XETR' %}{% set yf = pick.ticker ~ '.DE' %}{% elif pick.exchange == 'EPA' %}{% set yf = pick.ticker ~ '.PA' %}{% elif pick.exchange == 'LSE' %}{% set yf = pick.ticker ~ '.L' %}{% endif %}
+            <a href="https://finance.yahoo.com/quote/{{ yf }}" target="_blank" rel="noopener">Yahoo Finance &rarr;</a>
+            <span class="tf-badge">{{ pick.target_timeframe if pick.target_timeframe else '3-6 mo' }}</span>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">No opportunities found this week.</div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script>
+    /* Filter, sort, search */
+    (function(){
+        var bs=document.querySelectorAll('.fbtn'),sort=document.getElementById('sort'),search=document.getElementById('search'),grid=document.getElementById('grid');
+        if(!bs.length||!sort||!grid)return;
+        var af={buy:true,hold:true,avoid:true},st='';
+        function sig(c){return c.classList.contains('buy')?'buy':c.classList.contains('hold')?'hold':c.classList.contains('avoid')?'avoid':'';}
+        function sc(c){var e=c.querySelector('.card-score');return e?parseInt(e.textContent)||0:0;}
+        function tk(c){var e=c.querySelector('.card-ticker');return e?e.textContent.trim():'';}
+        function nm(c){var e=c.querySelector('.card-name');return e?e.textContent.toLowerCase():'';}
+        function run(){
+            var cards=Array.from(grid.querySelectorAll('.card'));
+            cards.forEach(function(c){var s=sig(c),t=tk(c).toLowerCase(),n=nm(c);c.style.display=(af[s]&&(!st||t.indexOf(st)!==-1||n.indexOf(st)!==-1))?'':'none';});
+            var sv=sort.value;
+            cards.sort(function(a,b){return sv==='sa'?sc(a)-sc(b):sv==='az'?tk(a).localeCompare(tk(b)):sc(b)-sc(a);});
+            cards.forEach(function(c){grid.appendChild(c);});
+        }
+        bs.forEach(function(b){b.addEventListener('click',function(){
+            var f=b.getAttribute('data-f');
+            if(f==='all'){af.buy=af.hold=af.avoid=true;b.classList.add('on');document.querySelectorAll('.fbtn[data-f]:not([data-f="all"])').forEach(function(x){x.classList.add('on')});}
+            else{af[f]=!af[f];b.classList.toggle('on',af[f]);var ab=document.querySelector('.fbtn[data-f="all"]');if(ab)ab.classList.toggle('on',af.buy&&af.hold&&af.avoid);}
+            run();
+        });});
+        sort.addEventListener('change',run);
+        if(search)search.addEventListener('input',function(){st=search.value.trim().toLowerCase();run();});
+
+        /* Scroll to hash (anchor from overview page) */
+        if(window.location.hash){var el=document.querySelector(window.location.hash);if(el){setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.boxShadow='0 0 0 2px var(--link)';setTimeout(function(){el.style.boxShadow='';},2000);},300);}}
+    })();
+    </script>
+{% endblock %}

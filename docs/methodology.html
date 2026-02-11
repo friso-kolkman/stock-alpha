@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Methodology - Stock Alpha Scanner</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1f4c8;</text></svg>">
+    <meta property="og:title" content="Stock Alpha Scanner">
+    <meta property="og:description" content="9 BUY signals this week from 235 stocks scanned across AEX, DAX, CAC40, FTSE100, DJIA &amp; NASDAQ.">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Weekly AI-powered stock scanner. 9 BUY signals from 235 stocks.">
+    
+    <style>
+        :root {
+            --bg: #0d1117; --card: #161b22; --card2: #21262d;
+            --text: #e6edf3; --dim: #8b949e; --border: #30363d;
+            --buy: #238636; --buyT: #3fb950;
+            --hold: #1f6feb; --holdT: #58a6ff;
+            --avoid: #da3633; --avoidT: #f85149;
+            --link: #58a6ff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+        .container { max-width: 960px; margin: 0 auto; padding: 2rem; }
+        .pos { color: var(--buyT); }
+        .neg { color: var(--avoidT); }
+
+        /* Navigation */
+        .nav { background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        .nav-inner { max-width: 960px; margin: 0 auto; padding: 0 2rem; display: flex; align-items: center; gap: 0; }
+        .nav-brand { font-size: 0.9rem; font-weight: 700; color: var(--text); text-decoration: none; padding: 0.75rem 0; margin-right: 1.5rem; white-space: nowrap; flex-shrink: 0; }
+        .nav-links { display: flex; gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex: 1; min-width: 0; }
+        .nav-links::-webkit-scrollbar { display: none; }
+        .nav-link { padding: 0.75rem 0.85rem; font-size: 0.8rem; color: var(--dim); text-decoration: none; font-weight: 500; white-space: nowrap; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; min-height: 44px; display: flex; align-items: center; }
+        .nav-short { display: none; }
+        .nav-full { display: inline; }
+        .nav-link:hover { color: var(--text); }
+        .nav-link.active { color: var(--text); border-bottom-color: var(--link); }
+        .nav-meta { margin-left: auto; font-size: 0.7rem; color: var(--dim); white-space: nowrap; padding: 0.75rem 0; }
+        .nav-pills { display: flex; gap: 0.6rem; margin-left: auto; padding: 0.75rem 0; flex-shrink: 0; }
+        .nav-pill { font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 10px; }
+        .nav-pill.buy { background: rgba(35,134,54,0.15); color: var(--buyT); }
+        .nav-pill.hold { background: rgba(31,111,235,0.15); color: var(--holdT); }
+        .nav-pill.avoid { background: rgba(218,54,51,0.15); color: var(--avoidT); }
+
+        /* Footer */
+        footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); text-align: center; color: var(--dim); font-size: 0.75rem; }
+        footer a { color: var(--link); text-decoration: none; }
+        .disc { font-style: italic; margin-top: 0.3rem; }
+
+        /* Mobile */
+        @media (max-width: 600px) {
+            .container { padding: 0.75rem; }
+            .nav-inner { padding: 0 0.75rem; }
+            .nav-brand { font-size: 0.8rem; margin-right: 0.5rem; }
+            .nav-link { padding: 0.75rem 0.5rem; font-size: 0.75rem; }
+            .nav-short { display: inline; }
+            .nav-full { display: none; }
+            .nav-pills { display: none; }
+            footer { font-size: 0.7rem; margin-top: 2rem; }
+        }
+
+        
+    .meth-header { padding: 1.5rem 0 1rem; }
+    .meth-header h1 { font-size: 1.3rem; font-weight: 700; }
+    .meth-header p { font-size: 0.85rem; color: var(--dim); }
+
+    .section { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .section h2 { font-size: 1rem; margin-bottom: 0.75rem; }
+    .section h3 { font-size: 0.9rem; margin: 1rem 0 0.5rem; color: var(--text); }
+    .section p { font-size: 0.85rem; color: var(--dim); line-height: 1.7; margin-bottom: 0.5rem; }
+
+    /* Pipeline */
+    .pipeline-flow { display: flex; align-items: flex-start; justify-content: center; margin: 1.5rem 0; }
+    .pipe-step { display: flex; flex-direction: column; align-items: center; text-align: center; width: 110px; flex-shrink: 0; }
+    .pipe-icon {
+        width: 48px; height: 48px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem;
+        position: relative; transition: transform 0.2s;
+    }
+    .pipe-step:hover .pipe-icon { transform: scale(1.1); }
+    .pipe-icon::after {
+        content: ''; position: absolute; inset: -3px; border-radius: 14px;
+        border: 2px solid currentColor; opacity: 0;
+        animation: pipePulse 3s ease-in-out infinite;
+    }
+    @keyframes pipePulse { 0%,100% { opacity: 0; } 50% { opacity: 0.25; } }
+    .pi-fetch { background: rgba(240,136,62,0.15); color: #f0883e; }
+    .pi-fetch::after { animation-delay: 0s; }
+    .pi-score { background: rgba(163,113,247,0.15); color: #a371f7; }
+    .pi-score::after { animation-delay: 0.6s; }
+    .pi-research { background: rgba(88,166,255,0.15); color: #58a6ff; }
+    .pi-research::after { animation-delay: 1.2s; }
+    .pi-eval { background: rgba(63,185,80,0.15); color: #3fb950; }
+    .pi-eval::after { animation-delay: 1.8s; }
+    .pi-publish { background: rgba(210,153,34,0.15); color: #d29922; }
+    .pi-publish::after { animation-delay: 2.4s; }
+    .pipe-title { font-size: 0.75rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
+    .pipe-desc { font-size: 0.6rem; color: var(--dim); line-height: 1.35; }
+    .pipe-stat { font-size: 0.6rem; font-weight: 600; margin-top: 0.35rem; padding: 0.12rem 0.5rem; border-radius: 10px; display: inline-block; }
+    .ps-orange { background: rgba(240,136,62,0.1); color: #f0883e; }
+    .ps-purple { background: rgba(163,113,247,0.1); color: #a371f7; }
+    .ps-blue { background: rgba(88,166,255,0.1); color: #58a6ff; }
+    .ps-green { background: rgba(63,185,80,0.1); color: #3fb950; }
+    .ps-yellow { background: rgba(210,153,34,0.1); color: #d29922; }
+
+    .pipe-conn {
+        display: flex; align-items: center; justify-content: center;
+        width: 28px; height: 48px; flex-shrink: 0; position: relative;
+    }
+    .pipe-conn::before {
+        content: ''; position: absolute; top: 50%; left: 2px; right: 10px;
+        height: 2px; background: var(--border); transform: translateY(-50%);
+    }
+    .pipe-conn::after {
+        content: ''; position: absolute; top: 50%; right: 2px;
+        border: 4px solid transparent; border-left: 6px solid var(--border);
+        transform: translateY(-50%);
+    }
+    .flow-dot {
+        position: absolute; top: 50%; width: 5px; height: 5px;
+        border-radius: 50%; background: var(--link); transform: translateY(-50%);
+        animation: dotFlow 2.5s linear infinite;
+    }
+    @keyframes dotFlow {
+        0% { left: 2px; opacity: 0; }
+        10% { opacity: 1; }
+        85% { opacity: 1; }
+        100% { left: calc(100% - 10px); opacity: 0; }
+    }
+    .pipe-conn:nth-of-type(1) .flow-dot { animation-delay: 0s; }
+    .pipe-conn:nth-of-type(2) .flow-dot { animation-delay: 0.5s; }
+    .pipe-conn:nth-of-type(3) .flow-dot { animation-delay: 1.0s; }
+    .pipe-conn:nth-of-type(4) .flow-dot { animation-delay: 1.5s; }
+
+    /* Data funnel */
+    .funnel { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
+    .funnel-row { margin-bottom: 0.5rem; display: flex; }
+    .funnel-bar { height: 34px; border-radius: 6px; display: flex; align-items: center; padding: 0 0.75rem; font-size: 0.75rem; font-weight: 600; }
+    .fb-wide { background: rgba(88,166,255,0.1); color: var(--link); width: 100%; }
+    .fb-mid { background: rgba(163,113,247,0.1); color: #a371f7; min-width: fit-content; }
+    .funnel-signals { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .funnel-sig { padding: 0.45rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+    .funnel-sig.buy { background: rgba(35,134,54,0.12); color: var(--buyT); }
+    .funnel-sig.hold { background: rgba(31,111,235,0.12); color: var(--holdT); }
+    .funnel-sig.avoid { background: rgba(218,54,51,0.12); color: var(--avoidT); }
+
+    /* Scoring factors */
+    .factors { display: grid; grid-template-columns: 1fr; gap: 0.75rem; margin-top: 1rem; }
+    .factor { padding: 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card2); }
+    .factor-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .factor-dot { width: 10px; height: 10px; border-radius: 3px; }
+    .factor-name { font-size: 0.85rem; font-weight: 700; }
+    .factor-pts { font-size: 0.75rem; color: var(--dim); margin-left: auto; }
+    .factor-desc { font-size: 0.8rem; color: var(--dim); line-height: 1.6; }
+    .factor-items { margin-top: 0.5rem; font-size: 0.8rem; color: var(--dim); }
+    .factor-items li { padding: 0.15rem 0; }
+
+    /* Universe table */
+    .universe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem; margin-top: 0.75rem; }
+    .universe-card { background: var(--card2); border-radius: 6px; padding: 0.6rem 0.8rem; text-align: center; }
+    .universe-idx { font-size: 0.8rem; font-weight: 700; }
+    .universe-count { font-size: 0.7rem; color: var(--dim); }
+
+    /* Telegram CTA */
+    .tg-cta { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.75rem; padding: 0.5rem 1rem; border-radius: 8px; background: rgba(0,136,204,0.15); color: #29b6f6; font-size: 0.85rem; font-weight: 600; text-decoration: none; transition: background 0.15s; }
+    .tg-cta:hover { background: rgba(0,136,204,0.25); }
+
+    @media (max-width: 600px) {
+        .meth-header { padding: 1rem 0 0.5rem; }
+        .meth-header h1 { font-size: 1.1rem; }
+        .section { padding: 1rem; margin-bottom: 1rem; }
+        .section h2 { font-size: 0.95rem; }
+        .section p { font-size: 0.8rem; }
+        .pipeline-flow { flex-direction: column; align-items: center; gap: 0.25rem; }
+        .pipe-step { width: 100%; min-width: 0; flex-direction: row; gap: 0.75rem; text-align: left; padding: 0.5rem 0; }
+        .pipe-icon { width: 40px; height: 40px; min-width: 40px; font-size: 1.1rem; border-radius: 10px; }
+        .pipe-title { font-size: 0.8rem; }
+        .pipe-desc { font-size: 0.65rem; }
+        .pipe-stat { font-size: 0.6rem; }
+        .pipe-conn { display: none; }
+        .funnel-bar { font-size: 0.7rem; height: 30px; }
+        .factor { padding: 0.75rem; }
+        .factor-name { font-size: 0.8rem; }
+        .factor-desc { font-size: 0.75rem; }
+        .factor-items { font-size: 0.75rem; }
+        .factor-items li { padding: 0.2rem 0; }
+        .universe-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.4rem; }
+        .universe-card { padding: 0.5rem; }
+        .universe-idx { font-size: 0.75rem; }
+        .universe-count { font-size: 0.65rem; }
+        .tg-cta { padding: 0.65rem 1.25rem; min-height: 44px; display: inline-flex; align-items: center; font-size: 0.8rem; }
+    }
+
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-brand">Stock Alpha</a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Overview</a>
+                <a href="picks.html" class="nav-link">Picks <span style="color:var(--buyT)">(9)</span></a>
+                <a href="performance.html" class="nav-link"><span class="nav-full">Performance</span><span class="nav-short">Perf</span></a>
+                <a href="methodology.html" class="nav-link active"><span class="nav-full">Methodology</span><span class="nav-short">Method</span></a>
+            </div>
+            <div class="nav-pills">
+                <span class="nav-pill buy">9 BUY</span>
+                <span class="nav-pill hold">1 HOLD</span>
+                <span class="nav-pill avoid">0 AVOID</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+    <div class="meth-header">
+        <h1>Methodology</h1>
+        <p>How the Stock Alpha Scanner finds opportunities</p>
+    </div>
+
+    
+    <section class="section">
+        <h2>The 5-Step Pipeline</h2>
+        <p>Every Monday before markets open, an automated pipeline scans <strong>235+ stocks</strong> across 6 major indices and generates actionable signals.</p>
+
+        <div class="pipeline-flow">
+            <div class="pipe-step">
+                <div class="pipe-icon pi-fetch">1</div>
+                <div class="pipe-title">Fetch</div>
+                <div class="pipe-desc">Pull price, fundamentals &amp; technicals via yfinance</div>
+                <span class="pipe-stat ps-orange">235+ stocks</span>
+            </div>
+            <div class="pipe-conn"><span class="flow-dot"></span></div>
+            <div class="pipe-step">
+                <div class="pipe-icon pi-score">2</div>
+                <div class="pipe-title">Score</div>
+                <div class="pipe-desc">5-factor model: Value, Quality, Momentum, Catalyst, Liquidity</div>
+                <span class="pipe-stat ps-purple">max 100 pts</span>
+            </div>
+            <div class="pipe-conn"><span class="flow-dot"></span></div>
+            <div class="pipe-step">
+                <div class="pipe-icon pi-research">3</div>
+                <div class="pipe-title">Research</div>
+                <div class="pipe-desc">AI reads latest news, filings &amp; analyst reports</div>
+                <span class="pipe-stat ps-blue">Perplexity AI</span>
+            </div>
+            <div class="pipe-conn"><span class="flow-dot"></span></div>
+            <div class="pipe-step">
+                <div class="pipe-icon pi-eval">4</div>
+                <div class="pipe-title">Evaluate</div>
+                <div class="pipe-desc">Combine score + research into BUY, HOLD, or AVOID</div>
+                <span class="pipe-stat ps-green">+ stop &amp; target</span>
+            </div>
+            <div class="pipe-conn"><span class="flow-dot"></span></div>
+            <div class="pipe-step">
+                <div class="pipe-icon pi-publish">5</div>
+                <div class="pipe-title">Publish</div>
+                <div class="pipe-desc">Dashboard updates &amp; Telegram alert sent</div>
+                <span class="pipe-stat ps-yellow">every Monday</span>
+            </div>
+        </div>
+
+        <div class="funnel">
+            <div class="funnel-row">
+                <div class="funnel-bar fb-wide">235+ stocks from 6 indices (AEX, DAX, CAC40, FTSE100, DJIA, NASDAQ)</div>
+            </div>
+            <div class="funnel-row">
+                
+                <div class="funnel-bar fb-mid" style="width:25%">Top 10 scored above threshold</div>
+            </div>
+            <div class="funnel-row">
+                <div class="funnel-signals">
+                    <span class="funnel-sig buy">9 BUY</span>
+                    <span class="funnel-sig hold">1 HOLD</span>
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <section class="section">
+        <h2>5-Factor Scoring Model</h2>
+        <p>Each stock is scored on 5 factors, totaling up to 100 points. The model identifies stocks that combine undervaluation, rising momentum, and real-world catalysts.</p>
+
+        <div class="factors">
+            <div class="factor">
+                <div class="factor-head">
+                    <span class="factor-dot" style="background:#f0883e"></span>
+                    <span class="factor-name">Value</span>
+                    <span class="factor-pts">25 pts</span>
+                </div>
+                <div class="factor-desc">Measures how cheap a stock is relative to its sector peers.</div>
+                <ul class="factor-items">
+                    <li>P/E ratio vs sector median</li>
+                    <li>P/B ratio vs sector median</li>
+                    <li>Dividend yield above average</li>
+                </ul>
+            </div>
+            <div class="factor">
+                <div class="factor-head">
+                    <span class="factor-dot" style="background:#a371f7"></span>
+                    <span class="factor-name">Quality</span>
+                    <span class="factor-pts">25 pts</span>
+                </div>
+                <div class="factor-desc">Evaluates the financial health and profitability of the company.</div>
+                <ul class="factor-items">
+                    <li>Return on Equity (ROE)</li>
+                    <li>Debt-to-Equity ratio</li>
+                    <li>Dividend track record</li>
+                    <li>Forward PE improvement</li>
+                </ul>
+            </div>
+            <div class="factor">
+                <div class="factor-head">
+                    <span class="factor-dot" style="background:#3fb950"></span>
+                    <span class="factor-name">Momentum</span>
+                    <span class="factor-pts">25 pts</span>
+                </div>
+                <div class="factor-desc">Captures price trend strength and technical positioning.</div>
+                <ul class="factor-items">
+                    <li>6-month and 12-month returns</li>
+                    <li>Price vs SMA 50 &amp; 200</li>
+                    <li>RSI in optimal zone (40-70)</li>
+                </ul>
+            </div>
+            <div class="factor">
+                <div class="factor-head">
+                    <span class="factor-dot" style="background:#58a6ff"></span>
+                    <span class="factor-name">Catalyst</span>
+                    <span class="factor-pts">15 pts</span>
+                </div>
+                <div class="factor-desc">Identifies upcoming events that could drive price movement.</div>
+                <ul class="factor-items">
+                    <li>Earnings within 30/60 days</li>
+                    <li>Priority sector exposure</li>
+                    <li>Recovery potential (>20% below 52-week high)</li>
+                </ul>
+            </div>
+            <div class="factor">
+                <div class="factor-head">
+                    <span class="factor-dot" style="background:#d29922"></span>
+                    <span class="factor-name">Liquidity</span>
+                    <span class="factor-pts">10 pts</span>
+                </div>
+                <div class="factor-desc">Ensures the stock is tradeable with sufficient market depth.</div>
+                <ul class="factor-items">
+                    <li>Market cap above $10B</li>
+                    <li>Above-average trading volume</li>
+                    <li>Major index membership</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    
+    <section class="section">
+        <h2>Signal Generation</h2>
+        <p>After scoring, top stocks are researched by AI (Perplexity) to verify the quantitative signal with real-world context. The final signal combines both:</p>
+
+        <h3>BUY Signal</h3>
+        <p>Requires bullish AI research (high confidence) + alpha score above 60, or bullish research (medium confidence) + score above 70. Includes stop loss (2x ATR below price) and take profit (3x ATR above price).</p>
+
+        <h3>HOLD Signal</h3>
+        <p>Stocks with potential but not enough conviction for a full BUY. Either the AI research is neutral, confidence is low, or the score is borderline.</p>
+
+        <h3>AVOID Signal</h3>
+        <p>AI research returned bearish sentiment with medium-to-high confidence. Negative catalysts, deteriorating fundamentals, or significant downside risk identified.</p>
+    </section>
+
+    
+    <section class="section">
+        <h2>Stock Universe</h2>
+        <p>The scanner covers 235+ stocks across 6 major indices, focused on liquid, large-cap names available on DeGiro.</p>
+
+        <div class="universe-grid">
+            <div class="universe-card"><div class="universe-idx">AEX 25</div><div class="universe-count">25 stocks &middot; Amsterdam</div></div>
+            <div class="universe-card"><div class="universe-idx">DAX 40</div><div class="universe-count">40 stocks &middot; Frankfurt</div></div>
+            <div class="universe-card"><div class="universe-idx">CAC 40</div><div class="universe-count">40 stocks &middot; Paris</div></div>
+            <div class="universe-card"><div class="universe-idx">FTSE 100</div><div class="universe-count">100 stocks &middot; London</div></div>
+            <div class="universe-card"><div class="universe-idx">DJIA</div><div class="universe-count">30 stocks &middot; New York</div></div>
+            <div class="universe-card"><div class="universe-idx">NASDAQ</div><div class="universe-count">15 stocks &middot; Select</div></div>
+        </div>
+    </section>
+
+    
+    <section class="section">
+        <h2>Adaptive Learning</h2>
+        <p>The model tracks every prediction and evaluates outcomes at 30, 60, and 90-day windows. If a factor consistently correlates with correct predictions, its weight gets boosted. Poor-performing factors get reduced.</p>
+        <p>This creates a feedback loop where the scanner improves over time based on real market outcomes rather than theoretical backtests.</p>
+        <a href="performance.html" style="color:var(--link);text-decoration:none;font-size:0.85rem;font-weight:600">View current model performance &rarr;</a>
+    </section>
+
+    
+    <section class="section">
+        <h2>Data Sources</h2>
+        <p><strong>Market Data:</strong> Yahoo Finance (yfinance) for price, fundamentals, and technicals.</p>
+        <p><strong>Supplementary Data:</strong> Twelve Data API for additional market data.</p>
+        <p><strong>AI Research:</strong> Perplexity Sonar Pro for real-time news, analyst reports, and sentiment analysis.</p>
+
+        <h3>Important Disclaimer</h3>
+        <p style="padding:0.75rem;background:rgba(218,54,51,0.05);border:1px solid rgba(218,54,51,0.15);border-radius:6px;color:var(--dim)">
+            This scanner generates signals for informational purposes only. It is <strong>not financial advice</strong>. Past performance does not guarantee future results. Always do your own research before making investment decisions. The scanner is designed for signal generation only and does not execute trades.
+        </p>
+    </section>
+
+    
+    <section class="section" style="text-align:center">
+        <h2>Stay Updated</h2>
+        <p>Get weekly BUY signals delivered to your Telegram every Monday morning.</p>
+        <a href="https://t.me/StockScanner1234567890bot" class="tg-cta">Get alerts on Telegram</a>
+    </section>
+
+
+        <footer>
+            <p>Data: <a href="https://finance.yahoo.com">Yahoo Finance</a> & <a href="https://twelvedata.com">Twelve Data</a> | AI: <a href="https://perplexity.ai">Perplexity</a></p>
+            <p class="disc">Signal generation only. Not financial advice.</p>
+        </footer>
+    </div>
+
+    
+</body>
+</html>

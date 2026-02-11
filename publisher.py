@@ -52,13 +52,14 @@ def publish_results(
         console.print(f"  [red]Error writing data.json: {e}[/red]")
         return False
 
-    # Render HTML
+    # Render all HTML pages
     try:
-        html_content = render_dashboard(data)
-        html_path = DOCS_DIR / "index.html"
-        with open(html_path, "w") as f:
-            f.write(html_content)
-        console.print(f"  [green]Wrote {html_path}[/green]")
+        pages = render_all_pages(data)
+        for filename, html_content in pages.items():
+            html_path = DOCS_DIR / filename
+            with open(html_path, "w") as f:
+                f.write(html_content)
+            console.print(f"  [green]Wrote {html_path}[/green]")
     except Exception as e:
         console.print(f"  [red]Error rendering HTML: {e}[/red]")
         return False
@@ -70,22 +71,13 @@ def publish_results(
     return True
 
 
-def render_dashboard(data: dict) -> str:
-    """Render the dashboard HTML using Jinja2 template."""
-    env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
-
-    try:
-        template = env.get_template("dashboard.html")
-    except Exception:
-        console.print("  [yellow]Template not found, using default[/yellow]")
-        return render_default_dashboard(data)
-
+def _build_template_context(data: dict) -> dict:
+    """Build the shared template context from scan data."""
     picks = data["top_picks"]
     avg_score = 0
     if picks:
         avg_score = sum(p.get("alpha_score", 0) for p in picks) / len(picks)
 
-    # Count signals by type
     buy_count = sum(1 for p in picks if p.get("signal") == "BUY")
     hold_count = sum(1 for p in picks if p.get("signal") == "HOLD")
     avoid_count = sum(1 for p in picks if p.get("signal") == "AVOID")
@@ -115,21 +107,46 @@ def render_dashboard(data: dict) -> str:
 
     stats = data.get("dashboard_stats") or {}
 
-    return template.render(
-        run_date=data["run_date"],
-        stocks_scanned=data["stocks_scanned"],
-        picks=picks,
-        avg_score=round(avg_score),
-        buy_count=buy_count,
-        hold_count=hold_count,
-        avoid_count=avoid_count,
-        has_history=stats.get("has_history", False),
-        model_stats=stats,
-        streaks=stats.get("streaks", {}),
-        sector_dist=sector_dist,
-        index_dist=index_dist,
-        top_n=len(picks),
-    )
+    return {
+        "run_date": data["run_date"],
+        "stocks_scanned": data["stocks_scanned"],
+        "picks": picks,
+        "avg_score": round(avg_score),
+        "buy_count": buy_count,
+        "hold_count": hold_count,
+        "avoid_count": avoid_count,
+        "has_history": stats.get("has_history", False),
+        "model_stats": stats,
+        "streaks": stats.get("streaks", {}),
+        "sector_dist": sector_dist,
+        "index_dist": index_dist,
+        "top_n": len(picks),
+    }
+
+
+def render_all_pages(data: dict) -> dict[str, str]:
+    """Render all dashboard pages. Returns {filename: html_content}."""
+    env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
+    ctx = _build_template_context(data)
+
+    pages = {
+        "index.html": ("index.html", "overview"),
+        "picks.html": ("picks.html", "picks"),
+        "performance.html": ("performance.html", "performance"),
+        "methodology.html": ("methodology.html", "methodology"),
+    }
+
+    result = {}
+    for output_file, (template_name, active_page) in pages.items():
+        try:
+            template = env.get_template(template_name)
+            result[output_file] = template.render(**ctx, active_page=active_page)
+        except Exception as e:
+            console.print(f"  [yellow]Template {template_name} failed: {e}[/yellow]")
+            if output_file == "index.html":
+                result[output_file] = render_default_dashboard(data)
+
+    return result
 
 
 def render_default_dashboard(data: dict) -> str:

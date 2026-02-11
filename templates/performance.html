@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block title %}Performance - Stock Alpha Scanner{% endblock %}
+
+{% block head %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block style %}
+    .perf-header { padding: 1.5rem 0 1rem; }
+    .perf-header h1 { font-size: 1.3rem; font-weight: 700; }
+    .perf-header p { font-size: 0.85rem; color: var(--dim); }
+
+    /* Performance card */
+    .perf { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .perf h2 { font-size: 1rem; margin-bottom: 1rem; }
+    .perf-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
+    .tf-pills { display: flex; gap: 0.3rem; }
+    .tf-pill { padding: 0.25rem 0.6rem; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--dim); font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+    .tf-pill.on { background: rgba(88,166,255,0.15); color: var(--link); border-color: var(--link); }
+    .perf-nums { display: flex; gap: 2rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .perf-n { text-align: center; }
+    .perf-nv { font-size: 1.5rem; font-weight: 700; }
+    .perf-nl { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; }
+
+    /* Signal accuracy bars */
+    .sig-bar-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; }
+    .sig-bar-label { width: 50px; font-size: 0.85rem; font-weight: 600; }
+    .sig-bar-bg { flex: 1; height: 10px; background: var(--card2); border-radius: 5px; overflow: hidden; }
+    .sig-bar-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
+    .sig-bar-fill.buy { background: var(--buy); }
+    .sig-bar-fill.hold { background: var(--hold); }
+    .sig-bar-fill.avoid { background: var(--avoid); }
+    .sig-bar-pct { font-size: 0.75rem; color: var(--dim); width: 100px; text-align: right; }
+
+    /* Chart */
+    .perf-chart { position: relative; height: 250px; margin: 1.5rem 0; padding: 0.5rem; background: var(--card2); border-radius: 8px; }
+    .chart-empty { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--dim); font-size: 0.85rem; }
+
+    /* Weight adjustments */
+    .weights-section { margin-top: 1.5rem; }
+    .weights-section h3 { font-size: 0.9rem; margin-bottom: 0.75rem; }
+    .w-grid { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .w-adj { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.7rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
+    .w-adj.pos { background: rgba(35,134,54,0.15); color: var(--buyT); }
+    .w-adj.neg { background: rgba(218,54,51,0.15); color: var(--avoidT); }
+    .w-adj.zero { background: var(--card2); color: var(--dim); }
+    .w-base { font-size: 0.65rem; color: var(--dim); font-weight: 400; }
+
+    /* Evaluations table */
+    .eval-section { margin-top: 1.5rem; }
+    .eval-section h3 { font-size: 0.9rem; margin-bottom: 0.75rem; }
+    .eval-tbl { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .eval-tbl th { text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--border); color: var(--dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; }
+    .eval-tbl td { padding: 0.5rem; border-bottom: 1px solid var(--card2); }
+    .eval-tbl tr:hover td { background: rgba(88,166,255,0.03); }
+    .signal-sm { padding: 0.12rem 0.4rem; border-radius: 10px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
+    .signal-sm.buy { background: rgba(35,134,54,0.2); color: var(--buyT); }
+    .signal-sm.hold { background: rgba(31,111,235,0.2); color: var(--holdT); }
+    .signal-sm.avoid { background: rgba(218,54,51,0.2); color: var(--avoidT); }
+    .oc { color: var(--buyT); font-weight: 600; }
+    .oi { color: var(--avoidT); font-weight: 600; }
+    .ou { color: var(--dim); }
+
+    /* Empty state */
+    .empty-perf { text-align: center; padding: 4rem 2rem; }
+    .empty-perf h2 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+    .empty-perf p { color: var(--dim); font-size: 0.9rem; }
+
+    @media (max-width: 600px) {
+        .perf-header { padding: 1rem 0 0.5rem; }
+        .perf-header h1 { font-size: 1.1rem; }
+        .perf { padding: 1rem; }
+        .perf h2 { font-size: 0.9rem; }
+        .perf-head { gap: 0.5rem; }
+        .tf-pill { padding: 0.4rem 0.7rem; min-height: 36px; display: inline-flex; align-items: center; font-size: 0.75rem; }
+        .perf-nums { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+        .perf-nv { font-size: 1.2rem; }
+        .perf-chart { height: 180px; }
+        .sig-bar-row { gap: 0.4rem; }
+        .sig-bar-label { width: 45px; font-size: 0.8rem; }
+        .sig-bar-pct { font-size: 0.7rem; width: 80px; }
+        .w-grid { gap: 0.4rem; }
+        .w-adj { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
+        .eval-tbl { font-size: 0.75rem; }
+        .eval-tbl th { padding: 0.4rem 0.3rem; font-size: 0.65rem; }
+        .eval-tbl td { padding: 0.5rem 0.3rem; }
+        .eval-section h3 { font-size: 0.85rem; }
+    }
+    @media (max-width: 380px) {
+        .perf-nv { font-size: 1rem; }
+        .perf-nums { gap: 0.5rem; }
+        .sig-bar-pct { width: auto; font-size: 0.65rem; }
+    }
+{% endblock %}
+
+{% block content %}
+    <div class="perf-header">
+        <h1>Model Performance</h1>
+        <p>Tracking prediction accuracy across timeframes</p>
+    </div>
+
+    {% if has_history and model_stats %}
+    {# Main stats card #}
+    <section class="perf">
+        <div class="perf-head">
+            <h2>Accuracy Overview</h2>
+            {% if model_stats.timeframes %}
+            <div class="tf-pills">
+                {% for tf in model_stats.timeframes %}
+                <button class="tf-pill{% if tf == model_stats.default_timeframe %} on{% endif %}" data-tf="{{ tf }}">{{ tf }}</button>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="perf-nums">
+            <div class="perf-n">
+                <div class="perf-nv {% if model_stats.win_rate and model_stats.win_rate >= 50 %}pos{% elif model_stats.win_rate %}neg{% endif %}" id="ps-wr">{{ "%.0f%%"|format(model_stats.win_rate) if model_stats.win_rate is not none else 'N/A' }}</div>
+                <div class="perf-nl">Win Rate</div>
+            </div>
+            <div class="perf-n">
+                <div class="perf-nv">{{ model_stats.total_predictions }}</div>
+                <div class="perf-nl">Total Predictions</div>
+            </div>
+            <div class="perf-n">
+                <div class="perf-nv" id="ps-ev">{{ model_stats.evaluated }}</div>
+                <div class="perf-nl">Evaluated</div>
+            </div>
+            <div class="perf-n">
+                <div class="perf-nv" id="ps-pe">{{ model_stats.pending }}</div>
+                <div class="perf-nl">Pending</div>
+            </div>
+        </div>
+
+        {# Per-signal accuracy bars #}
+        {% if model_stats.per_signal %}
+        <h2 style="margin-top:1.5rem">Signal Accuracy</h2>
+        <div style="margin-top:0.75rem">
+        {% for sig in ['BUY', 'HOLD', 'AVOID'] %}
+        {% set s = model_stats.per_signal.get(sig, {}) %}
+        {% if s.total is defined and s.total > 0 %}
+        <div class="sig-bar-row">
+            <span class="sig-bar-label" style="color:var(--{{ sig|lower }}T)">{{ sig }}</span>
+            <div class="sig-bar-bg"><div class="sig-bar-fill {{ sig|lower }}" id="bar-{{ sig|lower }}" style="width:{{ s.accuracy if s.accuracy else 0 }}%"></div></div>
+            <span class="sig-bar-pct" id="detail-{{ sig|lower }}">{{ s.correct }}/{{ s.decisive }}{% if s.avg_return is not none %} &middot; {{ "%+.1f%%"|format(s.avg_return) }} avg{% endif %}</span>
+        </div>
+        {% endif %}
+        {% endfor %}
+        </div>
+        {% endif %}
+    </section>
+
+    {# Performance timeline chart #}
+    {% if model_stats.performance_timeline and model_stats.performance_timeline|length > 1 %}
+    <section class="perf">
+        <h2>Performance Over Time</h2>
+        <div class="perf-chart"><canvas id="perfChart"></canvas></div>
+    </section>
+    {% elif model_stats.performance_timeline and model_stats.performance_timeline|length == 1 %}
+    <section class="perf">
+        <h2>Performance Over Time</h2>
+        <div class="perf-chart"><div class="chart-empty">Chart available after 2+ scans</div></div>
+    </section>
+    {% endif %}
+
+    {# Weight adjustments #}
+    {% if model_stats.weight_overrides %}
+    <section class="perf">
+        <div class="weights-section">
+            <h3>Adaptive Weight Adjustments</h3>
+            <p style="font-size:0.8rem;color:var(--dim);margin-bottom:0.75rem">The model adjusts factor weights based on historical accuracy. Factors that correlate with correct predictions get boosted.</p>
+            <div class="w-grid">
+                {% for factor, base in model_stats.base_weights.items() %}
+                {% set o = model_stats.weight_overrides.get(factor, 0) %}
+                {% set a = model_stats.active_weights.get(factor, base) %}
+                <div class="w-adj {% if o > 0 %}pos{% elif o < 0 %}neg{% else %}zero{% endif %}">
+                    {{ factor|capitalize }} {{ a }}
+                    {% if o != 0 %}<span style="font-size:0.65rem">({{ "%+d"|format(o) }})</span>{% endif %}
+                    <span class="w-base">base {{ base }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {# Recent evaluations #}
+    {% if model_stats.recent_evaluations %}
+    <section class="perf">
+        <div class="eval-section">
+            <h3>Recent Evaluations</h3>
+            <table class="eval-tbl">
+                <thead>
+                    <tr><th>Ticker</th><th>Signal</th><th>Outcome</th><th>Return</th></tr>
+                </thead>
+                <tbody>
+                {% for e in model_stats.recent_evaluations %}
+                <tr>
+                    <td><strong>{{ e.ticker }}</strong></td>
+                    <td><span class="signal-sm {{ e.signal|lower }}">{{ e.signal }}</span></td>
+                    <td class="{% if e.outcome == 'CORRECT' %}oc{% elif e.outcome == 'INCORRECT' %}oi{% else %}ou{% endif %}">{{ e.outcome }}</td>
+                    <td class="{% if e.return_pct and e.return_pct > 0 %}pos{% elif e.return_pct and e.return_pct < 0 %}neg{% endif %}">{{ "%+.1f%%"|format(e.return_pct) if e.return_pct is not none else '-' }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-perf">
+        <h2>No performance data yet</h2>
+        <p>Performance tracking starts after the first scan generates predictions. Check back after predictions have had time to be evaluated (30-90 days).</p>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    {% if has_history and model_stats %}
+    {# Timeline chart #}
+    {% if model_stats.performance_timeline and model_stats.performance_timeline|length > 1 %}
+    <script>
+    (function(){
+        var tl={{ model_stats.performance_timeline | tojson }},labels=tl.map(function(s){return s.date}),ds=[],tc={'30d':'#f0883e','60d':'#a371f7','90d':'#3fb950'},tfs={{ model_stats.timeframes | tojson }};
+        tfs.forEach(function(tf){ds.push({label:tf+' Win %',data:tl.map(function(s){return s[tf+'_win_rate']}),borderColor:tc[tf]||'#8b949e',backgroundColor:'transparent',fill:false,tension:.3,pointRadius:3,pointHoverRadius:5})});
+        ds.push({label:'Avg Return %',data:tl.map(function(s){return s.avg_return}),borderColor:'#58a6ff',fill:false,tension:.3,pointRadius:3,borderDash:[5,3]});
+        new Chart(document.getElementById('perfChart'),{type:'line',data:{labels:labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#8b949e',font:{size:11}}},tooltip:{backgroundColor:'#21262d',titleColor:'#e6edf3',bodyColor:'#e6edf3',borderColor:'#30363d',borderWidth:1}},scales:{x:{ticks:{color:'#8b949e',font:{size:10},maxRotation:45},grid:{color:'rgba(48,54,61,0.5)'}},y:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(48,54,61,0.5)'}}}}});
+    })();
+    </script>
+    {% endif %}
+
+    {# Timeframe switcher #}
+    {% if model_stats.timeframe_stats %}
+    <script>
+    (function(){
+        var d={{ model_stats.timeframe_stats | tojson }},bs=document.querySelectorAll('.tf-pill');
+        if(!bs.length)return;
+        function sw(tf){var s=d[tf];if(!s)return;
+            var wr=document.getElementById('ps-wr');if(wr){wr.textContent=s.win_rate!==null?Math.round(s.win_rate)+'%':'N/A';wr.className='perf-nv '+(s.win_rate!==null?(s.win_rate>=50?'pos':'neg'):'');}
+            var ev=document.getElementById('ps-ev');if(ev)ev.textContent=s.evaluated;
+            var pe=document.getElementById('ps-pe');if(pe)pe.textContent=s.pending;
+            ['BUY','HOLD','AVOID'].forEach(function(sig){var ps=(s.per_signal||{})[sig]||{};var bar=document.getElementById('bar-'+sig.toLowerCase());var det=document.getElementById('detail-'+sig.toLowerCase());if(bar)bar.style.width=(ps.accuracy||0)+'%';if(det){var t=(ps.correct||0)+'/'+(ps.decisive||0);if(ps.avg_return!==null&&ps.avg_return!==undefined)t+=' \u00b7 '+(ps.avg_return>0?'+':'')+ps.avg_return.toFixed(1)+'% avg';det.textContent=t;}});
+            bs.forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tf')===tf);});
+        }
+        bs.forEach(function(b){b.addEventListener('click',function(){sw(b.getAttribute('data-tf'));});});
+    })();
+    </script>
+    {% endif %}
+    {% endif %}
+{% endblock %}

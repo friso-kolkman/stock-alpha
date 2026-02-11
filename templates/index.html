@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+{% block title %}Stock Alpha Scanner{% endblock %}
+
+{% block style %}
+    /* Header */
+    .page-header { text-align: center; padding: 2rem 0 1.5rem; }
+    .page-header h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .meta { color: var(--dim); font-size: 0.8rem; }
+    .header-pills { display: flex; justify-content: center; gap: 1.5rem; margin-top: 1rem; }
+    .pill { text-align: center; }
+    .pill-value { font-size: 1.4rem; font-weight: 700; }
+    .pill-label { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* Hero */
+    .hero { background: linear-gradient(135deg, rgba(35,134,54,0.1), var(--card)); border: 1px solid var(--buy); border-radius: 12px; padding: 2rem; text-align: center; margin-bottom: 2rem; }
+    .hero-eyebrow { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--buyT); margin-bottom: 0.5rem; }
+    .hero-ticker { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; }
+    .hero-name { color: var(--dim); font-size: 0.9rem; margin-bottom: 1rem; }
+    .hero-row { display: flex; justify-content: center; gap: 2.5rem; flex-wrap: wrap; }
+    .hero-num { font-size: 1.1rem; font-weight: 600; }
+    .hero-label { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; }
+    .hero-cta { display: inline-block; margin-top: 1.25rem; padding: 0.5rem 1.5rem; border-radius: 8px; background: rgba(35,134,54,0.15); color: var(--buyT); font-size: 0.85rem; font-weight: 600; text-decoration: none; transition: background 0.15s; }
+    .hero-cta:hover { background: rgba(35,134,54,0.25); }
+
+    /* Quick picks */
+    .quick-picks { margin-bottom: 2rem; }
+    .quick-picks h2 { font-size: 1.1rem; margin-bottom: 1rem; }
+    .qp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; }
+    .qp-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; transition: border-color 0.15s; text-decoration: none; color: var(--text); }
+    .qp-card:hover { border-color: var(--dim); }
+    .qp-card.buy { border-left: 3px solid var(--buy); }
+    .qp-card.hold { border-left: 3px solid var(--hold); }
+    .qp-card.avoid { border-left: 3px solid var(--avoid); }
+    .qp-top { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.4rem; }
+    .qp-signal { padding: 0.12rem 0.45rem; border-radius: 10px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; }
+    .qp-signal.buy { background: rgba(35,134,54,0.2); color: var(--buyT); }
+    .qp-signal.hold { background: rgba(31,111,235,0.2); color: var(--holdT); }
+    .qp-signal.avoid { background: rgba(218,54,51,0.2); color: var(--avoidT); }
+    .qp-score { font-size: 0.75rem; color: var(--dim); margin-left: auto; }
+    .qp-ticker { font-size: 1rem; font-weight: 700; }
+    .qp-name { font-size: 0.75rem; color: var(--dim); }
+    .qp-price { font-size: 0.8rem; margin-top: 0.3rem; }
+
+    /* Scan overview */
+    .scan-overview { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    .scan-overview > div { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+    .scan-overview h3 { font-size: 0.9rem; margin-bottom: 0.75rem; }
+    .heat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.4rem; }
+    .heat-cell { padding: 0.5rem; border-radius: 6px; text-align: center; border: 1px solid var(--border); transition: transform 0.15s, box-shadow 0.15s; }
+    .heat-cell:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .hc-buy { background: rgba(35,134,54,0.06); border-color: rgba(35,134,54,0.25); }
+    .hc-hold { background: rgba(31,111,235,0.06); border-color: rgba(31,111,235,0.25); }
+    .hc-avoid { background: rgba(218,54,51,0.06); border-color: rgba(218,54,51,0.25); }
+    .heat-sector { font-size: 0.65rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .heat-count { font-size: 1.1rem; font-weight: 800; margin: 0.15rem 0; }
+    .hc-buy .heat-count { color: var(--buyT); }
+    .hc-hold .heat-count { color: var(--holdT); }
+    .hc-avoid .heat-count { color: var(--avoidT); }
+    .heat-score { font-size: 0.55rem; color: var(--dim); }
+    .index-chart-wrap { position: relative; height: 200px; max-width: 280px; margin: 0 auto; }
+
+    /* Telegram */
+    .tg-link { display: inline-block; margin-top: 0.5rem; padding: 0.35rem 0.9rem; border-radius: 20px; background: rgba(0,136,204,0.12); color: #29b6f6; font-size: 0.8rem; font-weight: 600; text-decoration: none; }
+    .tg-link:hover { background: rgba(0,136,204,0.22); }
+
+    /* View all link */
+    .view-all { display: flex; justify-content: center; margin-top: 1rem; }
+    .view-all a { color: var(--link); text-decoration: none; font-size: 0.85rem; font-weight: 600; padding: 0.5rem 1.5rem; border: 1px solid var(--border); border-radius: 8px; transition: border-color 0.15s, background 0.15s; }
+    .view-all a:hover { border-color: var(--link); background: rgba(88,166,255,0.05); }
+
+    /* Perf summary */
+    .perf-summary { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; margin-bottom: 2rem; }
+    .perf-summary h3 { font-size: 0.9rem; margin-bottom: 0.75rem; }
+    .perf-row { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .perf-stat { text-align: center; }
+    .perf-stat-val { font-size: 1.3rem; font-weight: 700; }
+    .perf-stat-label { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; }
+    .perf-link { display: inline-block; margin-top: 0.75rem; color: var(--link); text-decoration: none; font-size: 0.8rem; }
+    .perf-link:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+        .page-header { padding: 1.25rem 0 1rem; }
+        .page-header h1 { font-size: 1.3rem; }
+        .header-pills { gap: 0.75rem; }
+        .pill-value { font-size: 1.1rem; }
+        .hero { padding: 1rem; }
+        .hero-ticker { font-size: 1.6rem; }
+        .hero-row { gap: 1rem; display: grid; grid-template-columns: 1fr 1fr; text-align: center; }
+        .hero-cta { padding: 0.6rem 1.5rem; min-height: 44px; display: inline-flex; align-items: center; }
+        .scan-overview { grid-template-columns: 1fr; }
+        .heat-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+        .qp-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+        .qp-card { padding: 0.75rem; min-height: 44px; }
+        .qp-ticker { font-size: 0.9rem; }
+        .qp-name { font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .qp-price { font-size: 0.75rem; }
+        .view-all a { min-height: 44px; display: inline-flex; align-items: center; }
+        .perf-summary { padding: 1rem; }
+        .perf-row { gap: 1rem; display: grid; grid-template-columns: 1fr 1fr; }
+        .perf-link { min-height: 44px; display: inline-flex; align-items: center; }
+    }
+    @media (max-width: 380px) {
+        .qp-grid { grid-template-columns: 1fr; }
+        .header-pills { gap: 0.5rem; }
+        .pill-value { font-size: 1rem; }
+    }
+{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Stock Alpha Scanner</h1>
+        <p class="meta">{{ run_date[:19].replace('T', ' ') }} UTC <span id="next-scan"></span></p>
+        <div class="header-pills">
+            <div class="pill"><div class="pill-value" style="color:var(--buyT)">{{ buy_count }}</div><div class="pill-label">Buy</div></div>
+            <div class="pill"><div class="pill-value" style="color:var(--holdT)">{{ hold_count }}</div><div class="pill-label">Hold</div></div>
+            <div class="pill"><div class="pill-value" style="color:var(--avoidT)">{{ avoid_count }}</div><div class="pill-label">Avoid</div></div>
+            <div class="pill"><div class="pill-value">{{ avg_score }}</div><div class="pill-label">Avg Score</div></div>
+        </div>
+    </div>
+
+    {# Hero: top BUY pick #}
+    {% if picks %}
+    {% set top_buy = picks | selectattr('signal', 'equalto', 'BUY') | list | first %}
+    {% if top_buy %}
+    <div class="hero">
+        <div class="hero-eyebrow">Top Pick This Week</div>
+        <div class="hero-ticker">{{ top_buy.ticker }}</div>
+        <div class="hero-name">{{ top_buy.name }}</div>
+        <div class="hero-row">
+            <div><div class="hero-num">{{ top_buy.price }} {{ top_buy.currency }}</div><div class="hero-label">Price</div></div>
+            <div><div class="hero-num pos">{{ top_buy.alpha_score }}</div><div class="hero-label">Score</div></div>
+            {% if top_buy.stop_loss %}<div><div class="hero-num neg">{{ "%.2f"|format(top_buy.stop_loss) }}</div><div class="hero-label">Stop</div></div>{% endif %}
+            {% if top_buy.take_profit %}<div><div class="hero-num pos">{{ "%.2f"|format(top_buy.take_profit) }}</div><div class="hero-label">Target</div></div>{% endif %}
+        </div>
+        <a href="picks.html" class="hero-cta">View all picks &rarr;</a>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {# Quick picks: top 6 stocks as summary cards #}
+    {% if picks %}
+    <div class="quick-picks">
+        <h2>This Week's Signals</h2>
+        <div class="qp-grid">
+            {% for pick in picks[:8] %}
+            {% set sc = pick.signal|lower %}
+            <a href="picks.html#{{ pick.ticker }}" class="qp-card {{ sc }}">
+                <div class="qp-top">
+                    <span class="qp-signal {{ sc }}">{{ pick.signal }}</span>
+                    {% if pick.confidence %}<span style="font-size:0.6rem;color:var(--dim)">{{ pick.confidence }}</span>{% endif %}
+                    <span class="qp-score">{{ pick.alpha_score }}/100</span>
+                </div>
+                <div class="qp-ticker">{{ pick.ticker }}</div>
+                <div class="qp-name">{{ pick.name }}</div>
+                <div class="qp-price">{{ pick.price }} {{ pick.currency }}</div>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="view-all"><a href="picks.html">View all {{ picks|length }} picks &rarr;</a></div>
+    </div>
+    {% endif %}
+
+    {# Scan Overview: Sector Heatmap + Index Distribution #}
+    {% if sector_dist and index_dist %}
+    <div class="scan-overview">
+        <div>
+            <h3>Signals by Sector</h3>
+            <div class="heat-grid">
+                {% for sector, info in sector_dist.items() %}
+                {% set dom = 'hc-hold' %}
+                {% if info.signals.BUY >= info.signals.HOLD and info.signals.BUY >= info.signals.AVOID and info.signals.BUY > 0 %}{% set dom = 'hc-buy' %}
+                {% elif info.signals.AVOID > info.signals.HOLD and info.signals.AVOID > info.signals.BUY %}{% set dom = 'hc-avoid' %}{% endif %}
+                <div class="heat-cell {{ dom }}">
+                    <div class="heat-sector">{{ sector }}</div>
+                    <div class="heat-count">{{ info.count }}</div>
+                    <div class="heat-score">avg {{ info.avg_score }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div>
+            <h3>Picks by Index</h3>
+            <div class="index-chart-wrap"><canvas id="indexChart"></canvas></div>
+        </div>
+    </div>
+    {% endif %}
+
+    {# Performance summary (teaser) #}
+    {% if has_history and model_stats %}
+    <div class="perf-summary">
+        <h3>Model Performance</h3>
+        <div class="perf-row">
+            <div class="perf-stat"><div class="perf-stat-val {% if model_stats.win_rate and model_stats.win_rate >= 50 %}pos{% elif model_stats.win_rate %}neg{% endif %}">{{ "%.0f%%"|format(model_stats.win_rate) if model_stats.win_rate is not none else 'N/A' }}</div><div class="perf-stat-label">Win Rate</div></div>
+            <div class="perf-stat"><div class="perf-stat-val">{{ model_stats.total_predictions }}</div><div class="perf-stat-label">Predictions</div></div>
+            <div class="perf-stat"><div class="perf-stat-val">{{ model_stats.evaluated }}</div><div class="perf-stat-label">Evaluated</div></div>
+            <div class="perf-stat"><div class="perf-stat-val">{{ model_stats.pending }}</div><div class="perf-stat-label">Pending</div></div>
+        </div>
+        <a href="performance.html" class="perf-link">View detailed performance &rarr;</a>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+    <script>
+    /* Next scan countdown */
+    (function(){var el=document.getElementById('next-scan');if(!el)return;var now=new Date(),next=new Date(now);next.setUTCHours(5,0,0,0);var d=(1-next.getUTCDay()+7)%7;if(d===0&&now>=next)d=7;next.setUTCDate(next.getUTCDate()+d);var diff=next-now;el.textContent='\u00b7 next in '+Math.floor(diff/864e5)+'d '+Math.floor(diff%864e5/36e5)+'h';})();
+
+    /* Animated count-up for header pills */
+    (function(){
+        document.querySelectorAll('.pill-value').forEach(function(el){
+            var t=parseFloat(el.textContent);if(isNaN(t)||t===0)return;
+            var dur=900,st=null;el.textContent='0';
+            function anim(ts){
+                if(!st)st=ts;var p=Math.min((ts-st)/dur,1);
+                var e=1-Math.pow(1-p,3);
+                el.textContent=Math.round(t*e);
+                if(p<1)requestAnimationFrame(anim);else el.textContent=t;
+            }
+            requestAnimationFrame(anim);
+        });
+    })();
+
+    /* Index distribution donut chart */
+    {% if index_dist %}
+    (function(){
+        var el=document.getElementById('indexChart');if(!el)return;
+        var d={{ index_dist | tojson }},lb=Object.keys(d),vals=Object.values(d);
+        var cs=['#f0883e','#a371f7','#58a6ff','#3fb950','#d29922','#f85149','#8b949e'];
+        new Chart(el,{type:'doughnut',data:{labels:lb,datasets:[{data:vals,backgroundColor:cs.slice(0,lb.length),borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b949e',font:{size:10},padding:12},position:'right'},tooltip:{backgroundColor:'#21262d',titleColor:'#e6edf3',bodyColor:'#e6edf3',borderColor:'#30363d',borderWidth:1}},cutout:'62%'}});
+    })();
+    {% endif %}
+    </script>
+{% endblock %}
