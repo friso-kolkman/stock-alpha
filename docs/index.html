@@ -6,10 +6,10 @@
     <title>Stock Alpha Scanner</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1f4c8;</text></svg>">
     <meta property="og:title" content="Stock Alpha Scanner">
-    <meta property="og:description" content="8 BUY signals this week from 235 stocks scanned across AEX, DAX, CAC40, FTSE100, DJIA &amp; NASDAQ.">
+    <meta property="og:description" content="9 BUY signals this week from 235 stocks scanned across AEX, DAX, CAC40, FTSE100, DJIA &amp; NASDAQ.">
     <meta property="og:type" content="website">
-    <meta name="description" content="Weekly AI-powered stock scanner. 8 BUY signals from 235 stocks.">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+    <meta name="description" content="Weekly AI-powered stock scanner. 9 BUY signals from 235 stocks.">
+    
     <style>
         :root {
             --bg: #0d1117; --card: #161b22; --card2: #21262d;
@@ -22,1542 +22,364 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
         .container { max-width: 960px; margin: 0 auto; padding: 2rem; }
-
-        /* Header */
-        header { text-align: center; padding-bottom: 2rem; }
-        header h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem; }
-        .meta { color: var(--dim); font-size: 0.8rem; }
-        .header-pills { display: flex; justify-content: center; gap: 1.5rem; margin-top: 1rem; }
-        .pill { text-align: center; }
-        .pill-value { font-size: 1.4rem; font-weight: 700; }
-        .pill-label { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; }
-
-        /* Hero */
-        .hero { background: linear-gradient(135deg, rgba(35,134,54,0.1), var(--card)); border: 1px solid var(--buy); border-radius: 12px; padding: 2rem; text-align: center; margin-bottom: 2rem; }
-        .hero-eyebrow { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--buyT); margin-bottom: 0.5rem; }
-        .hero-ticker { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; }
-        .hero-name { color: var(--dim); font-size: 0.9rem; margin-bottom: 1rem; }
-        .hero-row { display: flex; justify-content: center; gap: 2.5rem; flex-wrap: wrap; }
-        .hero-num { font-size: 1.1rem; font-weight: 600; }
-        .hero-label { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; }
-
-        /* Controls */
-        .controls { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; position: sticky; top: 0; z-index: 50; background: var(--bg); padding: 0.75rem 0; }
-        .fbtn { padding: 0.3rem 0.75rem; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--dim); font-size: 0.75rem; font-weight: 600; cursor: pointer; opacity: 0.5; transition: all 0.15s; }
-        .fbtn.on { opacity: 1; }
-        .fbtn[data-f="all"].on { color: var(--text); border-color: var(--dim); }
-        .fbtn.f-buy.on { color: var(--buyT); border-color: var(--buy); }
-        .fbtn.f-hold.on { color: var(--holdT); border-color: var(--hold); }
-        .fbtn.f-avoid.on { color: var(--avoidT); border-color: var(--avoid); }
-        .search { flex: 1; min-width: 80px; max-width: 160px; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid var(--border); background: var(--card2); color: var(--text); font-size: 0.75rem; }
-        .search:focus { outline: none; border-color: var(--link); }
-        .search::placeholder { color: var(--dim); }
-        .sort { padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid var(--border); background: var(--card2); color: var(--text); font-size: 0.75rem; margin-left: auto; }
-
-        /* Card grid */
-        .grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
-        @media (min-width: 700px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-
-        /* Cards */
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; transition: border-color 0.15s; }
-        .card:hover { border-color: var(--dim); }
-        .card.buy { border-left: 3px solid var(--buy); }
-        .card.hold { border-left: 3px solid var(--hold); }
-        .card.avoid { border-left: 3px solid var(--avoid); }
-
-        .card-top { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
-        .signal { padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
-        .signal.buy { background: rgba(35,134,54,0.2); color: var(--buyT); }
-        .signal.hold { background: rgba(31,111,235,0.2); color: var(--holdT); }
-        .signal.avoid { background: rgba(218,54,51,0.2); color: var(--avoidT); }
-        .card-score { font-size: 0.8rem; color: var(--dim); margin-left: auto; }
-        .card-sector { font-size: 0.7rem; color: var(--dim); background: var(--card2); padding: 0.1rem 0.4rem; border-radius: 3px; }
-
-        .card-ticker { font-size: 1.15rem; font-weight: 700; }
-        .card-name { color: var(--dim); font-weight: 400; font-size: 0.9rem; }
-        .streak { font-size: 0.6rem; font-weight: 600; background: rgba(210,153,34,0.2); color: #d29922; padding: 0.1rem 0.4rem; border-radius: 8px; margin-left: 0.3rem; vertical-align: middle; }
-
-        /* Price range bar */
-        .range-bar { margin: 1rem 0; }
-        .range-track { position: relative; height: 4px; background: var(--card2); border-radius: 2px; margin: 0.25rem 0; }
-        .range-fill { position: absolute; height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--avoidT), var(--buyT)); }
-        .range-dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--text); top: -3px; transform: translateX(-50%); }
-        .range-labels { display: flex; justify-content: space-between; font-size: 0.7rem; }
-        .range-stop { color: var(--avoidT); text-align: left; }
-        .range-price { color: var(--text); font-weight: 600; }
-        .range-target { color: var(--buyT); text-align: right; }
-        .range-hint { display: block; font-size: 0.55rem; color: var(--dim); font-weight: 400; letter-spacing: 0.03em; }
-
-        /* Allocation */
-        .alloc { display: inline-block; font-size: 0.7rem; font-weight: 600; color: var(--link); background: rgba(88,166,255,0.1); padding: 0.15rem 0.5rem; border-radius: 10px; margin-top: 0.25rem; }
-
-        /* Reasoning - truncated */
-        .reasoning { font-size: 0.85rem; color: var(--dim); margin: 0.75rem 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        .reasoning.expanded { -webkit-line-clamp: unset; }
-
-        .read-more { color: var(--link); font-size: 0.8rem; cursor: pointer; border: none; background: none; padding: 0; }
-        .read-more:hover { text-decoration: underline; }
-
-        /* Score bar */
-        .score-bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--card2); }
-        .score-bar > div { height: 100%; position: relative; }
-        .sb-val { background: #f0883e; }
-        .sb-qual { background: #a371f7; }
-        .sb-mom { background: #3fb950; }
-        .sb-cat { background: #58a6ff; }
-        .sb-liq { background: #d29922; }
-        .score-legend { display: flex; justify-content: space-between; margin-top: 0.3rem; font-size: 0.6rem; color: var(--dim); }
-        .score-legend span { display: flex; align-items: center; gap: 0.2rem; }
-        .score-legend i { display: inline-block; width: 6px; height: 6px; border-radius: 2px; }
-
-        /* Card details */
-        .card details { margin-top: 0.5rem; }
-        .card summary { font-size: 0.8rem; color: var(--link); cursor: pointer; }
-        .card summary:hover { text-decoration: underline; }
-        .detail-body { margin-top: 0.5rem; font-size: 0.85rem; color: var(--dim); }
-        .detail-body h4 { font-size: 0.8rem; color: var(--text); margin: 0.75rem 0 0.25rem; }
-        .detail-body ul { list-style: none; }
-        .detail-body li { padding: 0.2rem 0 0.2rem 0.75rem; position: relative; }
-        .detail-body li::before { content: "\2022"; position: absolute; left: 0; color: var(--dim); }
-        .detail-body a { color: var(--link); text-decoration: none; word-break: break-all; }
-
-        .card-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid var(--border); font-size: 0.8rem; }
-        .card-foot a { color: var(--link); text-decoration: none; }
-        .card-foot a:hover { text-decoration: underline; }
-        .tf-badge { color: var(--dim); font-size: 0.7rem; }
-
-        /* Model Performance */
-        .perf { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem; }
-        .perf-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
-        .perf-head h2 { font-size: 1.1rem; }
-        .tf-pills { display: flex; gap: 0.3rem; }
-        .tf-pill { padding: 0.25rem 0.6rem; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--dim); font-size: 0.7rem; font-weight: 600; cursor: pointer; }
-        .tf-pill.on { background: rgba(88,166,255,0.15); color: var(--link); border-color: var(--link); }
-        .perf-nums { display: flex; gap: 2rem; margin-bottom: 1rem; flex-wrap: wrap; }
-        .perf-n { text-align: center; }
-        .perf-nv { font-size: 1.3rem; font-weight: 700; }
-        .perf-nl { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; }
         .pos { color: var(--buyT); }
         .neg { color: var(--avoidT); }
 
-        .sig-bar-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
-        .sig-bar-label { width: 40px; font-size: 0.8rem; font-weight: 600; }
-        .sig-bar-bg { flex: 1; height: 8px; background: var(--card2); border-radius: 4px; overflow: hidden; }
-        .sig-bar-fill { height: 100%; border-radius: 4px; }
-        .sig-bar-fill.buy { background: var(--buy); }
-        .sig-bar-fill.hold { background: var(--hold); }
-        .sig-bar-fill.avoid { background: var(--avoid); }
-        .sig-bar-pct { font-size: 0.7rem; color: var(--dim); width: 70px; text-align: right; }
-
-        .perf-chart { position: relative; height: 200px; margin: 1rem 0; padding: 0.5rem; background: var(--card2); border-radius: 6px; }
-        .chart-empty { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--dim); font-size: 0.85rem; }
-
-        .eval-tbl { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        .eval-tbl th { text-align: left; padding: 0.4rem; border-bottom: 1px solid var(--border); color: var(--dim); font-size: 0.7rem; }
-        .eval-tbl td { padding: 0.4rem; border-bottom: 1px solid var(--card2); }
-        .oc { color: var(--buyT); }
-        .oi { color: var(--avoidT); }
-        .ou { color: var(--dim); }
-
-        .w-adj { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; margin-right: 0.3rem; }
-        .w-adj.pos { background: rgba(35,134,54,0.2); }
-        .w-adj.neg { background: rgba(218,54,51,0.2); }
-        .w-adj.zero { background: var(--card2); color: var(--dim); }
-
-        /* Explainer */
-        .explainer { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem; }
-        .explainer h2 { font-size: 1rem; margin-bottom: 0.75rem; }
-        .explainer p { font-size: 0.85rem; color: var(--dim); margin-bottom: 0.75rem; line-height: 1.6; }
-        .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
-        .step { text-align: center; padding: 0.75rem; background: var(--card2); border-radius: 8px; }
-        .step-icon { font-size: 1.4rem; margin-bottom: 0.25rem; }
-        .step-title { font-size: 0.75rem; font-weight: 700; color: var(--text); }
-        .step-desc { font-size: 0.65rem; color: var(--dim); margin-top: 0.15rem; }
-        .explainer .tg-cta { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.5rem; padding: 0.5rem 1rem; border-radius: 8px; background: rgba(0,136,204,0.15); color: #29b6f6; font-size: 0.85rem; font-weight: 600; text-decoration: none; transition: background 0.15s; }
-        .explainer .tg-cta:hover { background: rgba(0,136,204,0.25); }
-
-        /* Telegram */
-        .tg-link { display: inline-block; margin-top: 0.5rem; padding: 0.35rem 0.9rem; border-radius: 20px; background: rgba(0,136,204,0.12); color: #29b6f6; font-size: 0.8rem; font-weight: 600; text-decoration: none; }
-        .tg-link:hover { background: rgba(0,136,204,0.22); }
+        /* Navigation */
+        .nav { background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        .nav-inner { max-width: 960px; margin: 0 auto; padding: 0 2rem; display: flex; align-items: center; gap: 0; }
+        .nav-brand { font-size: 0.9rem; font-weight: 700; color: var(--text); text-decoration: none; padding: 0.75rem 0; margin-right: 1.5rem; white-space: nowrap; flex-shrink: 0; }
+        .nav-links { display: flex; gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex: 1; min-width: 0; }
+        .nav-links::-webkit-scrollbar { display: none; }
+        .nav-link { padding: 0.75rem 0.85rem; font-size: 0.8rem; color: var(--dim); text-decoration: none; font-weight: 500; white-space: nowrap; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; min-height: 44px; display: flex; align-items: center; }
+        .nav-short { display: none; }
+        .nav-full { display: inline; }
+        .nav-link:hover { color: var(--text); }
+        .nav-link.active { color: var(--text); border-bottom-color: var(--link); }
+        .nav-meta { margin-left: auto; font-size: 0.7rem; color: var(--dim); white-space: nowrap; padding: 0.75rem 0; }
+        .nav-pills { display: flex; gap: 0.6rem; margin-left: auto; padding: 0.75rem 0; flex-shrink: 0; }
+        .nav-pill { font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 10px; }
+        .nav-pill.buy { background: rgba(35,134,54,0.15); color: var(--buyT); }
+        .nav-pill.hold { background: rgba(31,111,235,0.15); color: var(--holdT); }
+        .nav-pill.avoid { background: rgba(218,54,51,0.15); color: var(--avoidT); }
 
         /* Footer */
         footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); text-align: center; color: var(--dim); font-size: 0.75rem; }
         footer a { color: var(--link); text-decoration: none; }
         .disc { font-style: italic; margin-top: 0.3rem; }
 
-        .empty { text-align: center; padding: 3rem; color: var(--dim); }
-
         /* Mobile */
         @media (max-width: 600px) {
-            .container { padding: 1rem; }
-            header h1 { font-size: 1.3rem; }
-            .header-pills { gap: 1rem; }
-            .pill-value { font-size: 1.1rem; }
-            .hero { padding: 1.25rem; }
-            .hero-ticker { font-size: 1.6rem; }
-            .hero-row { gap: 1.5rem; }
-            .controls { position: static; flex-wrap: wrap; }
-            .search { max-width: none; flex: 1 1 100%; order: 10; }
-            .grid { grid-template-columns: 1fr; }
-            .perf-nums { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
-            .perf-chart { height: 160px; }
-            .sig-bar-row { flex-wrap: wrap; }
-            .sig-bar-pct { width: 100%; text-align: left; padding-left: 40px; font-size: 0.65rem; }
+            .container { padding: 0.75rem; }
+            .nav-inner { padding: 0 0.75rem; }
+            .nav-brand { font-size: 0.8rem; margin-right: 0.5rem; }
+            .nav-link { padding: 0.75rem 0.5rem; font-size: 0.75rem; }
+            .nav-short { display: inline; }
+            .nav-full { display: none; }
+            .nav-pills { display: none; }
+            footer { font-size: 0.7rem; margin-top: 2rem; }
         }
 
-        /* ── Pipeline Visualization ── */
-        .pipeline-section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 2rem 1.5rem; margin-bottom: 2rem; overflow: hidden; }
-        .pipeline-section h2 { font-size: 1.1rem; margin-bottom: 0.25rem; }
-        .pipeline-sub { font-size: 0.85rem; color: var(--dim); margin-bottom: 1.5rem; line-height: 1.6; }
-        .pipeline-flow { display: flex; align-items: flex-start; justify-content: center; }
-        .pipe-step { display: flex; flex-direction: column; align-items: center; text-align: center; width: 110px; flex-shrink: 0; }
-        .pipe-icon {
-            width: 48px; height: 48px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem;
-            position: relative; transition: transform 0.2s;
-        }
-        .pipe-step:hover .pipe-icon { transform: scale(1.1); }
-        .pipe-icon::after {
-            content: ''; position: absolute; inset: -3px; border-radius: 14px;
-            border: 2px solid currentColor; opacity: 0;
-            animation: pipePulse 3s ease-in-out infinite;
-        }
-        @keyframes pipePulse { 0%,100% { opacity: 0; } 50% { opacity: 0.25; } }
-        .pi-fetch { background: rgba(240,136,62,0.15); color: #f0883e; }
-        .pi-fetch::after { animation-delay: 0s; }
-        .pi-score { background: rgba(163,113,247,0.15); color: #a371f7; }
-        .pi-score::after { animation-delay: 0.6s; }
-        .pi-research { background: rgba(88,166,255,0.15); color: #58a6ff; }
-        .pi-research::after { animation-delay: 1.2s; }
-        .pi-eval { background: rgba(63,185,80,0.15); color: #3fb950; }
-        .pi-eval::after { animation-delay: 1.8s; }
-        .pi-publish { background: rgba(210,153,34,0.15); color: #d29922; }
-        .pi-publish::after { animation-delay: 2.4s; }
-        .pipe-title { font-size: 0.75rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
-        .pipe-desc { font-size: 0.6rem; color: var(--dim); line-height: 1.35; }
-        .pipe-stat { font-size: 0.6rem; font-weight: 600; margin-top: 0.35rem; padding: 0.12rem 0.5rem; border-radius: 10px; display: inline-block; }
-        .ps-orange { background: rgba(240,136,62,0.1); color: #f0883e; }
-        .ps-purple { background: rgba(163,113,247,0.1); color: #a371f7; }
-        .ps-blue { background: rgba(88,166,255,0.1); color: #58a6ff; }
-        .ps-green { background: rgba(63,185,80,0.1); color: #3fb950; }
-        .ps-yellow { background: rgba(210,153,34,0.1); color: #d29922; }
+        
+    /* Header */
+    .page-header { text-align: center; padding: 2rem 0 1.5rem; }
+    .page-header h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .meta { color: var(--dim); font-size: 0.8rem; }
+    .header-pills { display: flex; justify-content: center; gap: 1.5rem; margin-top: 1rem; }
+    .pill { text-align: center; }
+    .pill-value { font-size: 1.4rem; font-weight: 700; }
+    .pill-label { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; }
 
-        /* Pipeline connectors with flowing dots */
-        .pipe-conn {
-            display: flex; align-items: center; justify-content: center;
-            width: 28px; height: 48px; flex-shrink: 0; position: relative;
-        }
-        .pipe-conn::before {
-            content: ''; position: absolute; top: 50%; left: 2px; right: 10px;
-            height: 2px; background: var(--border); transform: translateY(-50%);
-        }
-        .pipe-conn::after {
-            content: ''; position: absolute; top: 50%; right: 2px;
-            border: 4px solid transparent; border-left: 6px solid var(--border);
-            transform: translateY(-50%);
-        }
-        .flow-dot {
-            position: absolute; top: 50%; width: 5px; height: 5px;
-            border-radius: 50%; background: var(--link); transform: translateY(-50%);
-            animation: dotFlow 2.5s linear infinite;
-        }
-        @keyframes dotFlow {
-            0% { left: 2px; opacity: 0; }
-            10% { opacity: 1; }
-            85% { opacity: 1; }
-            100% { left: calc(100% - 10px); opacity: 0; }
-        }
-        .pipe-conn:nth-of-type(1) .flow-dot { animation-delay: 0s; }
-        .pipe-conn:nth-of-type(2) .flow-dot { animation-delay: 0.5s; }
-        .pipe-conn:nth-of-type(3) .flow-dot { animation-delay: 1.0s; }
-        .pipe-conn:nth-of-type(4) .flow-dot { animation-delay: 1.5s; }
+    /* Hero */
+    .hero { background: linear-gradient(135deg, rgba(35,134,54,0.1), var(--card)); border: 1px solid var(--buy); border-radius: 12px; padding: 2rem; text-align: center; margin-bottom: 2rem; }
+    .hero-eyebrow { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--buyT); margin-bottom: 0.5rem; }
+    .hero-ticker { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; }
+    .hero-name { color: var(--dim); font-size: 0.9rem; margin-bottom: 1rem; }
+    .hero-row { display: flex; justify-content: center; gap: 2.5rem; flex-wrap: wrap; }
+    .hero-num { font-size: 1.1rem; font-weight: 600; }
+    .hero-label { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; }
+    .hero-cta { display: inline-block; margin-top: 1.25rem; padding: 0.5rem 1.5rem; border-radius: 8px; background: rgba(35,134,54,0.15); color: var(--buyT); font-size: 0.85rem; font-weight: 600; text-decoration: none; transition: background 0.15s; }
+    .hero-cta:hover { background: rgba(35,134,54,0.25); }
 
-        /* ── Data Funnel ── */
-        .funnel { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
-        .funnel-row { margin-bottom: 0.5rem; display: flex; }
-        .funnel-bar {
-            height: 34px; border-radius: 6px;
-            display: flex; align-items: center; padding: 0 0.75rem;
-            font-size: 0.75rem; font-weight: 600;
-        }
-        .fb-wide { background: rgba(88,166,255,0.1); color: var(--link); width: 100%; }
-        .fb-mid { background: rgba(163,113,247,0.1); color: #a371f7; min-width: fit-content; }
-        .funnel-signals { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-        .funnel-sig {
-            padding: 0.45rem 0.75rem; border-radius: 6px;
-            font-size: 0.75rem; font-weight: 700;
-        }
-        .funnel-sig.buy { background: rgba(35,134,54,0.12); color: var(--buyT); }
-        .funnel-sig.hold { background: rgba(31,111,235,0.12); color: var(--holdT); }
-        .funnel-sig.avoid { background: rgba(218,54,51,0.12); color: var(--avoidT); }
+    /* Quick picks */
+    .quick-picks { margin-bottom: 2rem; }
+    .quick-picks h2 { font-size: 1.1rem; margin-bottom: 1rem; }
+    .qp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; }
+    .qp-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; transition: border-color 0.15s; text-decoration: none; color: var(--text); }
+    .qp-card:hover { border-color: var(--dim); }
+    .qp-card.buy { border-left: 3px solid var(--buy); }
+    .qp-card.hold { border-left: 3px solid var(--hold); }
+    .qp-card.avoid { border-left: 3px solid var(--avoid); }
+    .qp-top { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.4rem; }
+    .qp-signal { padding: 0.12rem 0.45rem; border-radius: 10px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; }
+    .qp-signal.buy { background: rgba(35,134,54,0.2); color: var(--buyT); }
+    .qp-signal.hold { background: rgba(31,111,235,0.2); color: var(--holdT); }
+    .qp-signal.avoid { background: rgba(218,54,51,0.2); color: var(--avoidT); }
+    .qp-score { font-size: 0.75rem; color: var(--dim); margin-left: auto; }
+    .qp-ticker { font-size: 1rem; font-weight: 700; }
+    .qp-name { font-size: 0.75rem; color: var(--dim); }
+    .qp-price { font-size: 0.8rem; margin-top: 0.3rem; }
 
-        /* ── Scan Overview (Sector Heatmap + Index Donut) ── */
-        .scan-overview { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
-        .scan-overview > div { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
-        .scan-overview h3 { font-size: 0.9rem; margin-bottom: 0.75rem; }
-        .heat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.4rem; }
-        .heat-cell {
-            padding: 0.5rem; border-radius: 6px; text-align: center;
-            border: 1px solid var(--border); transition: transform 0.15s, box-shadow 0.15s;
-        }
-        .heat-cell:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        .hc-buy { background: rgba(35,134,54,0.06); border-color: rgba(35,134,54,0.25); }
-        .hc-hold { background: rgba(31,111,235,0.06); border-color: rgba(31,111,235,0.25); }
-        .hc-avoid { background: rgba(218,54,51,0.06); border-color: rgba(218,54,51,0.25); }
-        .heat-sector { font-size: 0.65rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .heat-count { font-size: 1.1rem; font-weight: 800; margin: 0.15rem 0; }
-        .hc-buy .heat-count { color: var(--buyT); }
-        .hc-hold .heat-count { color: var(--holdT); }
-        .hc-avoid .heat-count { color: var(--avoidT); }
-        .heat-score { font-size: 0.55rem; color: var(--dim); }
-        .index-chart-wrap { position: relative; height: 200px; max-width: 280px; margin: 0 auto; }
+    /* Scan overview */
+    .scan-overview { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    .scan-overview > div { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+    .scan-overview h3 { font-size: 0.9rem; margin-bottom: 0.75rem; }
+    .heat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.4rem; }
+    .heat-cell { padding: 0.5rem; border-radius: 6px; text-align: center; border: 1px solid var(--border); transition: transform 0.15s, box-shadow 0.15s; }
+    .heat-cell:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .hc-buy { background: rgba(35,134,54,0.06); border-color: rgba(35,134,54,0.25); }
+    .hc-hold { background: rgba(31,111,235,0.06); border-color: rgba(31,111,235,0.25); }
+    .hc-avoid { background: rgba(218,54,51,0.06); border-color: rgba(218,54,51,0.25); }
+    .heat-sector { font-size: 0.65rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .heat-count { font-size: 1.1rem; font-weight: 800; margin: 0.15rem 0; }
+    .hc-buy .heat-count { color: var(--buyT); }
+    .hc-hold .heat-count { color: var(--holdT); }
+    .hc-avoid .heat-count { color: var(--avoidT); }
+    .heat-score { font-size: 0.55rem; color: var(--dim); }
+    .index-chart-wrap { position: relative; height: 200px; max-width: 280px; margin: 0 auto; }
 
-        /* ── Confidence Badge ── */
-        .conf { font-size: 0.6rem; font-weight: 600; padding: 0.1rem 0.4rem; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.03em; }
-        .conf-high { background: rgba(35,134,54,0.12); color: var(--buyT); }
-        .conf-medium { background: rgba(210,153,34,0.12); color: #d29922; }
-        .conf-low { background: rgba(139,148,158,0.12); color: var(--dim); }
+    /* Telegram */
+    .tg-link { display: inline-block; margin-top: 0.5rem; padding: 0.35rem 0.9rem; border-radius: 20px; background: rgba(0,136,204,0.12); color: #29b6f6; font-size: 0.8rem; font-weight: 600; text-decoration: none; }
+    .tg-link:hover { background: rgba(0,136,204,0.22); }
 
-        /* ── Risk/Reward Badge ── */
-        .rr-badge { font-size: 0.65rem; font-weight: 600; color: var(--dim); background: var(--card2); padding: 0.12rem 0.5rem; border-radius: 3px; margin-left: 0.5rem; }
-        .rr-good { color: var(--buyT); background: rgba(35,134,54,0.1); }
+    /* View all link */
+    .view-all { display: flex; justify-content: center; margin-top: 1rem; }
+    .view-all a { color: var(--link); text-decoration: none; font-size: 0.85rem; font-weight: 600; padding: 0.5rem 1.5rem; border: 1px solid var(--border); border-radius: 8px; transition: border-color 0.15s, background 0.15s; }
+    .view-all a:hover { border-color: var(--link); background: rgba(88,166,255,0.05); }
 
-        /* ── Mobile overrides for new sections ── */
-        @media (max-width: 600px) {
-            .pipeline-flow { flex-direction: column; align-items: center; }
-            .pipe-step { width: auto; min-width: 180px; }
-            .pipe-conn { width: 2px; height: 20px; background: var(--border); margin: 0 auto; }
-            .pipe-conn::before, .pipe-conn::after, .flow-dot { display: none; }
-            .scan-overview { grid-template-columns: 1fr; }
-            .pipeline-section { padding: 1.25rem; }
-            .funnel-bar { font-size: 0.7rem; }
-            .fb-mid { min-width: fit-content; }
-        }
+    /* Perf summary */
+    .perf-summary { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; margin-bottom: 2rem; }
+    .perf-summary h3 { font-size: 0.9rem; margin-bottom: 0.75rem; }
+    .perf-row { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .perf-stat { text-align: center; }
+    .perf-stat-val { font-size: 1.3rem; font-weight: 700; }
+    .perf-stat-label { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; }
+    .perf-link { display: inline-block; margin-top: 0.75rem; color: var(--link); text-decoration: none; font-size: 0.8rem; }
+    .perf-link:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+        .page-header { padding: 1.25rem 0 1rem; }
+        .page-header h1 { font-size: 1.3rem; }
+        .header-pills { gap: 0.75rem; }
+        .pill-value { font-size: 1.1rem; }
+        .hero { padding: 1rem; }
+        .hero-ticker { font-size: 1.6rem; }
+        .hero-row { gap: 1rem; display: grid; grid-template-columns: 1fr 1fr; text-align: center; }
+        .hero-cta { padding: 0.6rem 1.5rem; min-height: 44px; display: inline-flex; align-items: center; }
+        .scan-overview { grid-template-columns: 1fr; }
+        .heat-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+        .qp-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+        .qp-card { padding: 0.75rem; min-height: 44px; }
+        .qp-ticker { font-size: 0.9rem; }
+        .qp-name { font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .qp-price { font-size: 0.75rem; }
+        .view-all a { min-height: 44px; display: inline-flex; align-items: center; }
+        .perf-summary { padding: 1rem; }
+        .perf-row { gap: 1rem; display: grid; grid-template-columns: 1fr 1fr; }
+        .perf-link { min-height: 44px; display: inline-flex; align-items: center; }
+    }
+    @media (max-width: 380px) {
+        .qp-grid { grid-template-columns: 1fr; }
+        .header-pills { gap: 0.5rem; }
+        .pill-value { font-size: 1rem; }
+    }
+
     </style>
 </head>
 <body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-brand">Stock Alpha</a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active">Overview</a>
+                <a href="picks.html" class="nav-link">Picks <span style="color:var(--buyT)">(9)</span></a>
+                <a href="performance.html" class="nav-link"><span class="nav-full">Performance</span><span class="nav-short">Perf</span></a>
+                <a href="methodology.html" class="nav-link"><span class="nav-full">Methodology</span><span class="nav-short">Method</span></a>
+            </div>
+            <div class="nav-pills">
+                <span class="nav-pill buy">9 BUY</span>
+                <span class="nav-pill hold">1 HOLD</span>
+                <span class="nav-pill avoid">0 AVOID</span>
+            </div>
+        </div>
+    </nav>
+
     <div class="container">
-        <header>
-            <h1>Stock Alpha Scanner</h1>
-            <p class="meta">2026-02-11 13:17:35 UTC <span id="next-scan"></span></p>
-            <div class="header-pills">
-                <div class="pill"><div class="pill-value" style="color:var(--buyT)">8</div><div class="pill-label">Buy</div></div>
-                <div class="pill"><div class="pill-value" style="color:var(--holdT)">2</div><div class="pill-label">Hold</div></div>
-                <div class="pill"><div class="pill-value" style="color:var(--avoidT)">0</div><div class="pill-label">Avoid</div></div>
-                <div class="pill"><div class="pill-value">71</div><div class="pill-label">Avg Score</div></div>
-            </div>
-        </header>
-
         
-        
-        
-        
-        <div class="hero">
-            <div class="hero-eyebrow">Top Pick</div>
-            <div class="hero-ticker">EN</div>
-            <div class="hero-name">Bouygues SA</div>
-            <div class="hero-row">
-                <div><div class="hero-num">49.56 EUR</div><div class="hero-label">Price</div></div>
-                <div><div class="hero-num pos">73</div><div class="hero-label">Score</div></div>
-                <div><div class="hero-num neg">47.78</div><div class="hero-label">Stop</div></div>
-                <div><div class="hero-num pos">52.23</div><div class="hero-label">Target</div></div>
-            </div>
-            <a href="https://t.me/StockScanner1234567890bot" class="tg-link" style="margin-top:1rem;">Get alerts on Telegram</a>
+    <div class="page-header">
+        <h1>Stock Alpha Scanner</h1>
+        <p class="meta">2026-02-11 14:48:51 UTC <span id="next-scan"></span></p>
+        <div class="header-pills">
+            <div class="pill"><div class="pill-value" style="color:var(--buyT)">9</div><div class="pill-label">Buy</div></div>
+            <div class="pill"><div class="pill-value" style="color:var(--holdT)">1</div><div class="pill-label">Hold</div></div>
+            <div class="pill"><div class="pill-value" style="color:var(--avoidT)">0</div><div class="pill-label">Avoid</div></div>
+            <div class="pill"><div class="pill-value">71</div><div class="pill-label">Avg Score</div></div>
         </div>
-        
-        
+    </div>
 
-        
-        <section class="pipeline-section">
-            <h2>How the Scanner Works</h2>
-            <p class="pipeline-sub">Every Monday before markets open, a 5-step automated pipeline scans <strong>235+ stocks</strong> across 6 major indices and generates actionable signals.</p>
+    
+    
+    
+    
+    <div class="hero">
+        <div class="hero-eyebrow">Top Pick This Week</div>
+        <div class="hero-ticker">TKA</div>
+        <div class="hero-name">thyssenkrupp AG</div>
+        <div class="hero-row">
+            <div><div class="hero-num">11.77 EUR</div><div class="hero-label">Price</div></div>
+            <div><div class="hero-num pos">77</div><div class="hero-label">Score</div></div>
+            <div><div class="hero-num neg">10.62</div><div class="hero-label">Stop</div></div>
+            <div><div class="hero-num pos">13.50</div><div class="hero-label">Target</div></div>
+        </div>
+        <a href="picks.html" class="hero-cta">View all picks &rarr;</a>
+    </div>
+    
+    
 
-            <div class="pipeline-flow">
-                <div class="pipe-step">
-                    <div class="pipe-icon pi-fetch">1</div>
-                    <div class="pipe-title">Fetch</div>
-                    <div class="pipe-desc">Pull price, fundamentals &amp; technicals via yfinance</div>
-                    <span class="pipe-stat ps-orange">235+ stocks</span>
-                </div>
-                <div class="pipe-conn"><span class="flow-dot"></span></div>
-                <div class="pipe-step">
-                    <div class="pipe-icon pi-score">2</div>
-                    <div class="pipe-title">Score</div>
-                    <div class="pipe-desc">5-factor model: Value, Quality, Momentum, Catalyst, Liquidity</div>
-                    <span class="pipe-stat ps-purple">max 100 pts</span>
-                </div>
-                <div class="pipe-conn"><span class="flow-dot"></span></div>
-                <div class="pipe-step">
-                    <div class="pipe-icon pi-research">3</div>
-                    <div class="pipe-title">Research</div>
-                    <div class="pipe-desc">AI reads latest news, filings &amp; analyst reports</div>
-                    <span class="pipe-stat ps-blue">Perplexity AI</span>
-                </div>
-                <div class="pipe-conn"><span class="flow-dot"></span></div>
-                <div class="pipe-step">
-                    <div class="pipe-icon pi-eval">4</div>
-                    <div class="pipe-title">Evaluate</div>
-                    <div class="pipe-desc">Combine score + research into BUY, HOLD, or AVOID</div>
-                    <span class="pipe-stat ps-green">+ stop &amp; target</span>
-                </div>
-                <div class="pipe-conn"><span class="flow-dot"></span></div>
-                <div class="pipe-step">
-                    <div class="pipe-icon pi-publish">5</div>
-                    <div class="pipe-title">Publish</div>
-                    <div class="pipe-desc">Dashboard updates &amp; Telegram alert sent</div>
-                    <span class="pipe-stat ps-yellow">every Monday</span>
-                </div>
-            </div>
-
+    
+    
+    <div class="quick-picks">
+        <h2>This Week's Signals</h2>
+        <div class="qp-grid">
             
-            <div class="funnel">
-                <div class="funnel-row">
-                    <div class="funnel-bar fb-wide">235+ stocks from 6 indices (AEX, DAX, CAC40, FTSE100, DJIA, NASDAQ)</div>
+            
+            <a href="picks.html#TKA" class="qp-card buy">
+                <div class="qp-top">
+                    <span class="qp-signal buy">BUY</span>
+                    <span style="font-size:0.6rem;color:var(--dim)">HIGH</span>
+                    <span class="qp-score">77/100</span>
                 </div>
-                <div class="funnel-row">
-                    
-                    <div class="funnel-bar fb-mid" style="width:25%">Top 10 scored above threshold</div>
+                <div class="qp-ticker">TKA</div>
+                <div class="qp-name">thyssenkrupp AG</div>
+                <div class="qp-price">11.77 EUR</div>
+            </a>
+            
+            
+            <a href="picks.html#EN" class="qp-card buy">
+                <div class="qp-top">
+                    <span class="qp-signal buy">BUY</span>
+                    <span style="font-size:0.6rem;color:var(--dim)">MEDIUM</span>
+                    <span class="qp-score">73/100</span>
                 </div>
-                <div class="funnel-row">
-                    <div class="funnel-signals">
-                        <span class="funnel-sig buy">8 BUY</span>
-                        <span class="funnel-sig hold">2 HOLD</span>
-                        
-                    </div>
+                <div class="qp-ticker">EN</div>
+                <div class="qp-name">Bouygues SA</div>
+                <div class="qp-price">47.97 EUR</div>
+            </a>
+            
+            
+            <a href="picks.html#SAF" class="qp-card buy">
+                <div class="qp-top">
+                    <span class="qp-signal buy">BUY</span>
+                    <span style="font-size:0.6rem;color:var(--dim)">HIGH</span>
+                    <span class="qp-score">72/100</span>
                 </div>
-            </div>
+                <div class="qp-ticker">SAF</div>
+                <div class="qp-name">Safran SA</div>
+                <div class="qp-price">309.7 EUR</div>
+            </a>
+            
+            
+            <a href="picks.html#AZN" class="qp-card buy">
+                <div class="qp-top">
+                    <span class="qp-signal buy">BUY</span>
+                    <span style="font-size:0.6rem;color:var(--dim)">MEDIUM</span>
+                    <span class="qp-score">72/100</span>
+                </div>
+                <div class="qp-ticker">AZN</div>
+                <div class="qp-name">AstraZeneca PLC</div>
+                <div class="qp-price">14196.0 GBP</div>
+            </a>
+            
+            
+            <a href="picks.html#SIE" class="qp-card buy">
+                <div class="qp-top">
+                    <span class="qp-signal buy">BUY</span>
+                    <span style="font-size:0.6rem;color:var(--dim)">HIGH</span>
+                    <span class="qp-score">71/100</span>
+                </div>
+                <div class="qp-ticker">SIE</div>
+                <div class="qp-name">Siemens Aktiengesellschaft</div>
+                <div class="qp-price">252.65 EUR</div>
+            </a>
+            
+            
+            <a href="picks.html#MTX" class="qp-card buy">
+                <div class="qp-top">
+                    <span class="qp-signal buy">BUY</span>
+                    <span style="font-size:0.6rem;color:var(--dim)">MEDIUM</span>
+                    <span class="qp-score">70/100</span>
+                </div>
+                <div class="qp-ticker">MTX</div>
+                <div class="qp-name">MTU Aero Engines AG</div>
+                <div class="qp-price">380.8 EUR</div>
+            </a>
+            
+            
+            <a href="picks.html#ENR" class="qp-card buy">
+                <div class="qp-top">
+                    <span class="qp-signal buy">BUY</span>
+                    <span style="font-size:0.6rem;color:var(--dim)">HIGH</span>
+                    <span class="qp-score">70/100</span>
+                </div>
+                <div class="qp-ticker">ENR</div>
+                <div class="qp-name">Siemens Energy AG</div>
+                <div class="qp-price">154.45 EUR</div>
+            </a>
+            
+            
+            <a href="picks.html#AMAT" class="qp-card buy">
+                <div class="qp-top">
+                    <span class="qp-signal buy">BUY</span>
+                    <span style="font-size:0.6rem;color:var(--dim)">HIGH</span>
+                    <span class="qp-score">70/100</span>
+                </div>
+                <div class="qp-ticker">AMAT</div>
+                <div class="qp-name">Applied Materials, Inc.</div>
+                <div class="qp-price">322.51 USD</div>
+            </a>
+            
+        </div>
+        <div class="view-all"><a href="picks.html">View all 10 picks &rarr;</a></div>
+    </div>
+    
 
-            <p class="pipeline-sub" style="margin-top:1rem;margin-bottom:0">Top picks combine <strong>undervaluation</strong>, <strong>rising momentum</strong>, and <strong>real-world catalysts</strong> -- verified by AI research. Each card shows risk range: where to cut losses (Stop) and take profit (Target).</p>
-            <a href="https://t.me/StockScanner1234567890bot" class="tg-cta" style="margin-top:0.75rem">Get weekly alerts on Telegram</a>
-        </section>
-
-        
-        
-        <div class="scan-overview">
-            <div>
-                <h3>Signals by Sector</h3>
-                <div class="heat-grid">
-                    
-                    
-                    
-                    
-                    <div class="heat-cell hc-buy">
-                        <div class="heat-sector">Industrials</div>
-                        <div class="heat-count">8</div>
-                        <div class="heat-score">avg 72</div>
-                    </div>
-                    
-                    
-                    
-                    
-                    <div class="heat-cell hc-buy">
-                        <div class="heat-sector">Consumer Defensive</div>
-                        <div class="heat-count">1</div>
-                        <div class="heat-score">avg 69</div>
-                    </div>
-                    
-                    
-                    
-                    
-                    <div class="heat-cell hc-buy">
-                        <div class="heat-sector">Technology</div>
-                        <div class="heat-count">1</div>
-                        <div class="heat-score">avg 69</div>
-                    </div>
-                    
+    
+    
+    <div class="scan-overview">
+        <div>
+            <h3>Signals by Sector</h3>
+            <div class="heat-grid">
+                
+                
+                
+                
+                <div class="heat-cell hc-buy">
+                    <div class="heat-sector">Industrials</div>
+                    <div class="heat-count">8</div>
+                    <div class="heat-score">avg 71</div>
                 </div>
-            </div>
-            <div>
-                <h3>Picks by Index</h3>
-                <div class="index-chart-wrap"><canvas id="indexChart"></canvas></div>
+                
+                
+                
+                
+                <div class="heat-cell hc-buy">
+                    <div class="heat-sector">Healthcare</div>
+                    <div class="heat-count">1</div>
+                    <div class="heat-score">avg 72</div>
+                </div>
+                
+                
+                
+                
+                <div class="heat-cell hc-buy">
+                    <div class="heat-sector">Technology</div>
+                    <div class="heat-count">1</div>
+                    <div class="heat-score">avg 70</div>
+                </div>
+                
             </div>
         </div>
-        
+        <div>
+            <h3>Picks by Index</h3>
+            <div class="index-chart-wrap"><canvas id="indexChart"></canvas></div>
+        </div>
+    </div>
+    
+
+    
+    
+    <div class="perf-summary">
+        <h3>Model Performance</h3>
+        <div class="perf-row">
+            <div class="perf-stat"><div class="perf-stat-val ">N/A</div><div class="perf-stat-label">Win Rate</div></div>
+            <div class="perf-stat"><div class="perf-stat-val">50</div><div class="perf-stat-label">Predictions</div></div>
+            <div class="perf-stat"><div class="perf-stat-val">0</div><div class="perf-stat-label">Evaluated</div></div>
+            <div class="perf-stat"><div class="perf-stat-val">50</div><div class="perf-stat-label">Pending</div></div>
+        </div>
+        <a href="performance.html" class="perf-link">View detailed performance &rarr;</a>
+    </div>
+    
 
-        
-        
-        <section class="perf">
-            <div class="perf-head">
-                <h2>Performance</h2>
-                
-                <div class="tf-pills">
-                    
-                    <button class="tf-pill" data-tf="30d">30d</button>
-                    
-                    <button class="tf-pill" data-tf="60d">60d</button>
-                    
-                    <button class="tf-pill on" data-tf="90d">90d</button>
-                    
-                </div>
-                
-            </div>
-            <div class="perf-nums">
-                <div class="perf-n"><div class="perf-nv " id="ps-wr">N/A</div><div class="perf-nl">Win Rate</div></div>
-                <div class="perf-n"><div class="perf-nv">60</div><div class="perf-nl">Predictions</div></div>
-                <div class="perf-n"><div class="perf-nv" id="ps-ev">0</div><div class="perf-nl">Evaluated</div></div>
-                <div class="perf-n"><div class="perf-nv" id="ps-pe">60</div><div class="perf-nl">Pending</div></div>
-            </div>
-
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-
-            
-            <div class="perf-chart"><canvas id="perfChart"></canvas></div>
-            <script>
-            (function(){
-                var tl=[{"avg_return": null, "avoid_accuracy": null, "buy_accuracy": null, "correct": 0, "date": "2026-02-07", "evaluated": 0, "hold_accuracy": null, "total_predictions": 20, "win_rate": null}, {"30d_evaluated": 0, "30d_win_rate": null, "60d_evaluated": 0, "60d_win_rate": null, "90d_evaluated": 0, "90d_win_rate": null, "avg_return": null, "date": "2026-02-08", "total_predictions": 50}, {"30d_evaluated": 0, "30d_win_rate": null, "60d_evaluated": 0, "60d_win_rate": null, "90d_evaluated": 0, "90d_win_rate": null, "avg_return": null, "date": "2026-02-09", "total_predictions": 60}],labels=tl.map(function(s){return s.date}),ds=[],tc={'30d':'#f0883e','60d':'#a371f7','90d':'#3fb950'},tfs=["30d", "60d", "90d"];
-                tfs.forEach(function(tf){ds.push({label:tf+' Win %',data:tl.map(function(s){return s[tf+'_win_rate']}),borderColor:tc[tf]||'#8b949e',backgroundColor:'transparent',fill:false,tension:.3,pointRadius:2,pointHoverRadius:4})});
-                ds.push({label:'Avg Return %',data:tl.map(function(s){return s.avg_return}),borderColor:'#58a6ff',fill:false,tension:.3,pointRadius:2,borderDash:[5,3]});
-                new Chart(document.getElementById('perfChart'),{type:'line',data:{labels:labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#8b949e',font:{size:10}}},tooltip:{backgroundColor:'#21262d',titleColor:'#e6edf3',bodyColor:'#e6edf3',borderColor:'#30363d',borderWidth:1}},scales:{x:{ticks:{color:'#8b949e',font:{size:9},maxRotation:45},grid:{color:'rgba(48,54,61,0.5)'}},y:{ticks:{color:'#8b949e',font:{size:9}},grid:{color:'rgba(48,54,61,0.5)'}}}}});
-            })();
-            </script>
-            
-
-            
-
-            
-        </section>
-
-        
-        <script>
-        (function(){
-            var d={"30d": {"correct": 0, "evaluated": 0, "inconclusive": 0, "incorrect": 0, "pending": 60, "per_signal": {"AVOID": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "BUY": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "HOLD": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}}, "win_rate": null}, "60d": {"correct": 0, "evaluated": 0, "inconclusive": 0, "incorrect": 0, "pending": 60, "per_signal": {"AVOID": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "BUY": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "HOLD": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}}, "win_rate": null}, "90d": {"correct": 0, "evaluated": 0, "inconclusive": 0, "incorrect": 0, "pending": 60, "per_signal": {"AVOID": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "BUY": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "HOLD": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}}, "win_rate": null}},bs=document.querySelectorAll('.tf-pill');
-            if(!bs.length)return;
-            function sw(tf){var s=d[tf];if(!s)return;
-                var wr=document.getElementById('ps-wr');if(wr){wr.textContent=s.win_rate!==null?Math.round(s.win_rate)+'%':'N/A';wr.className='perf-nv '+(s.win_rate!==null?(s.win_rate>=50?'pos':'neg'):'');}
-                var ev=document.getElementById('ps-ev');if(ev)ev.textContent=s.evaluated;
-                var pe=document.getElementById('ps-pe');if(pe)pe.textContent=s.pending;
-                ['BUY','HOLD','AVOID'].forEach(function(sig){var ps=(s.per_signal||{})[sig]||{};var bar=document.getElementById('bar-'+sig.toLowerCase());var det=document.getElementById('detail-'+sig.toLowerCase());if(bar)bar.style.width=(ps.accuracy||0)+'%';if(det){var t=(ps.correct||0)+'/'+(ps.decisive||0);if(ps.avg_return!==null&&ps.avg_return!==undefined)t+=' '+(ps.avg_return>0?'+':'')+ps.avg_return.toFixed(1)+'%';det.textContent=t;}});
-                bs.forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tf')===tf);});
-            }
-            bs.forEach(function(b){b.addEventListener('click',function(){sw(b.getAttribute('data-tf'));});});
-        })();
-        </script>
-        
-        
-
-        
-        <main>
-        
-            <div class="controls">
-                <button class="fbtn on" data-f="all">All</button>
-                <button class="fbtn f-buy on" data-f="buy">BUY</button>
-                <button class="fbtn f-hold on" data-f="hold">HOLD</button>
-                <button class="fbtn f-avoid on" data-f="avoid">AVOID</button>
-                <input type="text" class="search" id="search" placeholder="Search...">
-                <select class="sort" id="sort">
-                    <option value="sd">Score</option>
-                    <option value="sa">Score (low)</option>
-                    <option value="az">A-Z</option>
-                </select>
-            </div>
-
-            <div class="grid" id="grid">
-            
-            
-            <div class="card hold">
-                <div class="card-top">
-                    <span class="signal hold">HOLD</span>
-                    <span class="conf conf-medium">MEDIUM</span>
-                    <span class="card-sector">Industrials</span>
-                    <span class="card-score">81</span>
-                </div>
-                <div style="margin-bottom:0.5rem">
-                    <span class="card-ticker">TKA</span>
-                    <span class="card-name">&mdash; thyssenkrupp AG</span>
-                    <span class="streak">3x</span>
-                </div>
-
-                
-                
-                
-                
-                <div class="range-bar">
-                    <div class="range-labels">
-                        <span class="range-stop">11.05<span class="range-hint">Stop</span></span>
-                        <span class="range-price">12.155 EUR<span class="range-hint">Now</span></span>
-                        <span class="range-target">13.81<span class="range-hint">Target</span></span>
-                    </div>
-                    <div class="range-track">
-                        <div class="range-fill" style="width:100%"></div>
-                        <div class="range-dot" style="left:40.0%"></div>
-                    </div>
-                </div>
-                
-
-                
-                <span class="alloc">5% allocation</span>
-                
-                
-                
-                
-                
-                <span class="rr-badge">1:1.5 R:R</span>
-                
-                
-
-                
-                <div class="reasoning" id="r1">Thyssenkrupp's transformation efforts and TKMS listing provide structural support, bolstered by technical momentum and analyst target upgrades amid recovering EU steel prices, but execution risks from steel losses and a projected 2025/26 net loss temper upside.[1][3] Earnings growth at 26% annually outpaces the metals/mining sector, yet cyclical swings tied to industrial demand and broader German market softness limit conviction.[1][6] The stock's position above moving averages suggests stability, but lacks clear breakout catalysts in the near term.[1]</div>
-                <button class="read-more" onclick="var r=document.getElementById('r1');r.classList.toggle('expanded');this.textContent=r.classList.contains('expanded')?'less':'more'">more</button>
-                
-
-                
-                
-                
-                
-                <div style="margin-top:0.75rem">
-                    <div class="score-bar">
-                        <div class="sb-val" style="width:26.0%"></div>
-                        <div class="sb-qual" style="width:19.0%"></div>
-                        <div class="sb-mom" style="width:31.0%"></div>
-                        <div class="sb-cat" style="width:16.0%"></div>
-                        <div class="sb-liq" style="width:9.0%"></div>
-                    </div>
-                    <div class="score-legend">
-                        <span><i style="background:#f0883e"></i>Val 21</span>
-                        <span><i style="background:#a371f7"></i>Qual 15</span>
-                        <span><i style="background:#3fb950"></i>Mom 25</span>
-                        <span><i style="background:#58a6ff"></i>Cat 13</span>
-                        <span><i style="background:#d29922"></i>Liq 7</span>
-                    </div>
-                </div>
-                
-
-                <details>
-                    <summary>Details</summary>
-                    <div class="detail-body">
-                        <p>thyssenkrupp AG (TKA) is a diversified German industrial conglomerate with key segments in steel, defense (TKMS), and materials, undergoing a multi-year transformation to cut steel capacity, reduce costs, and simplify its portfolio amid challenging macroeconomic conditions.[1][3] The company holds a cyclical recovery profile, with shares advancing from €4.85 in late January 2025 to the €10-€13 range through 2025 into early 2026, supported by restructuring progress and a separate TKMS listing trading above its issue price.[1] As of early February 2026, the stock trades around €10.92-€12.15, above key moving averages with medium-term upward bias, reflecting stronger European steel equities and momentum from +162% 12-month returns.[1]</p>
-                        <h4>Developments</h4><ul><li>Shareholders approved all agenda items at the January 30, 2026 Annual General Meeting, highlighting restructuring progress and TKMS defense unit listing success.[1][3]</li><li>J.P. Morgan raised its price target to €11.10 from €7.60 on January 29, 2026, citing stronger European steel performance, potential earnings trough, and higher EU steel prices, while maintaining a neutral rating.[1]</li><li>Ongoing steel division restructuring, including capacity reductions and job cuts, alongside portfolio reshaping, has shaped recent price rebounds from December 2025 lows near €9.[1]</li></ul>
-                        <h4>Catalysts</h4><ul><li>Q1 2025/2026 interim report and analyst conference call on February 12, 2026, with CEO Miguel Ángel López and CFO Dr. Axel Hamann, potentially detailing restructuring updates and steel outlook.[2][3][4]</li><li>Progress on steel capacity cuts and portfolio simplification, which could boost profitability if EU steel prices and demand exceed expectations.[1]</li></ul>
-                        <h4>Risks</h4><ul><li>Restructuring execution risks, including job reductions and forecast net loss for 2025/26 if steel demand/pricing disappoints.[1]</li><li>Broader European industrial weakness and German equity market risk aversion, as seen in softer DAX opens.[1]</li></ul>
-                        <h4>Sources</h4><ul><li><a href="https://capital.com/en-int/market-updates/thyssenkrupp-stock-forecast-10-02-2026" target="_blank" rel="noopener">https://capital.com/en-int/market-updates/thyssenkrupp-stock...</a></li><li><a href="https://www.thyssenkrupp.com/en/investors/calendar" target="_blank" rel="noopener">https://www.thyssenkrupp.com/en/investors/calendar</a></li><li><a href="https://www.thyssenkrupp.com/en/investors" target="_blank" rel="noopener">https://www.thyssenkrupp.com/en/investors</a></li></ul>
-
-                        
-                        <h4>Key Metrics</h4>
-                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.3rem;font-size:0.8rem;margin-top:0.25rem">
-                            <div>P/E <strong>16.2</strong></div>
-                            <div>ROE <strong class="">5%</strong></div>
-                            <div>Div <strong>128.0%</strong></div>
-                            <div>6m <strong class="pos">+27%</strong></div>
-                            <div>12m <strong class="pos">+162%</strong></div>
-                            <div>RSI <strong>67</strong></div>
-                        </div>
-                    </div>
-                </details>
-
-                <div class="card-foot">
-                    
-                    
-                    <a href="https://finance.yahoo.com/quote/TKA.DE" target="_blank" rel="noopener">Yahoo Finance &rarr;</a>
-                    <span class="tf-badge">3-6 months</span>
-                </div>
-            </div>
-            
-            
-            <div class="card buy">
-                <div class="card-top">
-                    <span class="signal buy">BUY</span>
-                    <span class="conf conf-medium">MEDIUM</span>
-                    <span class="card-sector">Industrials</span>
-                    <span class="card-score">73</span>
-                </div>
-                <div style="margin-bottom:0.5rem">
-                    <span class="card-ticker">EN</span>
-                    <span class="card-name">&mdash; Bouygues SA</span>
-                    <span class="streak">3x</span>
-                </div>
-
-                
-                
-                
-                
-                <div class="range-bar">
-                    <div class="range-labels">
-                        <span class="range-stop">47.78<span class="range-hint">Stop</span></span>
-                        <span class="range-price">49.56 EUR<span class="range-hint">Now</span></span>
-                        <span class="range-target">52.23<span class="range-hint">Target</span></span>
-                    </div>
-                    <div class="range-track">
-                        <div class="range-fill" style="width:100%"></div>
-                        <div class="range-dot" style="left:40.0%"></div>
-                    </div>
-                </div>
-                
-
-                
-                <span class="alloc">10% allocation</span>
-                
-                
-                
-                
-                
-                <span class="rr-badge">1:1.5 R:R</span>
-                
-                
-
-                
-                <div class="reasoning" id="r2">Bouygues SA is a French diversified industrial group operating across **construction** (Colas, Bouygues Construction, Bouygues Immobilier), **energies & services** (Equans), **telecoms** (Bouygues Telecom), and **media** (TF1)[3]. The company generated €56.80 billion in revenue in 2024 with net income of €1.06 billion, representing modest growth of 1.32% and 1.73% respectively year-over-year[1]. Trading at a forward P/E of 11.76x with a 5.02% dividend yield, the stock has demonstrated strong momentum with a 52-week gain of approximately 54% from its low of €27.47[1].</div>
-                <button class="read-more" onclick="var r=document.getElementById('r2');r.classList.toggle('expanded');this.textContent=r.classList.contains('expanded')?'less':'more'">more</button>
-                
-
-                
-                
-                
-                
-                <div style="margin-top:0.75rem">
-                    <div class="score-bar">
-                        <div class="sb-val" style="width:29.0%"></div>
-                        <div class="sb-qual" style="width:12.0%"></div>
-                        <div class="sb-mom" style="width:32.0%"></div>
-                        <div class="sb-cat" style="width:18.0%"></div>
-                        <div class="sb-liq" style="width:10.0%"></div>
-                    </div>
-                    <div class="score-legend">
-                        <span><i style="background:#f0883e"></i>Val 21</span>
-                        <span><i style="background:#a371f7"></i>Qual 9</span>
-                        <span><i style="background:#3fb950"></i>Mom 23</span>
-                        <span><i style="background:#58a6ff"></i>Cat 13</span>
-                        <span><i style="background:#d29922"></i>Liq 7</span>
-                    </div>
-                </div>
-                
-
-                <details>
-                    <summary>Details</summary>
-                    <div class="detail-body">
-                        <p>Bouygues SA is a French diversified industrial group operating across **construction** (Colas, Bouygues Construction, Bouygues Immobilier), **energies & services** (Equans), **telecoms** (Bouygues Telecom), and **media** (TF1)[3]. The company generated €56.80 billion in revenue in 2024 with net income of €1.06 billion, representing modest growth of 1.32% and 1.73% respectively year-over-year[1]. Trading at a forward P/E of 11.76x with a 5.02% dividend yield, the stock has demonstrated strong momentum with a 52-week gain of approximately 54% from its low of €27.47[1].</p>
-                        <h4>Developments</h4><ul><li>**Nine-month 2025 results showed mixed performance**: Sales increased 0.9% in the first nine months of 2025, but profit declined despite the company maintaining its full-year 2025 outlook for slight increases in both COPA (current operating profit after amortization) and sales at constant exchange rates[1].</li></ul>
-                        <h4>Catalysts</h4><ul><li>**Altice acquisition completion**: Resolution of the joint bid by Bouygues, Orange, and Free-iliad for Altice's French telecom assets could materially reshape the competitive landscape and drive shareholder value through consolidation benefits.</li></ul>
-                        <h4>Risks</h4><ul><li>**Regulatory uncertainty on telecom consolidation**: The €17 billion Altice acquisition faces potential regulatory scrutiny from French and EU authorities regarding market concentration in the already-consolidated French telecom sector, which could delay or block the transaction.</li></ul>
-                        <h4>Sources</h4><ul><li><a href="https://stockanalysis.com/quote/epa/EN/" target="_blank" rel="noopener">https://stockanalysis.com/quote/epa/EN/</a></li><li><a href="https://stockinvest.us/stock/BOUYF" target="_blank" rel="noopener">https://stockinvest.us/stock/BOUYF</a></li><li><a href="https://www.globenewswire.com/news-release/2026/02/02/3230458/0/en/bouygues-monthly-disclosure-of-the-total-number-of-shares-and-voting-rights.html" target="_blank" rel="noopener">https://www.globenewswire.com/news-release/2026/02/02/323045...</a></li></ul>
-
-                        
-                        <h4>Key Metrics</h4>
-                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.3rem;font-size:0.8rem;margin-top:0.25rem">
-                            <div>P/E <strong>18.0</strong></div>
-                            <div>ROE <strong class="">8%</strong></div>
-                            <div>Div <strong>412.0%</strong></div>
-                            <div>6m <strong class="pos">+26%</strong></div>
-                            <div>12m <strong class="pos">+61%</strong></div>
-                            <div>RSI <strong>79</strong></div>
-                        </div>
-                    </div>
-                </details>
-
-                <div class="card-foot">
-                    
-                    
-                    <a href="https://finance.yahoo.com/quote/EN.PA" target="_blank" rel="noopener">Yahoo Finance &rarr;</a>
-                    <span class="tf-badge">3-6 months</span>
-                </div>
-            </div>
-            
-            
-            <div class="card buy">
-                <div class="card-top">
-                    <span class="signal buy">BUY</span>
-                    <span class="conf conf-medium">MEDIUM</span>
-                    <span class="card-sector">Industrials</span>
-                    <span class="card-score">72</span>
-                </div>
-                <div style="margin-bottom:0.5rem">
-                    <span class="card-ticker">DHL</span>
-                    <span class="card-name">&mdash; Deutsche Post AG</span>
-                    
-                </div>
-
-                
-                
-                
-                
-                <div class="range-bar">
-                    <div class="range-labels">
-                        <span class="range-stop">48.60<span class="range-hint">Stop</span></span>
-                        <span class="range-price">50.46 EUR<span class="range-hint">Now</span></span>
-                        <span class="range-target">53.25<span class="range-hint">Target</span></span>
-                    </div>
-                    <div class="range-track">
-                        <div class="range-fill" style="width:100%"></div>
-                        <div class="range-dot" style="left:40.0%"></div>
-                    </div>
-                </div>
-                
-
-                
-                <span class="alloc">9% allocation</span>
-                
-                
-                
-                
-                
-                <span class="rr-badge rr-good">1:1.5 R:R</span>
-                
-                
-
-                
-                <div class="reasoning" id="r3">DHL Group demonstrates resilient earnings growth through cost management, pricing, and eCommerce expansion (e.g., Evri merger), offsetting freight weakness and currency pressures, with consensus forecasting accelerating profits into 2026.[2][3][6] Strong free cash flow and 17.09% ROE support shareholder returns in a GDP+ logistics sector, though trade volatility caps upside.[4][7] At 50.46 euros (P/E 16.4), the stock appears fairly valued with momentum (Alpha Score 72/100).[user metrics]</div>
-                <button class="read-more" onclick="var r=document.getElementById('r3');r.classList.toggle('expanded');this.textContent=r.classList.contains('expanded')?'less':'more'">more</button>
-                
-
-                
-                
-                
-                
-                <div style="margin-top:0.75rem">
-                    <div class="score-bar">
-                        <div class="sb-val" style="width:29.0%"></div>
-                        <div class="sb-qual" style="width:22.0%"></div>
-                        <div class="sb-mom" style="width:32.0%"></div>
-                        <div class="sb-cat" style="width:7.0%"></div>
-                        <div class="sb-liq" style="width:10.0%"></div>
-                    </div>
-                    <div class="score-legend">
-                        <span><i style="background:#f0883e"></i>Val 21</span>
-                        <span><i style="background:#a371f7"></i>Qual 16</span>
-                        <span><i style="background:#3fb950"></i>Mom 23</span>
-                        <span><i style="background:#58a6ff"></i>Cat 5</span>
-                        <span><i style="background:#d29922"></i>Liq 7</span>
-                    </div>
-                </div>
-                
-
-                <details>
-                    <summary>Details</summary>
-                    <div class="detail-body">
-                        <p>Deutsche Post AG (DHL Group), the world's leading logistics provider, operates across Express, Global Forwarding/Freight, Supply Chain, eCommerce, and Post & Parcel Germany divisions, benefiting from structural GDP+ growth and strong cash flow generation.[4] In Q3 2025, group revenue fell 2.3% YoY to €20.1 billion due to currency effects and lower US-bound volumes, but EBIT rose 7.6% to €1.5 billion with a 7.3% margin, marking four consecutive quarters of earnings growth amid trade conflicts.[3] The stock has delivered strong returns (+43.4% over 12 months) with a P/E of 16.4 and ROE of 16.8%, supported by robust free cash flow of €1.2 billion (ex-M&A).[3]</p>
-                        <h4>Developments</h4><ul><li>Q3 2025 results showed group EBIT growth to €1.5 billion despite revenue decline; Express EBIT up 0.8% to €692 million (11.8% margin), eCommerce EBIT surged >100% to €176 million (boosted by €183 million Evri merger gain), and Post & Parcel Germany EBIT +27.3% to €218 million via parcel growth and pricing.[3][5]</li><li>Global Forwarding/Freight faced headwinds with revenue -9.2% and EBIT -29.6% to €195 million due to volatile freight rates, while Supply Chain EBIT edged up 1.6% to €278 million on productivity gains.[3][5]</li><li>Analyst consensus as of Feb 2, 2026 projects FY2026 EBIT at €6,373-€7,436 million, net profit €3,735-€4,372 million, and EPS €3.35-€4.03, with unchanged 2025 guidance of €6 billion EBIT and €3 billion FCF (ex-M&A).[2][6]</li></ul>
-                        <h4>Catalysts</h4><ul><li>Q4 2025 and full-year results (expected March 4, 2026), with seasonally strong year-end business potentially confirming €6 billion EBIT guidance.[3][7]</li><li>eCommerce integration benefits from Evri merger and Supply Chain productivity gains driving margin expansion into FY2026.[3][5]</li></ul>
-                        <h4>Risks</h4><ul><li>Persistent trade conflicts, US volume declines, and currency headwinds pressuring revenue, as seen in Q3 Global Forwarding -9.2% drop.[3]</li><li>Freight market volatility and non-recurring items (e.g., M&A costs) could erode EBIT if capacity management falters.[3][5]</li></ul>
-                        <h4>Sources</h4><ul><li><a href="https://global.morningstar.com/en-eu/investments/stocks/0P00009QOZ/financials?exchange=XETR&ticker=DHL" target="_blank" rel="noopener">https://global.morningstar.com/en-eu/investments/stocks/0P00...</a></li><li><a href="https://group.dhl.com/content/dam/deutschepostdhl/en/investors/shares/analyst-estimates/2026/DHL-Consensus-FY-2026-2-2.xlsx" target="_blank" rel="noopener">https://group.dhl.com/content/dam/deutschepostdhl/en/investo...</a></li><li><a href="https://group.dhl.com/en/media-relations/press-releases/2025/dhl-group-financial-figures-q3-2025.html" target="_blank" rel="noopener">https://group.dhl.com/en/media-relations/press-releases/2025...</a></li></ul>
-
-                        
-                        <h4>Key Metrics</h4>
-                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.3rem;font-size:0.8rem;margin-top:0.25rem">
-                            <div>P/E <strong>16.4</strong></div>
-                            <div>ROE <strong class="pos">17%</strong></div>
-                            <div>Div <strong>362.0%</strong></div>
-                            <div>6m <strong class="pos">+21%</strong></div>
-                            <div>12m <strong class="pos">+43%</strong></div>
-                            <div>RSI <strong>73</strong></div>
-                        </div>
-                    </div>
-                </details>
-
-                <div class="card-foot">
-                    
-                    
-                    <a href="https://finance.yahoo.com/quote/DHL.DE" target="_blank" rel="noopener">Yahoo Finance &rarr;</a>
-                    <span class="tf-badge">3-6 months</span>
-                </div>
-            </div>
-            
-            
-            <div class="card buy">
-                <div class="card-top">
-                    <span class="signal buy">BUY</span>
-                    <span class="conf conf-high">HIGH</span>
-                    <span class="card-sector">Industrials</span>
-                    <span class="card-score">72</span>
-                </div>
-                <div style="margin-bottom:0.5rem">
-                    <span class="card-ticker">ENR</span>
-                    <span class="card-name">&mdash; Siemens Energy AG</span>
-                    <span class="streak">3x</span>
-                </div>
-
-                
-                
-                
-                
-                <div class="range-bar">
-                    <div class="range-labels">
-                        <span class="range-stop">145.01<span class="range-hint">Stop</span></span>
-                        <span class="range-price">159.35 EUR<span class="range-hint">Now</span></span>
-                        <span class="range-target">180.85<span class="range-hint">Target</span></span>
-                    </div>
-                    <div class="range-track">
-                        <div class="range-fill" style="width:100%"></div>
-                        <div class="range-dot" style="left:40.0%"></div>
-                    </div>
-                </div>
-                
-
-                
-                <span class="alloc">12% allocation</span>
-                
-                
-                
-                
-                
-                <span class="rr-badge">1:1.5 R:R</span>
-                
-                
-
-                
-                <div class="reasoning" id="r4">Siemens Energy's momentum is underpinned by structural demand for grid infrastructure and gas turbines amid AI/data center electrification, evidenced by record Q1 orders and beaten expectations across segments.[1][2][4] Upgraded broker targets (€164-€170) and technical strength (above key SMAs, RSI 71.9) support further upside from current €159 levels, with FY2026 guidance intact and wind recovery underway.[1][3][4] Elevated P/E (99.6) reflects high expectations but is justified by 155%+ 12m returns and ROE 16.8% amid execution improvements.[user query]</div>
-                <button class="read-more" onclick="var r=document.getElementById('r4');r.classList.toggle('expanded');this.textContent=r.classList.contains('expanded')?'less':'more'">more</button>
-                
-
-                
-                
-                
-                
-                <div style="margin-top:0.75rem">
-                    <div class="score-bar">
-                        <div class="sb-val" style="width:7.0%"></div>
-                        <div class="sb-qual" style="width:31.0%"></div>
-                        <div class="sb-mom" style="width:35.0%"></div>
-                        <div class="sb-cat" style="width:18.0%"></div>
-                        <div class="sb-liq" style="width:10.0%"></div>
-                    </div>
-                    <div class="score-legend">
-                        <span><i style="background:#f0883e"></i>Val 5</span>
-                        <span><i style="background:#a371f7"></i>Qual 22</span>
-                        <span><i style="background:#3fb950"></i>Mom 25</span>
-                        <span><i style="background:#58a6ff"></i>Cat 13</span>
-                        <span><i style="background:#d29922"></i>Liq 7</span>
-                    </div>
-                </div>
-                
-
-                <details>
-                    <summary>Details</summary>
-                    <div class="detail-body">
-                        <p>Siemens Energy AG is a Germany-based energy technology company focused on power generation, grids, and energy-transition projects, benefiting from strong demand in gas turbines and grid technologies amid AI-driven power needs and data center expansion. The stock has delivered exceptional performance, with shares up over 30% year-to-date in 2026 as the top DAX performer, rising from a €6.40 low in October 2023 to around €159, driven by record orders, revenue growth, and improved profitability.[1][2][3][4] Q1 FY2026 results showed orders at record highs, revenue and cash flow significantly up, and earnings more than doubled year-over-year, confirming FY2026 outlook of 11-13% revenue growth and 9-11% profit margin.[3][4]</p>
-                        <h4>Developments</h4><ul><li>Q1 FY2026 earnings released February 11, 2026, exceeded expectations with record orders fueled by gas turbine (+80% intake) and grid tech demand from AI/data centers; profit, revenue, and free cash flow beat forecasts, wind segment shows modest improvement.[2][3][4][6]</li><li>Shares surged 5.4% to above €160 on earnings day (recent Wednesday), extending 30%+ YTD gains and record rally since October 2024.[2]</li><li>Broker upgrades: Deutsche Bank raised PT to €170 (from €135, positive rating) on stronger order pipeline and profitability; Jefferies to €164 (buy) citing earnings visibility and grid/energy-transition tailwinds (late Jan/early Feb 2026).[1]</li><li>Announced €6bn share buyback program through FY2028 (Nov 2025), signaling confidence.[3]</li></ul>
-                        <h4>Catalysts</h4><ul><li>Continued execution on FY2026 guidance (11-13% revenue growth, €3-4bn net income, €4-5bn FCF), with Q2 results likely in May 2026 highlighting gas/grid momentum.[3][4]</li><li>€6bn share buyback deployment through 2028, plus potential dividend growth post-FY2025 proposal.[3]</li><li>Wind segment breakeven in FY2026 via offshore productivity and onshore service gains.[3][4]</li></ul>
-                        <h4>Risks</h4><ul><li>Legacy wind issues (e.g., Gamesa onshore challenges) persist despite improvements, with project execution risks.[1][3]</li><li>High valuation (P/E 99.6, stretched RSI) vulnerable to pullbacks if delivery falters or macro/energy-transition sentiment shifts.[1]</li></ul>
-                        <h4>Sources</h4><ul><li><a href="https://capital.com/en-int/analysis/siemens-energy-stock-forecast" target="_blank" rel="noopener">https://capital.com/en-int/analysis/siemens-energy-stock-for...</a></li><li><a href="https://www.marketscreener.com/news/siemens-energy-continues-record-breaking-streak-as-ai-driven-power-demand-surges-ce7e5addda88ff27" target="_blank" rel="noopener">https://www.marketscreener.com/news/siemens-energy-continues...</a></li><li><a href="https://www.siemens-energy.com/global/en/home/investor-relations.html" target="_blank" rel="noopener">https://www.siemens-energy.com/global/en/home/investor-relat...</a></li></ul>
-
-                        
-                        <h4>Key Metrics</h4>
-                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.3rem;font-size:0.8rem;margin-top:0.25rem">
-                            <div>P/E <strong>99.6</strong></div>
-                            <div>ROE <strong class="pos">17%</strong></div>
-                            <div>Div <strong>46.0%</strong></div>
-                            <div>6m <strong class="pos">+62%</strong></div>
-                            <div>12m <strong class="pos">+156%</strong></div>
-                            <div>RSI <strong>69</strong></div>
-                        </div>
-                    </div>
-                </details>
-
-                <div class="card-foot">
-                    
-                    
-                    <a href="https://finance.yahoo.com/quote/ENR.DE" target="_blank" rel="noopener">Yahoo Finance &rarr;</a>
-                    <span class="tf-badge">3-6 months</span>
-                </div>
-            </div>
-            
-            
-            <div class="card buy">
-                <div class="card-top">
-                    <span class="signal buy">BUY</span>
-                    <span class="conf conf-high">HIGH</span>
-                    <span class="card-sector">Industrials</span>
-                    <span class="card-score">72</span>
-                </div>
-                <div style="margin-bottom:0.5rem">
-                    <span class="card-ticker">SAF</span>
-                    <span class="card-name">&mdash; Safran SA</span>
-                    <span class="streak">3x</span>
-                </div>
-
-                
-                
-                
-                
-                <div class="range-bar">
-                    <div class="range-labels">
-                        <span class="range-stop">293.33<span class="range-hint">Stop</span></span>
-                        <span class="range-price">306.7 EUR<span class="range-hint">Now</span></span>
-                        <span class="range-target">326.76<span class="range-hint">Target</span></span>
-                    </div>
-                    <div class="range-track">
-                        <div class="range-fill" style="width:100%"></div>
-                        <div class="range-dot" style="left:40.0%"></div>
-                    </div>
-                </div>
-                
-
-                
-                <span class="alloc">12% allocation</span>
-                
-                
-                
-                
-                
-                <span class="rr-badge rr-good">1:1.5 R:R</span>
-                
-                
-
-                
-                <div class="reasoning" id="r5">Safran's strong fundamentals, including high ROE (27.93-34.7%), civil aerospace backlog, and defense tailwinds, position it for continued outperformance in a recovering global aviation market.[1][2] Analyst price targets averaging €336-€344 (above current €306-€316 levels) reflect optimism on revenue/margin expansion, despite elevated valuations, with Morningstar fair value at €391.[1][2] Recent stock momentum and sector stability support upside potential over 3-6 months.[1][3]</div>
-                <button class="read-more" onclick="var r=document.getElementById('r5');r.classList.toggle('expanded');this.textContent=r.classList.contains('expanded')?'less':'more'">more</button>
-                
-
-                
-                
-                
-                
-                <div style="margin-top:0.75rem">
-                    <div class="score-bar">
-                        <div class="sb-val" style="width:7.0%"></div>
-                        <div class="sb-qual" style="width:35.0%"></div>
-                        <div class="sb-mom" style="width:31.0%"></div>
-                        <div class="sb-cat" style="width:18.0%"></div>
-                        <div class="sb-liq" style="width:10.0%"></div>
-                    </div>
-                    <div class="score-legend">
-                        <span><i style="background:#f0883e"></i>Val 5</span>
-                        <span><i style="background:#a371f7"></i>Qual 25</span>
-                        <span><i style="background:#3fb950"></i>Mom 22</span>
-                        <span><i style="background:#58a6ff"></i>Cat 13</span>
-                        <span><i style="background:#d29922"></i>Liq 7</span>
-                    </div>
-                </div>
-                
-
-                <details>
-                    <summary>Details</summary>
-                    <div class="detail-body">
-                        <p>Safran SA is a leading global aerospace and defense group specializing in propulsion and equipment for commercial and military applications, with strong exposure to civil engine backlogs, aftermarket demand, and defense activities.[1][2] The company has demonstrated robust performance, with its stock rising from around €211 at the end of 2024 to approximately €323 in early January 2026, supported by revenue growth, improving margins, and solid free cash flow amid recovering air traffic.[1] As of early February 2026, shares trade near €308-€316, reflecting a 25.71% gain over the past year within a 52-week range of €190.70-€329.80, though at a premium valuation (P/E 38.74 normalized).[2][3][4]</p>
-                        <h4>Developments</h4><ul><li>Stock advanced steadily into low-€320s by early January 2026, outperforming benchmarks amid stable CAC 40 conditions and positive sector sentiment, with recent trading around €308-€315 as of February 9-10, 2026.[1][2][3][4]</li><li>Analyst consensus targets raised to €336.60 (Fintel) and €343.89 (TipRanks) for 12 months, driven by expectations of earnings growth, margin resilience, and aftermarket/defense exposure (data as of late December 2025 to early January 2026).[1]</li><li>Technical indicators show shares above rising moving averages (20-200 day SMAs €278-€301), but RSI near 71.5 signals overbought conditions as of January 8, 2026.[1]</li><li>Monthly share capital and voting rights statement released December 15, 2025, amid ongoing disclosures via Euronext.[1]</li></ul>
-                        <h4>Catalysts</h4><ul><li>Q4/Full-year 2025 earnings release (expected early 2026), potentially confirming backlog growth and cash flow beats amid air traffic recovery.[1]</li><li>Updates on engine deliveries, certifications, and aftermarket volumes, which could drive positive revisions to 2026 guidance.[1]</li></ul>
-                        <h4>Risks</h4><ul><li>Overbought technicals (RSI 71.5) and sensitivity to aerospace demand shifts, supply-chain issues, or airline capacity cuts.[1]</li><li>High valuation multiples (P/E 38.74 vs. peers RTX/GE) vulnerable to macroeconomic pressures or program delays in a volatile global context.[1][2]</li></ul>
-                        <h4>Sources</h4><ul><li><a href="https://capital.com/en-int/analysis/safran-stock-forecast" target="_blank" rel="noopener">https://capital.com/en-int/analysis/safran-stock-forecast</a></li><li><a href="https://www.morningstar.com/stocks/xpar/saf/quote" target="_blank" rel="noopener">https://www.morningstar.com/stocks/xpar/saf/quote</a></li><li><a href="https://www.investing.com/equities/safran-historical-data" target="_blank" rel="noopener">https://www.investing.com/equities/safran-historical-data</a></li></ul>
-
-                        
-                        <h4>Key Metrics</h4>
-                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.3rem;font-size:0.8rem;margin-top:0.25rem">
-                            <div>P/E <strong>29.6</strong></div>
-                            <div>ROE <strong class="pos">35%</strong></div>
-                            <div>Div <strong>94.0%</strong></div>
-                            <div>6m <strong class="pos">+5%</strong></div>
-                            <div>12m <strong class="pos">+23%</strong></div>
-                            <div>RSI <strong>51</strong></div>
-                        </div>
-                    </div>
-                </details>
-
-                <div class="card-foot">
-                    
-                    
-                    <a href="https://finance.yahoo.com/quote/SAF.PA" target="_blank" rel="noopener">Yahoo Finance &rarr;</a>
-                    <span class="tf-badge">3-6 months</span>
-                </div>
-            </div>
-            
-            
-            <div class="card buy">
-                <div class="card-top">
-                    <span class="signal buy">BUY</span>
-                    <span class="conf conf-high">HIGH</span>
-                    <span class="card-sector">Consumer Defensive</span>
-                    <span class="card-score">69</span>
-                </div>
-                <div style="margin-bottom:0.5rem">
-                    <span class="card-ticker">AD</span>
-                    <span class="card-name">&mdash; Koninklijke Ahold Delhaize N.V.</span>
-                    
-                </div>
-
-                
-                
-                
-                
-                <div class="range-bar">
-                    <div class="range-labels">
-                        <span class="range-stop">36.53<span class="range-hint">Stop</span></span>
-                        <span class="range-price">38.1 EUR<span class="range-hint">Now</span></span>
-                        <span class="range-target">40.45<span class="range-hint">Target</span></span>
-                    </div>
-                    <div class="range-track">
-                        <div class="range-fill" style="width:100%"></div>
-                        <div class="range-dot" style="left:40.0%"></div>
-                    </div>
-                </div>
-                
-
-                
-                <span class="alloc">12% allocation</span>
-                
-                
-                
-                
-                
-                <span class="rr-badge">1:1.5 R:R</span>
-                
-                
-
-                
-                <div class="reasoning" id="r6">Ahold Delhaize demonstrated resilient execution with Q4 beats, strong U.S. momentum, and a disciplined 2026 outlook featuring stable margins, EPS growth, dividend hike, and buybacks, positioning it well in a defensive sector amid economic uncertainty.[1][2][3] At 38.1 euros (post-earnings surge), the 16.8x P/E and 14.7% ROE support upside, with alpha score momentum (20/25) and the 10.6% 6-month return indicating favorable trajectory versus European retail peers.[1][3]</div>
-                <button class="read-more" onclick="var r=document.getElementById('r6');r.classList.toggle('expanded');this.textContent=r.classList.contains('expanded')?'less':'more'">more</button>
-                
-
-                
-                
-                
-                
-                <div style="margin-top:0.75rem">
-                    <div class="score-bar">
-                        <div class="sb-val" style="width:26.0%"></div>
-                        <div class="sb-qual" style="width:19.0%"></div>
-                        <div class="sb-mom" style="width:29.0%"></div>
-                        <div class="sb-cat" style="width:12.0%"></div>
-                        <div class="sb-liq" style="width:14.0%"></div>
-                    </div>
-                    <div class="score-legend">
-                        <span><i style="background:#f0883e"></i>Val 18</span>
-                        <span><i style="background:#a371f7"></i>Qual 13</span>
-                        <span><i style="background:#3fb950"></i>Mom 20</span>
-                        <span><i style="background:#58a6ff"></i>Cat 8</span>
-                        <span><i style="background:#d29922"></i>Liq 10</span>
-                    </div>
-                </div>
-                
-
-                <details>
-                    <summary>Details</summary>
-                    <div class="detail-body">
-                        <p>Koninklijke Ahold Delhaize N.V. (AD.AMS) is a leading multinational supermarket operator with major brands including Food Lion, Stop & Shop, Hannaford in the U.S., and Albert Heijn, Delhaize in Europe, holding a strong position in the consumer defensive sector across both regions.[1][2][3] The company reported robust Q4 2025 results today, with net sales up 6.1% at constant rates to €23.5 billion, full-year 2025 net sales of €92.4 billion, underlying operating margin stable at 4.0%, and free cash flow of €2.6 billion exceeding guidance.[1][2][3] Shares rose over 9% intraday following the earnings release, reflecting market approval amid a 15% 12-month return and attractive valuation at 16.8x P/E.[2]</p>
-                        <h4>Developments</h4><ul><li>Released strong Q4/FY 2025 results on February 11, 2026, beating Q4 underlying operating income expectations (€994m vs. €918m consensus) driven by U.S. performance, despite full-year net income and EPS slightly missing estimates; proposed €1.24 dividend (up 6%) and confirmed €1bn 2026 share buyback.[1][2][3][8]</li><li>Q4 comparable sales excluding gasoline grew 2.5% (U.S. 2.7%, Europe 2.4%), supported by Profi acquisition (+3.2pp impact) offset by Belgium tobacco sales cessation; online sales accelerated.[1][3]</li><li>Issued 2026 outlook: ~4% underlying operating margin, mid- to high-single-digit EPS growth at constant rates, ≥€2.3bn free cash flow, ~€2.7bn capex, and ≥€1.25bn cost savings via "Save for Our Customers" program; 53rd week to boost sales 1.5-2% and income 2-3%.[1][3]</li></ul>
-                        <h4>Catalysts</h4><ul><li>Q1 2026 results on May 6, testing outlook delivery including 53rd week impact and cost savings progress.[1][5][9]</li><li>Annual Report release (Feb 25) and AGM (Apr 8), with potential updates on share buyback execution and strategic shifts like U.S. omnichannel investments.[1][5][9]</li><li>Acceleration in own-brand growth, store openings/remodels, and AI/tech initiatives to drive sales/margins.[1][3]</li></ul>
-                        <h4>Risks</h4><ul><li>Moderating free cash flow to ≥€2.3bn in 2026 from 2025's €2.6bn, alongside higher €2.7bn capex, pressuring balance sheet if savings underperform.[1][2][3]</li><li>External pressures like regulatory pricing interventions (e.g., Serbia), weather, FX volatility, and U.S. impairment risks from omnichannel shifts.[1][2]</li></ul>
-                        <h4>Sources</h4><ul><li><a href="https://newsroom.aholddelhaize.com/ahold-delhaize-reports-strong-q4-2025-financial-results-priorities-and-outlook-for-2026-underpin-our-value-creation-and-progress-towards-our-growing-together-ambitions/" target="_blank" rel="noopener">https://newsroom.aholddelhaize.com/ahold-delhaize-reports-st...</a></li><li><a href="https://www.investments.halifax.co.uk/research-centre/news-centre/article/?id=21659748&type=bsm" target="_blank" rel="noopener">https://www.investments.halifax.co.uk/research-centre/news-c...</a></li><li><a href="https://www.investing.com/news/company-news/ahold-delhaize-q4-2025-slides-sales-up-61-online-growth-accelerates-93CH-4499081" target="_blank" rel="noopener">https://www.investing.com/news/company-news/ahold-delhaize-q...</a></li></ul>
-
-                        
-                        <h4>Key Metrics</h4>
-                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.3rem;font-size:0.8rem;margin-top:0.25rem">
-                            <div>P/E <strong>16.8</strong></div>
-                            <div>ROE <strong class="">15%</strong></div>
-                            <div>Div <strong>340.0%</strong></div>
-                            <div>6m <strong class="pos">+11%</strong></div>
-                            <div>12m <strong class="pos">+15%</strong></div>
-                            <div>RSI <strong>86</strong></div>
-                        </div>
-                    </div>
-                </details>
-
-                <div class="card-foot">
-                    
-                    
-                    <a href="https://finance.yahoo.com/quote/AD.AS" target="_blank" rel="noopener">Yahoo Finance &rarr;</a>
-                    <span class="tf-badge">3-6 months</span>
-                </div>
-            </div>
-            
-            
-            <div class="card buy">
-                <div class="card-top">
-                    <span class="signal buy">BUY</span>
-                    <span class="conf conf-high">HIGH</span>
-                    <span class="card-sector">Technology</span>
-                    <span class="card-score">69</span>
-                </div>
-                <div style="margin-bottom:0.5rem">
-                    <span class="card-ticker">CSCO</span>
-                    <span class="card-name">&mdash; Cisco Systems, Inc.</span>
-                    
-                </div>
-
-                
-                
-                
-                
-                <div class="range-bar">
-                    <div class="range-labels">
-                        <span class="range-stop">81.98<span class="range-hint">Stop</span></span>
-                        <span class="range-price">86.29 USD<span class="range-hint">Now</span></span>
-                        <span class="range-target">92.75<span class="range-hint">Target</span></span>
-                    </div>
-                    <div class="range-track">
-                        <div class="range-fill" style="width:100%"></div>
-                        <div class="range-dot" style="left:40.0%"></div>
-                    </div>
-                </div>
-                
-
-                
-                <span class="alloc">12% allocation</span>
-                
-                
-                
-                
-                
-                <span class="rr-badge">1:1.5 R:R</span>
-                
-                
-
-                
-                <div class="reasoning" id="r7">Cisco's aggressive AI-native innovations, including AgenticOps and Silicon One G300, position it to capture growing demand in AI data centers and secure operations, with near-term rollouts and a $3B hyperscaler revenue target reinforcing momentum.[1][2][4][5] Upcoming Q2 earnings on Feb. 11 could highlight pipeline strength and AI traction, supporting outperformance amid a +22.3% 6-month return and analyst upgrades.[3][5][6] In a global context, these developments align with European AI infrastructure needs demonstrated at Cisco Live EMEA.[1]</div>
-                <button class="read-more" onclick="var r=document.getElementById('r7');r.classList.toggle('expanded');this.textContent=r.classList.contains('expanded')?'less':'more'">more</button>
-                
-
-                
-                
-                
-                
-                <div style="margin-top:0.75rem">
-                    <div class="score-bar">
-                        <div class="sb-val" style="width:13.0%"></div>
-                        <div class="sb-qual" style="width:32.0%"></div>
-                        <div class="sb-mom" style="width:22.0%"></div>
-                        <div class="sb-cat" style="width:19.0%"></div>
-                        <div class="sb-liq" style="width:14.0%"></div>
-                    </div>
-                    <div class="score-legend">
-                        <span><i style="background:#f0883e"></i>Val 9</span>
-                        <span><i style="background:#a371f7"></i>Qual 22</span>
-                        <span><i style="background:#3fb950"></i>Mom 15</span>
-                        <span><i style="background:#58a6ff"></i>Cat 13</span>
-                        <span><i style="background:#d29922"></i>Liq 10</span>
-                    </div>
-                </div>
-                
-
-                <details>
-                    <summary>Details</summary>
-                    <div class="detail-body">
-                        <p>Cisco Systems, Inc. (CSCO) is a leading global provider of networking, security, and observability solutions, with a strong focus on AI infrastructure and AgenticOps to simplify IT operations at scale.[1][4] The company holds a dominant market position in enterprise networking and is expanding into AI-driven data centers, hyperscaler optics, and secure AI applications, supported by recent product rollouts and a robust AI revenue pipeline.[2][5] Shares have delivered a +22.3% return over the past 6 months, trading at a P/E of 33.3 amid elevated valuations but solid ROE of 22.4%.[user query]</p>
-                        <h4>Developments</h4><ul><li>On Feb. 10, 2026, Cisco announced expanded AgenticOps innovations across networking, security, and observability at Cisco Live EMEA, including autonomous troubleshooting for campus/branch networks (rollout starting Feb. 2026), data center optimizations (June 2026), and Splunk AI Agent Monitoring (GA Feb. 25).[1][2][3][4]</li><li>Unveiled Silicon One G300 switch silicon for gigawatt-scale AI clusters, improving GPU utilization by 28%, alongside AI Defense expansions and SASE advancements for secure agentic AI workflows.[2][4][9]</li><li>Q2 FY26 earnings scheduled for release Feb. 11, 2026, with conference call at 4:30 PM ET; company guides for ~$3B in AI infrastructure revenue from hyperscalers and a $2B+ pipeline in high-performance networking.[5][7][8]</li></ul>
-                        <h4>Catalysts</h4><ul><li>Q2 FY26 earnings release and call on Feb. 11, 2026, with potential updates on AI revenue ($3B FY26 guide) and product orders.[5][7][8]</li><li>AgenticOps rollouts: Campus/branch in Feb. 2026, Splunk monitoring GA Feb. 25, security GA May 2026, data center in June 2026.[1][3]</li><li>Continued hyperscaler adoption of optics and expanding $2B+ pipeline in sovereign/enterprise AI networking.[5]</li></ul>
-                        <h4>Risks</h4><ul><li>Staged product availability (e.g., beta for service providers, controlled data center rollout) may delay revenue recognition and adoption.[1][3]</li><li>High P/E of 33.3 signals valuation risk if Q2 earnings miss estimates or AI growth underwhelms amid broader tech sector volatility.[5][user query]</li></ul>
-                        <h4>Sources</h4><ul><li><a href="https://newsroom.cisco.com/content/r/newsroom/en/us/a/y2026/m02/cisco-expands-agenticops-innovations-across-portfolio.html" target="_blank" rel="noopener">https://newsroom.cisco.com/content/r/newsroom/en/us/a/y2026/...</a></li><li><a href="https://investor.cisco.com/news/news-details/2026/Cisco-Announces-New-Silicon-One-G300-Advanced-Systems-and-Optics-to-Power-and-Scale-AI-Data-Centers-for-the-Agentic-Era/default.aspx" target="_blank" rel="noopener">https://investor.cisco.com/news/news-details/2026/Cisco-Anno...</a></li><li><a href="https://www.stocktitan.net/news/CSCO/cisco-expands-agentic-ops-innovations-across-4bhvb1dl5t55.html" target="_blank" rel="noopener">https://www.stocktitan.net/news/CSCO/cisco-expands-agentic-o...</a></li></ul>
-
-                        
-                        <h4>Key Metrics</h4>
-                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.3rem;font-size:0.8rem;margin-top:0.25rem">
-                            <div>P/E <strong>33.3</strong></div>
-                            <div>ROE <strong class="pos">22%</strong></div>
-                            <div>Div <strong>190.0%</strong></div>
-                            <div>6m <strong class="pos">+22%</strong></div>
-                            <div>12m <strong class="">-</strong></div>
-                            <div>RSI <strong>84</strong></div>
-                        </div>
-                    </div>
-                </details>
-
-                <div class="card-foot">
-                    
-                    
-                    <a href="https://finance.yahoo.com/quote/CSCO" target="_blank" rel="noopener">Yahoo Finance &rarr;</a>
-                    <span class="tf-badge">3-6 months</span>
-                </div>
-            </div>
-            
-            
-            <div class="card buy">
-                <div class="card-top">
-                    <span class="signal buy">BUY</span>
-                    <span class="conf conf-high">HIGH</span>
-                    <span class="card-sector">Industrials</span>
-                    <span class="card-score">68</span>
-                </div>
-                <div style="margin-bottom:0.5rem">
-                    <span class="card-ticker">SIE</span>
-                    <span class="card-name">&mdash; Siemens Aktiengesellschaft</span>
-                    
-                </div>
-
-                
-                
-                
-                
-                <div class="range-bar">
-                    <div class="range-labels">
-                        <span class="range-stop">244.34<span class="range-hint">Stop</span></span>
-                        <span class="range-price">258.05 EUR<span class="range-hint">Now</span></span>
-                        <span class="range-target">278.62<span class="range-hint">Target</span></span>
-                    </div>
-                    <div class="range-track">
-                        <div class="range-fill" style="width:100%"></div>
-                        <div class="range-dot" style="left:40.0%"></div>
-                    </div>
-                </div>
-                
-
-                
-                <span class="alloc">12% allocation</span>
-                
-                
-                
-                
-                
-                <span class="rr-badge rr-good">1:1.5 R:R</span>
-                
-                
-
-                
-                <div class="reasoning" id="r8">Siemens' strong FY2025 performance, projected 6-8% revenue growth with operating leverage driving margin expansion (historical operating margins 10-13%), and healthy order intake signal sustained momentum in core industrial businesses.[1][2] Despite currency headwinds, the robust backlog and segment-specific growth (e.g., Mobility) position the company for EPS growth and shareholder value creation over the next 3-6 months.[1][4]</div>
-                <button class="read-more" onclick="var r=document.getElementById('r8');r.classList.toggle('expanded');this.textContent=r.classList.contains('expanded')?'less':'more'">more</button>
-                
-
-                
-                
-                
-                
-                <div style="margin-top:0.75rem">
-                    <div class="score-bar">
-                        <div class="sb-val" style="width:15.0%"></div>
-                        <div class="sb-qual" style="width:24.0%"></div>
-                        <div class="sb-mom" style="width:32.0%"></div>
-                        <div class="sb-cat" style="width:19.0%"></div>
-                        <div class="sb-liq" style="width:10.0%"></div>
-                    </div>
-                    <div class="score-legend">
-                        <span><i style="background:#f0883e"></i>Val 10</span>
-                        <span><i style="background:#a371f7"></i>Qual 16</span>
-                        <span><i style="background:#3fb950"></i>Mom 22</span>
-                        <span><i style="background:#58a6ff"></i>Cat 13</span>
-                        <span><i style="background:#d29922"></i>Liq 7</span>
-                    </div>
-                </div>
-                
-
-                <details>
-                    <summary>Details</summary>
-                    <div class="detail-body">
-                        <p>Siemens Aktiengesellschaft is a leading global technology company in the industrials sector, focusing on electrification, automation, and digitalization across diverse businesses including Digital Industries, Smart Infrastructure, and Mobility. Fiscal year 2025 marked another record year with comparable orders up 6% to €88.4 billion, revenue up 5% to €78.9 billion, industrial business profit at €11.8 billion (15.4% margin), and net income rising 16% to a historic high of €10.4 billion.[2][4] The company employs around 318,000 people and maintains a strong order backlog with a book-to-bill ratio of 1.12 in FY2025.[1][2]</p>
-                        <h4>Developments</h4><ul><li>FY2025 delivered robust results despite challenges, including €10.8 billion free cash flow, EPS pre PPA of €10.71, and a proposed dividend increase to €5.35 (+15 cents).[2]</li><li>Projected 6-8% comparable revenue growth for FY2026, supported by book-to-bill ratio above 1, though tempered by strong negative currency headwinds on nominal profits and EPS.[1]</li><li>Announced entry into "next stage of growth" as ONE Tech Company; Mobility segment guides 8-10% revenue growth and 8-10% profit margin for FY2026.[4]</li><li>Q1 FY2026 results scheduled for release on February 12, 2026, with live analyst call.[5][6]</li></ul>
-                        <h4>Catalysts</h4><ul><li>Q1 FY2026 earnings release on February 12, 2026, potentially confirming revenue/profit guidance and order trends.[5][6]</li><li>FY2026 revenue growth realization through operating leverage and backlog conversion, with mid-term target of 6-9% annual growth.[1][3]</li><li>Progress on "ONE Tech Company" strategy and Mobility segment outperformance.[4]</li></ul>
-                        <h4>Risks</h4><ul><li>Negative currency effects strongly burdening nominal revenue, profits, and EPS despite comparable growth.[1]</li><li>Cost pressures, as seen in Q3 2025 with cost of sales up 6.2% vs. 2.5% revenue growth, requiring tight management.[1]</li></ul>
-                        <h4>Sources</h4><ul><li><a href="https://fintel.io/topic/how-will-siemens-ags-projected-6-8-comparable-revenue-growth-for-fy2026-translate-into-future-profitability-2354-3553" target="_blank" rel="noopener">https://fintel.io/topic/how-will-siemens-ags-projected-6-8-c...</a></li><li><a href="https://assets.new.siemens.com/siemens/assets/api/uuid:de1ea218-58e1-4b21-9f28-d73bc563a802/Keydata-Speech-RB-AGM2026.pdf" target="_blank" rel="noopener">https://assets.new.siemens.com/siemens/assets/api/uuid:de1ea...</a></li><li><a href="https://www.siemens.com/siemensreport" target="_blank" rel="noopener">https://www.siemens.com/siemensreport</a></li></ul>
-
-                        
-                        <h4>Key Metrics</h4>
-                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.3rem;font-size:0.8rem;margin-top:0.25rem">
-                            <div>P/E <strong>27.1</strong></div>
-                            <div>ROE <strong class="">13%</strong></div>
-                            <div>Div <strong>207.0%</strong></div>
-                            <div>6m <strong class="pos">+12%</strong></div>
-                            <div>12m <strong class="pos">+16%</strong></div>
-                            <div>RSI <strong>50</strong></div>
-                        </div>
-                    </div>
-                </details>
-
-                <div class="card-foot">
-                    
-                    
-                    <a href="https://finance.yahoo.com/quote/SIE.DE" target="_blank" rel="noopener">Yahoo Finance &rarr;</a>
-                    <span class="tf-badge">3-6 months</span>
-                </div>
-            </div>
-            
-            
-            <div class="card buy">
-                <div class="card-top">
-                    <span class="signal buy">BUY</span>
-                    <span class="conf conf-high">HIGH</span>
-                    <span class="card-sector">Industrials</span>
-                    <span class="card-score">68</span>
-                </div>
-                <div style="margin-bottom:0.5rem">
-                    <span class="card-ticker">MTX</span>
-                    <span class="card-name">&mdash; MTU Aero Engines AG</span>
-                    
-                </div>
-
-                
-                
-                
-                
-                <div class="range-bar">
-                    <div class="range-labels">
-                        <span class="range-stop">362.86<span class="range-hint">Stop</span></span>
-                        <span class="range-price">381.7 EUR<span class="range-hint">Now</span></span>
-                        <span class="range-target">409.96<span class="range-hint">Target</span></span>
-                    </div>
-                    <div class="range-track">
-                        <div class="range-fill" style="width:100%"></div>
-                        <div class="range-dot" style="left:40.0%"></div>
-                    </div>
-                </div>
-                
-
-                
-                <span class="alloc">12% allocation</span>
-                
-                
-                
-                
-                
-                <span class="rr-badge rr-good">1:1.5 R:R</span>
-                
-                
-
-                
-                <div class="reasoning" id="r9">MTU Aero Engines demonstrates resilient growth in a recovering aviation sector, with Q1/Q2 2025 beats, strong free cash flow, and upward revenue forecasts (10.1% CAGR through 2026E) supporting premium valuation relative to peers like GE and RTX.[1][2][4] Analyst targets imply ~8% upside, bolstered by spare parts demand and GTF partnerships, despite short-term momentum weakness (-13% over 6m).[2] Global air travel recovery and military backlog provide tailwinds in a high-quality industrials play.[1]</div>
-                <button class="read-more" onclick="var r=document.getElementById('r9');r.classList.toggle('expanded');this.textContent=r.classList.contains('expanded')?'less':'more'">more</button>
-                
-
-                
-                
-                
-                
-                <div style="margin-top:0.75rem">
-                    <div class="score-bar">
-                        <div class="sb-val" style="width:16.0%"></div>
-                        <div class="sb-qual" style="width:32.0%"></div>
-                        <div class="sb-mom" style="width:22.0%"></div>
-                        <div class="sb-cat" style="width:19.0%"></div>
-                        <div class="sb-liq" style="width:10.0%"></div>
-                    </div>
-                    <div class="score-legend">
-                        <span><i style="background:#f0883e"></i>Val 11</span>
-                        <span><i style="background:#a371f7"></i>Qual 22</span>
-                        <span><i style="background:#3fb950"></i>Mom 15</span>
-                        <span><i style="background:#58a6ff"></i>Cat 13</span>
-                        <span><i style="background:#d29922"></i>Liq 7</span>
-                    </div>
-                </div>
-                
-
-                <details>
-                    <summary>Details</summary>
-                    <div class="detail-body">
-                        <p>MTU Aero Engines AG is a leading German manufacturer of aircraft engines, specializing in commercial maintenance, spare parts, and military engine programs, with a strong market position in the aerospace sector. The company reported robust Q2 2025 results, including a 41% rise in operating profit and Non-GAAP EPS of €8.76 on €4.1B revenue, beating expectations amid strong spare parts sales.[1] As of early February 2026, shares trade around €380-384 with a market cap of ~€20.7B, P/E of 24.85, and analyst consensus target of €410.90, reflecting steady revenue growth projected to €8.65B for 2025E.[1][2]</p>
-                        <h4>Developments</h4><ul><li>Q1 and Q2 2025 earnings significantly beat expectations, with Q1 Non-GAAP EPS of €2.93 on €1.65B revenue and reaffirmed full-year guidance despite U.S. tariff warnings; shares rose as tariff impacts were deemed priced in.[1]</li><li>Partnership expansion with Pratt & Whitney (RTX) to increase GTF engine capacity, supporting MTU's commercial engine segment.[1]</li><li>Insider sale by Peter Kameritsch on March 5, 2025, disclosed via EQS-DD, amid otherwise positive momentum.[1]</li><li>Full-year 2025 earnings release and call scheduled for February 24, 2026, just ahead of current trading.[2]</li></ul>
-                        <h4>Catalysts</h4><ul><li>Full-year 2025 earnings on February 24, 2026, expected to confirm guidance and potentially raise 2026E outlook amid strong Q1/Q2 momentum.[1][2]</li><li>Progress on GTF capacity expansions with RTX/Pratt & Whitney, driving commercial MRO revenue growth.[1]</li><li>Potential tariff resolution or mitigation updates, as Q1 results showed limited near-term impact.[1]</li></ul>
-                        <h4>Risks</h4><ul><li>U.S. tariffs on aerospace imports, warned as a potential earnings hit despite current pricing-in by markets.[1]</li><li>Economic slowdown risks in aviation, with 6m share underperformance (-13%) and high forward P/E (21.72) vulnerable to demand weakness.[1][2][5]</li></ul>
-                        <h4>Sources</h4><ul><li><a href="https://stockanalysis.com/quote/etr/MTX/" target="_blank" rel="noopener">https://stockanalysis.com/quote/etr/MTX/</a></li><li><a href="https://www.stockopedia.com/share-prices/mtu-aero-engines-ag-ETR:MTX/" target="_blank" rel="noopener">https://www.stockopedia.com/share-prices/mtu-aero-engines-ag...</a></li><li><a href="https://www.investing.com/equities/mtu-aero-eng" target="_blank" rel="noopener">https://www.investing.com/equities/mtu-aero-eng</a></li></ul>
-
-                        
-                        <h4>Key Metrics</h4>
-                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.3rem;font-size:0.8rem;margin-top:0.25rem">
-                            <div>P/E <strong>24.6</strong></div>
-                            <div>ROE <strong class="pos">24%</strong></div>
-                            <div>Div <strong>57.0%</strong></div>
-                            <div>6m <strong class="neg">-0%</strong></div>
-                            <div>12m <strong class="pos">+15%</strong></div>
-                            <div>RSI <strong>54</strong></div>
-                        </div>
-                    </div>
-                </details>
-
-                <div class="card-foot">
-                    
-                    
-                    <a href="https://finance.yahoo.com/quote/MTX.DE" target="_blank" rel="noopener">Yahoo Finance &rarr;</a>
-                    <span class="tf-badge">3-6 months</span>
-                </div>
-            </div>
-            
-            
-            <div class="card hold">
-                <div class="card-top">
-                    <span class="signal hold">HOLD</span>
-                    <span class="conf conf-medium">MEDIUM</span>
-                    <span class="card-sector">Industrials</span>
-                    <span class="card-score">68</span>
-                </div>
-                <div style="margin-bottom:0.5rem">
-                    <span class="card-ticker">DTG</span>
-                    <span class="card-name">&mdash; Daimler Truck Holding AG</span>
-                    
-                </div>
-
-                
-                
-                
-                
-                <div class="range-bar">
-                    <div class="range-labels">
-                        <span class="range-stop">40.98<span class="range-hint">Stop</span></span>
-                        <span class="range-price">43.12 EUR<span class="range-hint">Now</span></span>
-                        <span class="range-target">46.33<span class="range-hint">Target</span></span>
-                    </div>
-                    <div class="range-track">
-                        <div class="range-fill" style="width:100%"></div>
-                        <div class="range-dot" style="left:40.0%"></div>
-                    </div>
-                </div>
-                
-
-                
-                <span class="alloc">4% allocation</span>
-                
-                
-                
-                
-                
-                <span class="rr-badge rr-good">1:1.5 R:R</span>
-                
-                
-
-                
-                <div class="reasoning" id="r10">DTG appears undervalued per DCF models (fair value €60.43, 28% above €43.68 recent price) with forecasted earnings growth (e.g., net income to 3.72 B EUR in 2026e), but near-term headwinds from weak truck demand—especially North America—and declining 2025 profits temper upside.[1][2] Analyst consensus targets ~€41-43 suggest limited near-term catalysts amid cyclical normalization, though shareholder returns and Europe recovery provide balance.[4]</div>
-                <button class="read-more" onclick="var r=document.getElementById('r10');r.classList.toggle('expanded');this.textContent=r.classList.contains('expanded')?'less':'more'">more</button>
-                
-
-                
-                
-                
-                
-                <div style="margin-top:0.75rem">
-                    <div class="score-bar">
-                        <div class="sb-val" style="width:31.0%"></div>
-                        <div class="sb-qual" style="width:19.0%"></div>
-                        <div class="sb-mom" style="width:21.0%"></div>
-                        <div class="sb-cat" style="width:19.0%"></div>
-                        <div class="sb-liq" style="width:10.0%"></div>
-                    </div>
-                    <div class="score-legend">
-                        <span><i style="background:#f0883e"></i>Val 21</span>
-                        <span><i style="background:#a371f7"></i>Qual 13</span>
-                        <span><i style="background:#3fb950"></i>Mom 14</span>
-                        <span><i style="background:#58a6ff"></i>Cat 13</span>
-                        <span><i style="background:#d29922"></i>Liq 7</span>
-                    </div>
-                </div>
-                
-
-                <details>
-                    <summary>Details</summary>
-                    <div class="detail-body">
-                        <p>Daimler Truck Holding AG (DTG) is a leading global truck manufacturer with key segments in Trucks North America (41% revenue, 64% EBIT), Trucks Mercedes-Benz (33%), Trucks Asia (11%), and Daimler Buses (9%), supported by an in-house financial services arm.[3] The company reported 2025 unit sales of 422,510 vehicles, down 8% year-over-year, with group sales declining 5% in Q4 to 117,974 units amid weak North American demand (-27% in Q4), offset by growth in battery-electric vehicles (+67% full-year).[5] Net income for 2025 was 2.79 B EUR, a 3.93% decline from 2024's 2.9 B EUR, reflecting profitability pressures despite stable revenue around 51-55 B EUR forecasted through 2026.[1]</p>
-                        <h4>Developments</h4><ul><li>Q4 and full-year 2025 unit sales released January 16, 2026, showing group decline of 5% Q4/-8% FY, driven by Trucks North America weakness (-26% FY), flat Mercedes-Benz Trucks (0% FY), and resilient battery-electric sales (+52% Q4/+67% FY).[5]</li><li>Morgan Stanley raised price target to €47 from €46 on January 13, 2026, maintaining 'overweight' rating and citing DTG as top pick among truck makers despite expected weak 2026 global sales, with ~8% shareholder returns.[4]</li><li>Stock traded around €41 in mid-January 2026 (e.g., €41.16 on Jan 14, €40.96 on Jan 30), up modestly from late-2025 but below mid-2025 highs, with recent closes at €41.38 on Feb 2.[4][9]</li></ul>
-                        <h4>Catalysts</h4><ul><li>Annual results conference on March 12, 2026, detailing 2025 financials, 2026 guidance, and non-financial KPIs, potentially clarifying profitability and cost trends.[5]</li><li>Gradual Europe truck demand improvement and global freight recovery, as flagged by Morgan Stanley for 2026 uplift.[4]</li></ul>
-                        <h4>Risks</h4><ul><li>Persistent weak global truck sales, particularly North America (Q4 -27%), pressuring volumes and margins amid high interest rates and soft freight demand.[4][5]</li><li>Earnings forecasts growing slower than German market average, with debt coverage concerns by operating cash flow and recent profit decline signaling operational risks.[2]</li></ul>
-                        <h4>Sources</h4><ul><li><a href="https://eulerpool.com/en/stock/Daimler-Truck-Holding-Stock-DE000DTR0CK8/NetIncome" target="_blank" rel="noopener">https://eulerpool.com/en/stock/Daimler-Truck-Holding-Stock-D...</a></li><li><a href="https://simplywall.st/stocks/de/capital-goods/etr-dtg/daimler-truck-holding-shares/news/an-intrinsic-calculation-for-daimler-truck-holding-ag-etrdtg-3" target="_blank" rel="noopener">https://simplywall.st/stocks/de/capital-goods/etr-dtg/daimle...</a></li><li><a href="https://www.morningstar.com/stocks/xetr/dtg/quote" target="_blank" rel="noopener">https://www.morningstar.com/stocks/xetr/dtg/quote</a></li></ul>
-
-                        
-                        <h4>Key Metrics</h4>
-                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.3rem;font-size:0.8rem;margin-top:0.25rem">
-                            <div>P/E <strong>15.1</strong></div>
-                            <div>ROE <strong class="">11%</strong></div>
-                            <div>Div <strong>442.0%</strong></div>
-                            <div>6m <strong class="pos">+4%</strong></div>
-                            <div>12m <strong class="pos">+8%</strong></div>
-                            <div>RSI <strong>56</strong></div>
-                        </div>
-                    </div>
-                </details>
-
-                <div class="card-foot">
-                    
-                    
-                    <a href="https://finance.yahoo.com/quote/DTG.DE" target="_blank" rel="noopener">Yahoo Finance &rarr;</a>
-                    <span class="tf-badge">3-6 months</span>
-                </div>
-            </div>
-            
-            </div>
-        
-        </main>
 
         <footer>
             <p>Data: <a href="https://finance.yahoo.com">Yahoo Finance</a> & <a href="https://twelvedata.com">Twelve Data</a> | AI: <a href="https://perplexity.ai">Perplexity</a></p>
@@ -1565,51 +387,11 @@
         </footer>
     </div>
 
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
     <script>
     /* Next scan countdown */
     (function(){var el=document.getElementById('next-scan');if(!el)return;var now=new Date(),next=new Date(now);next.setUTCHours(5,0,0,0);var d=(1-next.getUTCDay()+7)%7;if(d===0&&now>=next)d=7;next.setUTCDate(next.getUTCDate()+d);var diff=next-now;el.textContent='\u00b7 next in '+Math.floor(diff/864e5)+'d '+Math.floor(diff%864e5/36e5)+'h';})();
-
-    /* Tooltip toggle for touch */
-    document.addEventListener('click',function(e){var t=e.target.closest('.info-tip');document.querySelectorAll('.info-tip.active').forEach(function(el){if(el!==t)el.classList.remove('active')});if(t){e.preventDefault();t.classList.toggle('active');}});
-
-    /* Filter, sort, search */
-    (function(){
-        var bs=document.querySelectorAll('.fbtn'),sort=document.getElementById('sort'),search=document.getElementById('search'),grid=document.getElementById('grid');
-        if(!bs.length||!sort||!grid)return;
-        var af={buy:true,hold:true,avoid:true},st='';
-        function sig(c){return c.classList.contains('buy')?'buy':c.classList.contains('hold')?'hold':c.classList.contains('avoid')?'avoid':'';}
-        function sc(c){var e=c.querySelector('.card-score');return e?parseInt(e.textContent)||0:0;}
-        function tk(c){var e=c.querySelector('.card-ticker');return e?e.textContent.trim():'';}
-        function nm(c){var e=c.querySelector('.card-name');return e?e.textContent.toLowerCase():'';}
-        function run(){
-            var cards=Array.from(grid.querySelectorAll('.card'));
-            cards.forEach(function(c){var s=sig(c),t=tk(c).toLowerCase(),n=nm(c);c.style.display=(af[s]&&(!st||t.indexOf(st)!==-1||n.indexOf(st)!==-1))?'':'none';});
-            var sv=sort.value;
-            cards.sort(function(a,b){return sv==='sa'?sc(a)-sc(b):sv==='az'?tk(a).localeCompare(tk(b)):sc(b)-sc(a);});
-            cards.forEach(function(c){grid.appendChild(c);});
-        }
-        bs.forEach(function(b){b.addEventListener('click',function(){
-            var f=b.getAttribute('data-f');
-            if(f==='all'){af.buy=af.hold=af.avoid=true;b.classList.add('on');document.querySelectorAll('.fbtn[data-f]:not([data-f="all"])').forEach(function(x){x.classList.add('on')});}
-            else{af[f]=!af[f];b.classList.toggle('on',af[f]);var ab=document.querySelector('.fbtn[data-f="all"]');if(ab)ab.classList.toggle('on',af.buy&&af.hold&&af.avoid);}
-            run();
-        });});
-        sort.addEventListener('change',run);
-        if(search)search.addEventListener('input',function(){st=search.value.trim().toLowerCase();run();});
-    })();
-    </script>
-
-    
-    <script>
-    /* Index distribution donut chart */
-    
-    (function(){
-        var el=document.getElementById('indexChart');if(!el)return;
-        var d={"AEX": 1, "CAC40": 2, "DAX": 6, "DJIA": 1},lb=Object.keys(d),vals=Object.values(d);
-        var cs=['#f0883e','#a371f7','#58a6ff','#3fb950','#d29922','#f85149','#8b949e'];
-        new Chart(el,{type:'doughnut',data:{labels:lb,datasets:[{data:vals,backgroundColor:cs.slice(0,lb.length),borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b949e',font:{size:10},padding:12},position:'right'},tooltip:{backgroundColor:'#21262d',titleColor:'#e6edf3',bodyColor:'#e6edf3',borderColor:'#30363d',borderWidth:1}},cutout:'62%'}});
-    })();
-    
 
     /* Animated count-up for header pills */
     (function(){
@@ -1625,6 +407,17 @@
             requestAnimationFrame(anim);
         });
     })();
+
+    /* Index distribution donut chart */
+    
+    (function(){
+        var el=document.getElementById('indexChart');if(!el)return;
+        var d={"CAC40": 3, "DAX": 5, "FTSE100": 1, "NASDAQ_SELECT": 1},lb=Object.keys(d),vals=Object.values(d);
+        var cs=['#f0883e','#a371f7','#58a6ff','#3fb950','#d29922','#f85149','#8b949e'];
+        new Chart(el,{type:'doughnut',data:{labels:lb,datasets:[{data:vals,backgroundColor:cs.slice(0,lb.length),borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b949e',font:{size:10},padding:12},position:'right'},tooltip:{backgroundColor:'#21262d',titleColor:'#e6edf3',bodyColor:'#e6edf3',borderColor:'#30363d',borderWidth:1}},cutout:'62%'}});
+    })();
+    
     </script>
+
 </body>
 </html>
