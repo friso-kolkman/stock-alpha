@@ -1019,6 +1019,176 @@
         "liquidity": 7
       },
       "evaluations": {}
+    },
+    {
+      "id": "2026-02-11T13:17:35.677609+00:00_TKA",
+      "scan_date": "2026-02-11T13:17:35.677609+00:00",
+      "ticker": "TKA",
+      "exchange": "XETR",
+      "signal": "HOLD",
+      "price_at_signal": 12.155,
+      "alpha_score": 81,
+      "score_breakdown": {
+        "value": 21,
+        "quality": 15,
+        "momentum": 25,
+        "catalyst": 13,
+        "liquidity": 7
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-11T13:17:35.677609+00:00_EN",
+      "scan_date": "2026-02-11T13:17:35.677609+00:00",
+      "ticker": "EN",
+      "exchange": "EPA",
+      "signal": "BUY",
+      "price_at_signal": 49.56,
+      "alpha_score": 73,
+      "score_breakdown": {
+        "value": 21,
+        "quality": 9,
+        "momentum": 23,
+        "catalyst": 13,
+        "liquidity": 7
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-11T13:17:35.677609+00:00_DHL",
+      "scan_date": "2026-02-11T13:17:35.677609+00:00",
+      "ticker": "DHL",
+      "exchange": "XETR",
+      "signal": "BUY",
+      "price_at_signal": 50.46,
+      "alpha_score": 72,
+      "score_breakdown": {
+        "value": 21,
+        "quality": 16,
+        "momentum": 23,
+        "catalyst": 5,
+        "liquidity": 7
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-11T13:17:35.677609+00:00_ENR",
+      "scan_date": "2026-02-11T13:17:35.677609+00:00",
+      "ticker": "ENR",
+      "exchange": "XETR",
+      "signal": "BUY",
+      "price_at_signal": 159.35,
+      "alpha_score": 72,
+      "score_breakdown": {
+        "value": 5,
+        "quality": 22,
+        "momentum": 25,
+        "catalyst": 13,
+        "liquidity": 7
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-11T13:17:35.677609+00:00_SAF",
+      "scan_date": "2026-02-11T13:17:35.677609+00:00",
+      "ticker": "SAF",
+      "exchange": "EPA",
+      "signal": "BUY",
+      "price_at_signal": 306.7,
+      "alpha_score": 72,
+      "score_breakdown": {
+        "value": 5,
+        "quality": 25,
+        "momentum": 22,
+        "catalyst": 13,
+        "liquidity": 7
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-11T13:17:35.677609+00:00_AD",
+      "scan_date": "2026-02-11T13:17:35.677609+00:00",
+      "ticker": "AD",
+      "exchange": "AMS",
+      "signal": "BUY",
+      "price_at_signal": 38.1,
+      "alpha_score": 69,
+      "score_breakdown": {
+        "value": 18,
+        "quality": 13,
+        "momentum": 20,
+        "catalyst": 8,
+        "liquidity": 10
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-11T13:17:35.677609+00:00_CSCO",
+      "scan_date": "2026-02-11T13:17:35.677609+00:00",
+      "ticker": "CSCO",
+      "exchange": "US",
+      "signal": "BUY",
+      "price_at_signal": 86.29,
+      "alpha_score": 69,
+      "score_breakdown": {
+        "value": 9,
+        "quality": 22,
+        "momentum": 15,
+        "catalyst": 13,
+        "liquidity": 10
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-11T13:17:35.677609+00:00_SIE",
+      "scan_date": "2026-02-11T13:17:35.677609+00:00",
+      "ticker": "SIE",
+      "exchange": "XETR",
+      "signal": "BUY",
+      "price_at_signal": 258.05,
+      "alpha_score": 68,
+      "score_breakdown": {
+        "value": 10,
+        "quality": 16,
+        "momentum": 22,
+        "catalyst": 13,
+        "liquidity": 7
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-11T13:17:35.677609+00:00_MTX",
+      "scan_date": "2026-02-11T13:17:35.677609+00:00",
+      "ticker": "MTX",
+      "exchange": "XETR",
+      "signal": "BUY",
+      "price_at_signal": 381.7,
+      "alpha_score": 68,
+      "score_breakdown": {
+        "value": 11,
+        "quality": 22,
+        "momentum": 15,
+        "catalyst": 13,
+        "liquidity": 7
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-11T13:17:35.677609+00:00_DTG",
+      "scan_date": "2026-02-11T13:17:35.677609+00:00",
+      "ticker": "DTG",
+      "exchange": "XETR",
+      "signal": "HOLD",
+      "price_at_signal": 43.12,
+      "alpha_score": 68,
+      "score_breakdown": {
+        "value": 21,
+        "quality": 13,
+        "momentum": 14,
+        "catalyst": 13,
+        "liquidity": 7
+      },
+      "evaluations": {}
     }
   ],
   "model_stats": {
@@ -1055,7 +1225,7 @@
     "factor_correlations": {},
     "30d": {
       "evaluated": 0,
-      "pending": 60,
+      "pending": 70,
       "correct": 0,
       "incorrect": 0,
       "inconclusive": 0,
@@ -1086,7 +1256,7 @@
     },
     "60d": {
       "evaluated": 0,
-      "pending": 60,
+      "pending": 70,
       "correct": 0,
       "incorrect": 0,
       "inconclusive": 0,
@@ -1117,7 +1287,7 @@
     },
     "90d": {
       "evaluated": 0,
-      "pending": 60,
+      "pending": 70,
       "correct": 0,
       "incorrect": 0,
       "inconclusive": 0,
@@ -1175,6 +1345,17 @@
     {
       "date": "2026-02-09",
       "total_predictions": 60,
+      "30d_win_rate": null,
+      "30d_evaluated": 0,
+      "60d_win_rate": null,
+      "60d_evaluated": 0,
+      "90d_win_rate": null,
+      "90d_evaluated": 0,
+      "avg_return": null
+    },
+    {
+      "date": "2026-02-11",
+      "total_predictions": 70,
       "30d_win_rate": null,
       "30d_evaluated": 0,
       "60d_win_rate": null,
