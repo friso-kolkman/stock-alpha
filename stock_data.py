@@ -221,12 +221,12 @@ def build_stock_dict(
         "currency": currency,
         "sector": info.get("sector"),
         "price": info.get("regularMarketPrice") or info.get("currentPrice"),
-        "market_cap": info.get("marketCap"),
-        "pe_ratio": info.get("trailingPE"),
-        "forward_pe": info.get("forwardPE"),
-        "pb_ratio": info.get("priceToBook"),
+        "market_cap": _safe_float(info.get("marketCap")),
+        "pe_ratio": _safe_float(info.get("trailingPE")),
+        "forward_pe": _safe_float(info.get("forwardPE")),
+        "pb_ratio": _safe_float(info.get("priceToBook")),
         "roe": _pct_if_decimal(info.get("returnOnEquity")),
-        "debt_to_equity": info.get("debtToEquity"),
+        "debt_to_equity": _safe_float(info.get("debtToEquity")),
         "dividend_yield": _pct_if_decimal(info.get("dividendYield")),
         "earnings_date": earnings_date,
         "momentum_3m": technicals.get("momentum_3m"),
@@ -243,12 +243,27 @@ def build_stock_dict(
     }
 
 
+def _safe_float(value) -> float | None:
+    """Convert value to float, returning None for non-finite or invalid values."""
+    if value is None:
+        return None
+    try:
+        v = float(value)
+        if not np.isfinite(v):
+            return None
+        return v
+    except (ValueError, TypeError):
+        return None
+
+
 def _pct_if_decimal(value) -> float | None:
     """Convert decimal ratio to percentage (0.15 -> 15.0), pass through None."""
     if value is None:
         return None
     try:
         v = float(value)
+        if not np.isfinite(v):
+            return None
         # yfinance returns ROE as 0.15 for 15%, dividend yield as 0.03 for 3%
         if abs(v) < 5:
             return v * 100
