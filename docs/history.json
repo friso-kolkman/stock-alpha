@@ -1189,6 +1189,176 @@
         "liquidity": 7
       },
       "evaluations": {}
+    },
+    {
+      "id": "2026-02-16T06:07:59.309264+00:00_DHL",
+      "scan_date": "2026-02-16T06:07:59.309264+00:00",
+      "ticker": "DHL",
+      "exchange": "XETR",
+      "signal": "BUY",
+      "price_at_signal": 49.18,
+      "alpha_score": 77,
+      "score_breakdown": {
+        "value": 21,
+        "quality": 16,
+        "momentum": 25,
+        "catalyst": 5,
+        "liquidity": 10
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-16T06:07:59.309264+00:00_EN",
+      "scan_date": "2026-02-16T06:07:59.309264+00:00",
+      "ticker": "EN",
+      "exchange": "EPA",
+      "signal": "BUY",
+      "price_at_signal": 49.07,
+      "alpha_score": 76,
+      "score_breakdown": {
+        "value": 21,
+        "quality": 9,
+        "momentum": 23,
+        "catalyst": 13,
+        "liquidity": 10
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-16T06:07:59.309264+00:00_FERG",
+      "scan_date": "2026-02-16T06:07:59.309264+00:00",
+      "ticker": "FERG",
+      "exchange": "LSE",
+      "signal": "BUY",
+      "price_at_signal": 19230.0,
+      "alpha_score": 75,
+      "score_breakdown": {
+        "value": 5,
+        "quality": 22,
+        "momentum": 25,
+        "catalyst": 13,
+        "liquidity": 10
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-16T06:07:59.309264+00:00_TKA",
+      "scan_date": "2026-02-16T06:07:59.309264+00:00",
+      "ticker": "TKA",
+      "exchange": "XETR",
+      "signal": "BUY",
+      "price_at_signal": 10.555,
+      "alpha_score": 74,
+      "score_breakdown": {
+        "value": 21,
+        "quality": 15,
+        "momentum": 25,
+        "catalyst": 5,
+        "liquidity": 8
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-16T06:07:59.309264+00:00_MTX",
+      "scan_date": "2026-02-16T06:07:59.309264+00:00",
+      "ticker": "MTX",
+      "exchange": "XETR",
+      "signal": "HOLD",
+      "price_at_signal": 394.4,
+      "alpha_score": 73,
+      "score_breakdown": {
+        "value": 11,
+        "quality": 22,
+        "momentum": 17,
+        "catalyst": 13,
+        "liquidity": 10
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-16T06:07:59.309264+00:00_ASML",
+      "scan_date": "2026-02-16T06:07:59.309264+00:00",
+      "ticker": "ASML",
+      "exchange": "AMS",
+      "signal": "BUY",
+      "price_at_signal": 1190.4,
+      "alpha_score": 71,
+      "score_breakdown": {
+        "value": 5,
+        "quality": 25,
+        "momentum": 25,
+        "catalyst": 9,
+        "liquidity": 7
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-16T06:07:59.309264+00:00_ENR",
+      "scan_date": "2026-02-16T06:07:59.309264+00:00",
+      "ticker": "ENR",
+      "exchange": "XETR",
+      "signal": "BUY",
+      "price_at_signal": 162.1,
+      "alpha_score": 70,
+      "score_breakdown": {
+        "value": 5,
+        "quality": 25,
+        "momentum": 25,
+        "catalyst": 5,
+        "liquidity": 10
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-16T06:07:59.309264+00:00_SAF",
+      "scan_date": "2026-02-16T06:07:59.309264+00:00",
+      "ticker": "SAF",
+      "exchange": "EPA",
+      "signal": "BUY",
+      "price_at_signal": 332.8,
+      "alpha_score": 70,
+      "score_breakdown": {
+        "value": 5,
+        "quality": 25,
+        "momentum": 25,
+        "catalyst": 5,
+        "liquidity": 10
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-16T06:07:59.309264+00:00_GSK",
+      "scan_date": "2026-02-16T06:07:59.309264+00:00",
+      "ticker": "GSK",
+      "exchange": "LSE",
+      "signal": "BUY",
+      "price_at_signal": 2165.0,
+      "alpha_score": 70,
+      "score_breakdown": {
+        "value": 13,
+        "quality": 19,
+        "momentum": 23,
+        "catalyst": 5,
+        "liquidity": 10
+      },
+      "evaluations": {}
+    },
+    {
+      "id": "2026-02-16T06:07:59.309264+00:00_RIO",
+      "scan_date": "2026-02-16T06:07:59.309264+00:00",
+      "ticker": "RIO",
+      "exchange": "LSE",
+      "signal": "BUY",
+      "price_at_signal": 7187.0,
+      "alpha_score": 70,
+      "score_breakdown": {
+        "value": 13,
+        "quality": 22,
+        "momentum": 25,
+        "catalyst": 0,
+        "liquidity": 10
+      },
+      "evaluations": {}
     }
   ],
   "model_stats": {
@@ -1225,7 +1395,7 @@
     "factor_correlations": {},
     "30d": {
       "evaluated": 0,
-      "pending": 70,
+      "pending": 80,
       "correct": 0,
       "incorrect": 0,
       "inconclusive": 0,
@@ -1256,7 +1426,7 @@
     },
     "60d": {
       "evaluated": 0,
-      "pending": 70,
+      "pending": 80,
       "correct": 0,
       "incorrect": 0,
       "inconclusive": 0,
@@ -1287,7 +1457,7 @@
     },
     "90d": {
       "evaluated": 0,
-      "pending": 70,
+      "pending": 80,
       "correct": 0,
       "incorrect": 0,
       "inconclusive": 0,
@@ -1356,6 +1526,17 @@
     {
       "date": "2026-02-11",
       "total_predictions": 70,
+      "30d_win_rate": null,
+      "30d_evaluated": 0,
+      "60d_win_rate": null,
+      "60d_evaluated": 0,
+      "90d_win_rate": null,
+      "90d_evaluated": 0,
+      "avg_return": null
+    },
+    {
+      "date": "2026-02-16",
+      "total_predictions": 80,
       "30d_win_rate": null,
       "30d_evaluated": 0,
       "60d_win_rate": null,

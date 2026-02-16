@@ -200,7 +200,7 @@
                 <div class="perf-nl">Win Rate</div>
             </div>
             <div class="perf-n">
-                <div class="perf-nv">50</div>
+                <div class="perf-nv">70</div>
                 <div class="perf-nl">Total Predictions</div>
             </div>
             <div class="perf-n">
@@ -208,7 +208,7 @@
                 <div class="perf-nl">Evaluated</div>
             </div>
             <div class="perf-n">
-                <div class="perf-nv" id="ps-pe">50</div>
+                <div class="perf-nv" id="ps-pe">70</div>
                 <div class="perf-nl">Pending</div>
             </div>
         </div>
@@ -260,7 +260,7 @@
     
     <script>
     (function(){
-        var tl=[{"avg_return": null, "avoid_accuracy": null, "buy_accuracy": null, "correct": 0, "date": "2026-02-07", "evaluated": 0, "hold_accuracy": null, "total_predictions": 20, "win_rate": null}, {"30d_evaluated": 0, "30d_win_rate": null, "60d_evaluated": 0, "60d_win_rate": null, "90d_evaluated": 0, "90d_win_rate": null, "avg_return": null, "date": "2026-02-08", "total_predictions": 50}],labels=tl.map(function(s){return s.date}),ds=[],tc={'30d':'#f0883e','60d':'#a371f7','90d':'#3fb950'},tfs=["30d", "60d", "90d"];
+        var tl=[{"avg_return": null, "avoid_accuracy": null, "buy_accuracy": null, "correct": 0, "date": "2026-02-07", "evaluated": 0, "hold_accuracy": null, "total_predictions": 20, "win_rate": null}, {"30d_evaluated": 0, "30d_win_rate": null, "60d_evaluated": 0, "60d_win_rate": null, "90d_evaluated": 0, "90d_win_rate": null, "avg_return": null, "date": "2026-02-08", "total_predictions": 50}, {"30d_evaluated": 0, "30d_win_rate": null, "60d_evaluated": 0, "60d_win_rate": null, "90d_evaluated": 0, "90d_win_rate": null, "avg_return": null, "date": "2026-02-09", "total_predictions": 60}, {"30d_evaluated": 0, "30d_win_rate": null, "60d_evaluated": 0, "60d_win_rate": null, "90d_evaluated": 0, "90d_win_rate": null, "avg_return": null, "date": "2026-02-11", "total_predictions": 70}],labels=tl.map(function(s){return s.date}),ds=[],tc={'30d':'#f0883e','60d':'#a371f7','90d':'#3fb950'},tfs=["30d", "60d", "90d"];
         tfs.forEach(function(tf){ds.push({label:tf+' Win %',data:tl.map(function(s){return s[tf+'_win_rate']}),borderColor:tc[tf]||'#8b949e',backgroundColor:'transparent',fill:false,tension:.3,pointRadius:3,pointHoverRadius:5})});
         ds.push({label:'Avg Return %',data:tl.map(function(s){return s.avg_return}),borderColor:'#58a6ff',fill:false,tension:.3,pointRadius:3,borderDash:[5,3]});
         new Chart(document.getElementById('perfChart'),{type:'line',data:{labels:labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#8b949e',font:{size:11}}},tooltip:{backgroundColor:'#21262d',titleColor:'#e6edf3',bodyColor:'#e6edf3',borderColor:'#30363d',borderWidth:1}},scales:{x:{ticks:{color:'#8b949e',font:{size:10},maxRotation:45},grid:{color:'rgba(48,54,61,0.5)'}},y:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(48,54,61,0.5)'}}}}});
@@ -272,7 +272,7 @@
     
     <script>
     (function(){
-        var d={"30d": {"correct": 0, "evaluated": 0, "inconclusive": 0, "incorrect": 0, "pending": 50, "per_signal": {"AVOID": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "BUY": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "HOLD": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}}, "win_rate": null}, "60d": {"correct": 0, "evaluated": 0, "inconclusive": 0, "incorrect": 0, "pending": 50, "per_signal": {"AVOID": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "BUY": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "HOLD": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}}, "win_rate": null}, "90d": {"correct": 0, "evaluated": 0, "inconclusive": 0, "incorrect": 0, "pending": 50, "per_signal": {"AVOID": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "BUY": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "HOLD": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}}, "win_rate": null}},bs=document.querySelectorAll('.tf-pill');
+        var d={"30d": {"correct": 0, "evaluated": 0, "inconclusive": 0, "incorrect": 0, "pending": 70, "per_signal": {"AVOID": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "BUY": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "HOLD": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}}, "win_rate": null}, "60d": {"correct": 0, "evaluated": 0, "inconclusive": 0, "incorrect": 0, "pending": 70, "per_signal": {"AVOID": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "BUY": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "HOLD": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}}, "win_rate": null}, "90d": {"correct": 0, "evaluated": 0, "inconclusive": 0, "incorrect": 0, "pending": 70, "per_signal": {"AVOID": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "BUY": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}, "HOLD": {"accuracy": null, "avg_return": null, "correct": 0, "decisive": 0, "total": 0}}, "win_rate": null}},bs=document.querySelectorAll('.tf-pill');
         if(!bs.length)return;
         function sw(tf){var s=d[tf];if(!s)return;
             var wr=document.getElementById('ps-wr');if(wr){wr.textContent=s.win_rate!==null?Math.round(s.win_rate)+'%':'N/A';wr.className='perf-nv '+(s.win_rate!==null?(s.win_rate>=50?'pos':'neg'):'');}
